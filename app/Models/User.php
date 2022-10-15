@@ -18,6 +18,16 @@ class User extends Authenticatable
     }
 
     /**
+     *
+     * @param string $roleName
+     * @return bool
+     */
+    public function hasRole(string $roleName)
+    {
+        return $this->roles->contains(fn ($role) => $role->name == $roleName);
+    }
+
+    /**
      * The attributes that are not mass assignable.
      *
      * @var array<int, string>
