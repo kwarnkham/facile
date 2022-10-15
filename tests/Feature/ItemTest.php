@@ -66,4 +66,11 @@ class ItemTest extends TestCase
                 )
         )->assertOk();
     }
+
+    public function test_only_merchant_can_visit_item_create_page()
+    {
+        $this->actingAs($this->merchant)->get(route('items.create'))->assertOk();
+        $this->actingAs($this->user)->get(route('items.create'))->assertStatus(302);
+        $this->get(route('items.create'))->assertStatus(302);
+    }
 }
