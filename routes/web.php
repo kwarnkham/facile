@@ -32,9 +32,10 @@ Route::get('/dashboard', function () {
 
 Route::controller(ItemController::class)->prefix('/items')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
-        Route::post('store', 'store')->name('items.store');
+        Route::post('', 'store')->name('items.store');
         Route::get('create', 'create')->name('items.create');
     });
+    Route::get('', 'index')->name('items.index');
 });
 
 require __DIR__ . '/auth.php';

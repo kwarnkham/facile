@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class ItemController extends Controller
@@ -17,7 +20,24 @@ class ItemController extends Controller
      */
     public function index()
     {
-        //
+        $validator = Validator::make(request()->only(['user_id', 'search']), [
+            'user_id' => ['required', 'numeric'],
+            'search' => ['string']
+        ]);
+
+        if (in_array('user_id', $validator->errors()->keys())) return redirect()->route(
+            'items.index',
+            ['user_id' => User::whereHas('roles', function (Builder $query) {
+                $query->where('name', 'merchant');
+            })->first()->id]
+        );
+
+        $query = Item::query();
+        $filters = $validator->safe()->only(['user_id', 'search']);
+        return Inertia::render('Items', [
+            'items' => $query->filter($filters)->paginate(request()->per_page ?? 10),
+            'filters' => $filters,
+        ]);
     }
 
     /**

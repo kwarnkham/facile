@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -36,5 +37,33 @@ class ItemTest extends TestCase
         $this->actingAs($this->user)->post(route('items.store'), $data)
             ->assertStatus(302)
             ->assertSessionHas('error', 'unauthorized');
+    }
+
+    public function test_list_items()
+    {
+        $count = rand(1, 100);
+        $per_page = (int)floor($count / 3);
+        $items = Item::factory($count)->create(['user_id' => $this->merchant->id]);
+        $this->get(
+            route(
+                'items.index',
+                http_build_query([
+                    'user_id' => $this->merchant->id,
+                    'per_page' => $per_page
+                ])
+            )
+        )->assertInertia(
+            fn (Assert $page) => $page->component('Items')
+                ->has('items.data', $per_page)
+                ->where('items.per_page', $per_page)
+                ->where('items.total', $count)
+                ->has(
+                    'items.data.0',
+                    fn (Assert $page) => $page
+                        ->where('id', $items[0]->id)
+                        ->where('user_id', $this->merchant->id)
+                        ->etc()
+                )
+        )->assertOk();
     }
 }
