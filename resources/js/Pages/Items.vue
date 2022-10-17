@@ -52,7 +52,10 @@ watch(
         <button @click="visitPage(items.current_page + 1)">next</button>
     </div>
     <div v-for="item in items.data" :key="item.id">
-        <button class="border-2 p-1 rounded-md mt-2">
+        <button
+            class="border-2 p-1 rounded-md mt-2"
+            @click="$inertia.visit(route('items.show', { item: item.id }))"
+        >
             {{ item.name }} {{ item.price }} {{ item.description }}
         </button>
     </div>

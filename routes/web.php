@@ -36,6 +36,7 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
         Route::get('create', 'create')->name('items.create');
     });
     Route::get('', 'index')->name('items.index');
+    Route::get('{item}', 'show')->name('items.show');
 });
 
 require __DIR__ . '/auth.php';

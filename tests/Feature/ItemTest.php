@@ -73,4 +73,12 @@ class ItemTest extends TestCase
         $this->actingAs($this->user)->get(route('items.create'))->assertStatus(302);
         $this->get(route('items.create'))->assertStatus(302);
     }
+
+    public function test_item_screen_can_render()
+    {
+        $item = Item::factory()->create(['user_id' => $this->merchant->id]);
+        $this->get(route('items.show', ['item' => $item->id]))->assertOk()->assertInertia(
+            fn (Assert $page) => $page->component('Item')->where('item', $item->toArray())
+        );
+    }
 }
