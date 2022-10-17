@@ -40,6 +40,6 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
     Route::get('{item}', 'show')->name('items.show');
 });
 
-Route::post('pictures', [PictureController::class, 'store'])->name('pictures.store');
+Route::middleware(['auth', 'verified', 'role:merchant'])->post('pictures', [PictureController::class, 'store'])->name('pictures.store');
 
 require __DIR__ . '/auth.php';
