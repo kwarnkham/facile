@@ -17,6 +17,11 @@ class Item extends Model
      */
     protected $guarded = ['id'];
 
+    public function pictures()
+    {
+        return $this->morphMany(Picture::class, 'pictureable');
+    }
+
     public function scopeFilter(Builder $query, $filters)
     {
         $query->when(

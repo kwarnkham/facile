@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\PictureController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -38,5 +39,7 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
     Route::get('', 'index')->name('items.index');
     Route::get('{item}', 'show')->name('items.show');
 });
+
+Route::post('pictures', [PictureController::class, 'store'])->name('pictures.store');
 
 require __DIR__ . '/auth.php';

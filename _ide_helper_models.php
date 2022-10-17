@@ -22,6 +22,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Database\Factories\ItemFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Item filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Item newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Item newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Item query()
@@ -34,6 +35,18 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereUserId($value)
  */
 	class Item extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\Picture
+ *
+ * @method static \Database\Factories\PictureFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Picture newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Picture newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Picture query()
+ */
+	class Picture extends \Eloquent {}
 }
 
 namespace App\Models{
