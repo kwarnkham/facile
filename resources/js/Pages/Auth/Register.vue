@@ -38,7 +38,7 @@ const submit = () => {
                 autocomplete="name"
                 :class="{ 'daisy-input-error': form.errors.name }"
             />
-            <InputError class="mt-2" :message="form.errors.name" />
+            <InputError :message="form.errors.name" />
         </div>
 
         <div>
@@ -52,7 +52,7 @@ const submit = () => {
                 autocomplete="username"
                 :class="{ 'daisy-input-error': form.errors.email }"
             />
-            <InputError class="mt-2" :message="form.errors.email" />
+            <InputError :message="form.errors.email" />
         </div>
 
         <div>
@@ -66,7 +66,7 @@ const submit = () => {
                 autocomplete="new-password"
                 :class="{ 'daisy-input-error': form.errors.password }"
             />
-            <InputError class="mt-2" :message="form.errors.password" />
+            <InputError :message="form.errors.password" />
         </div>
 
         <div>

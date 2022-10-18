@@ -42,8 +42,9 @@ const submit = () => {
                 required
                 autofocus
                 autocomplete="username"
+                :class="{ 'daisy-input-error': form.errors.email }"
             />
-            <InputError class="mt-2" :message="form.errors.email" />
+            <InputError :message="form.errors.email" />
         </div>
 
         <div class="flex items-center justify-end mt-4">

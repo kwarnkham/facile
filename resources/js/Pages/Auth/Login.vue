@@ -45,7 +45,7 @@ const submit = () => {
                 autocomplete="username"
                 :class="{ 'daisy-input-error': form.errors.email }"
             />
-            <InputError class="mt-2" :message="form.errors.email" />
+            <InputError :message="form.errors.email" />
         </div>
 
         <div>
@@ -58,7 +58,7 @@ const submit = () => {
                 required
                 autocomplete="current-password"
             />
-            <InputError class="mt-2" :message="form.errors.password" />
+            <InputError :message="form.errors.password" />
         </div>
 
         <label class="flex items-center cursor-pointer">
