@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PictureController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -41,5 +42,7 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
 });
 
 Route::middleware(['auth', 'verified', 'role:merchant'])->post('pictures', [PictureController::class, 'store'])->name('pictures.store');
+
+Route::get('users', [UserController::class, 'index'])->name('users.index');
 
 require __DIR__ . '/auth.php';
