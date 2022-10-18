@@ -9,13 +9,6 @@ class Picture extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are not mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $guarded = ['id'];
-
     public function pictureable()
     {
         return $this->morphTo();
