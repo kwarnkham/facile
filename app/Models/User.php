@@ -28,6 +28,15 @@ class User extends Authenticatable
         $query->when(
             $filters['role'] ?? null,
             fn (Builder $query, $role) => $query->role($role)
+        )->when(
+            $filters['search'] ?? null,
+            fn (Builder $query, $search) => $query->where(function (Builder $query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhereHas('merchant', function ($query) use ($search) {
+                        $query->where('description', 'like', '%' . $search . '%')
+                            ->orWhere('address', 'like', '%' . $search . '%');
+                    });
+            })
         );
     }
 

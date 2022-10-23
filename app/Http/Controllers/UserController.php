@@ -16,12 +16,16 @@ class UserController extends Controller
      */
     public function index()
     {
-        $validator = Validator::make(request()->only(['role']), [
-            'role' => ['exists:roles,name']
+        $validator = Validator::make(request()->only(['role', 'search']), [
+            'role' => ['exists:roles,name'],
+            'search' => ['string']
         ]);
-        $filters = $validator->safe()->only(['role']);
+        $filters = $validator->safe()->only(['role', 'search']);
         $query = User::query()->filter($filters);
-        return Inertia::render('Users', ['users' => $query->paginate(request()->per_page ?? 20)]);
+        return Inertia::render('Users', [
+            'users' => $query->paginate(request()->per_page ?? 20),
+            'filters' => $filters,
+        ]);
     }
 
     /**
