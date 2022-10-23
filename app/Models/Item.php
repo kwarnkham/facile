@@ -15,6 +15,16 @@ class Item extends Model
         return $this->morphMany(Picture::class, 'pictureable');
     }
 
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function scopeFilter(Builder $query, $filters)
     {
         $query->when(
