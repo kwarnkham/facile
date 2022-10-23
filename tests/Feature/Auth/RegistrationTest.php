@@ -38,13 +38,18 @@ class RegistrationTest extends TestCase
             'email' => 'merchant@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-            'role_id' => 2
+            'role_id' => 2,
+            'description' => 'description',
+            'address' => 'address'
         ];
         $response = $this->post('/register', $data);
 
         $this->assertAuthenticated();
         $response->assertRedirect(RouteServiceProvider::HOME);
-        $this->assertTrue(User::where('email', $data['email'])->first()->hasRole('merchant'));
+        $user = User::where('email', $data['email'])->first();
+        $this->assertTrue($user->hasRole('merchant'));
+        $this->assertEquals($user->merchant->description, $data['description']);
+        $this->assertEquals($user->merchant->address, $data['address']);
     }
 
     public function test_cannot_register_with_invalid_role()

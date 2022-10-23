@@ -21,6 +21,8 @@ namespace App\Models{
  * @property int $user_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
+ * @property-read int|null $pictures_count
  * @method static \Database\Factories\ItemFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Item filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Item newModelQuery()
@@ -39,12 +41,37 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * App\Models\Merchant
+ *
+ * @method static \Database\Factories\MerchantFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Merchant newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Merchant newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Merchant query()
+ */
+	class Merchant extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\Picture
  *
+ * @property int $id
+ * @property string $name
+ * @property int $pictureable_id
+ * @property string $pictureable_type
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $pictureable
  * @method static \Database\Factories\PictureFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Picture newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Picture newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Picture query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Picture whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Picture whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Picture whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Picture wherePictureableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Picture wherePictureableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Picture whereUpdatedAt($value)
  */
 	class Picture extends \Eloquent {}
 }
@@ -78,6 +105,7 @@ namespace App\Models{
  * @property int $id
  * @property string $name
  * @property string $email
+ * @property int $status
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
@@ -90,9 +118,11 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
  * @method static \Database\Factories\UserFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|User filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder|User role($roleName)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailVerifiedAt($value)
@@ -100,6 +130,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
  */
 	class User extends \Eloquent {}

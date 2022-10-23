@@ -14,6 +14,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected $with = ['merchant'];
+
     public function scopeRole(Builder $query, $roleName)
     {
         $query->whereHas('roles', function (Builder $query) use ($roleName) {
@@ -32,6 +34,11 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class);
+    }
+
+    public function merchant()
+    {
+        return $this->hasOne(Merchant::class);
     }
 
     /**

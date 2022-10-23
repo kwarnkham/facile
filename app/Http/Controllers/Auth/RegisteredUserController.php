@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
@@ -39,7 +40,9 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role_id' => [Rule::exists('roles', 'id')->where(fn ($query) => $query->where('name', '!=', 'admin'))]
+            'role_id' => ['sometimes', Rule::exists('roles', 'id')->where(fn ($query) => $query->where('name', '!=', 'admin'))],
+            'address' => ['required_if:role_id,2', 'string'],
+            'description' => ['required_if:role_id,2', 'string'],
         ]);
 
         $user = User::create([
@@ -48,7 +51,13 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        if ($request->exists('role_id')) $user->roles()->attach($request->role_id);
+        if ($request->exists('role_id')) {
+            $user->roles()->attach($request->role_id);
+            if ($request->role_id == 2) $user->merchant()->create([
+                'address' => $request->address,
+                'description' => $request->description
+            ]);
+        }
 
         event(new Registered($user));
 

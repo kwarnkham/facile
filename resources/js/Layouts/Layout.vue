@@ -21,7 +21,7 @@ watch(
 
 <template>
     <div class="h-screen w-screen flex flex-col relative" data-theme="garden">
-        <div class="flex-1">
+        <div class="flex-grow flex-shrink-0 basis-0">
             <slot />
         </div>
         <div
