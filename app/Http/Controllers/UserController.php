@@ -57,7 +57,13 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        //
+        $validator = Validator::make(request()->only(['search', 'status']), [
+            'search' => ['string'],
+            'status' => ['exists:items,status']
+        ]);
+        $filters = $validator->safe()->only(['search', 'status']);
+        $user->items = User::find($user->id)->items()->filter($filters)->paginate(request()->per_page ?? 20);
+        return Inertia::render('User', ['user' => $user, 'filters' => $filters]);
     }
 
     /**

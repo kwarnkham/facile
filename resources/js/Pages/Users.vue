@@ -5,6 +5,7 @@ import { ref, watch } from "vue";
 import TextInput from "@/Components/TextInput.vue";
 import { MagnifyingGlassCircleIcon } from "@heroicons/vue/24/solid";
 import debounce from "lodash/debounce";
+import Pagination from "@/Components/Pagination.vue";
 const props = defineProps({
     users: {
         type: Object,
@@ -18,6 +19,7 @@ const search = ref(props.filters.search);
 const visitPage = (page) => {
     Inertia.visit(route("users.index"), {
         method: "get",
+        replace: true,
         data: pickBy({
             role: props.filters.role,
             search: search.value,
@@ -32,6 +34,7 @@ watch(
     debounce(() => {
         Inertia.visit(route("users.index"), {
             method: "get",
+            replace: true,
             data: pickBy({
                 role: props.filters.role,
                 search: search.value,
@@ -65,6 +68,11 @@ watch(
                         <div class="daisy-card-actions justify-end">
                             <button
                                 class="daisy-btn daisy-btn-primary daisy-btn-sm capitalize"
+                                @click="
+                                    $inertia.visit(
+                                        route('users.show', { user: user.id })
+                                    )
+                                "
                             >
                                 Visit Shop
                             </button>
@@ -74,57 +82,7 @@ watch(
             </div>
         </div>
         <div class="py-2 text-center">
-            <div class="daisy-btn-group">
-                <button
-                    class="daisy-btn"
-                    :class="{
-                        'daisy-btn-disabled text-gray-500':
-                            users.current_page == 1,
-                        'text-info': users.current_page != 1,
-                    }"
-                    @click="visitPage(1)"
-                >
-                    «
-                </button>
-                <button
-                    class="daisy-btn capitalize"
-                    :class="{
-                        'daisy-btn-disabled text-gray-500':
-                            !users.prev_page_url,
-                        'text-info': users.prev_page_url,
-                    }"
-                    @click="visitPage(users.current_page - 1)"
-                >
-                    Prev
-                </button>
-                <button
-                    class="daisy-btn daisy-btn-primary pointer-events-none capitalize"
-                >
-                    Page {{ users.current_page }} of {{ users.last_page }}
-                </button>
-                <button
-                    class="daisy-btn capitalize"
-                    :class="{
-                        'daisy-btn-disabled text-gray-500':
-                            !users.next_page_url,
-                        'text-info': users.next_page_url,
-                    }"
-                    @click="visitPage(users.current_page + 1)"
-                >
-                    Next
-                </button>
-                <button
-                    class="daisy-btn"
-                    :class="{
-                        'daisy-btn-disabled text-gray-500':
-                            users.current_page == users.last_page,
-                        'text-info': users.current_page != users.last_page,
-                    }"
-                    @click="visitPage(users.last_page)"
-                >
-                    »
-                </button>
-            </div>
+            <Pagination :data="users" :navigate="visitPage" />
         </div>
     </div>
 </template>

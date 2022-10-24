@@ -44,5 +44,6 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
 Route::middleware(['auth', 'verified', 'role:merchant'])->post('pictures', [PictureController::class, 'store'])->name('pictures.store');
 
 Route::get('users', [UserController::class, 'index'])->name('users.index');
+Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
 
 require __DIR__ . '/auth.php';

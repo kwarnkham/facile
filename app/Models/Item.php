@@ -28,10 +28,15 @@ class Item extends Model
 
     public function scopeFilter(Builder $query, $filters)
     {
-        $query->when(
-            $filters['user_id'] ?? null,
-            fn (Builder $query, $user_id) => $query->where('user_id', $user_id)
-        )
+        $query
+            ->when(
+                $filters['status'] ?? null,
+                fn (Builder $query, $status) => $query->where('status', $status)
+            )
+            ->when(
+                $filters['user_id'] ?? null,
+                fn (Builder $query, $user_id) => $query->where('user_id', $user_id)
+            )
             ->when(
                 $filters['search'] ?? null,
                 fn (Builder $query, $search) => $query->where(function (Builder $query) use ($search) {
