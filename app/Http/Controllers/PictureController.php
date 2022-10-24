@@ -37,11 +37,12 @@ class PictureController extends Controller
     public function store(StorePictureRequest $request)
     {
         $attributes = $request->safe()->only(['pictures', 'type_id', 'type']);
+        $model = 'App\\Models\\' . ucfirst(strtolower($attributes['type']));
         foreach ($attributes['pictures'] as $picture) {
             Picture::create([
-                'name' => $picture->store('items'),
+                'name' => $model::saveFile($picture),
                 'pictureable_id' => $attributes['type_id'],
-                'pictureable_type' => 'App\\Models\\' . ucfirst(strtolower($attributes['type']))
+                'pictureable_type' => $model
             ]);
         }
         return redirect()->back()->with('message', 'Pictures uploaded');

@@ -23,6 +23,13 @@ class PictureTest extends TestCase
         ]);
 
         $this->assertDatabaseCount('pictures', 2);
+
+        $this->assertTrue($item->pictures->every(fn ($picture) => $picture->exists()));
+
+        $this->assertTrue($item->pictures->every(function ($picture) {
+            $picture->delete();
+            return $picture->fileDeleted();
+        }));
     }
 
     public function test_picture_type()

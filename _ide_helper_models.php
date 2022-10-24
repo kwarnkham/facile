@@ -25,6 +25,7 @@ namespace App\Models{
  * @property-read int|null $pictures_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tag[] $tags
  * @property-read int|null $tags_count
+ * @property-read \App\Models\User $user
  * @method static \Database\Factories\ItemFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Item filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Item newModelQuery()
@@ -117,12 +118,20 @@ namespace App\Models{
 /**
  * App\Models\Tag
  *
+ * @property int $id
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Item[] $items
  * @property-read int|null $items_count
  * @method static \Database\Factories\TagFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Tag newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Tag newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Tag query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tag whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tag whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tag whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tag whereUpdatedAt($value)
  */
 	class Tag extends \Eloquent {}
 }
