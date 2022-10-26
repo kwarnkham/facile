@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -57,13 +58,23 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $validator = Validator::make(request()->only(['search', 'status']), [
+        $validator = Validator::make(request()->only(['search', 'status', 'selected_tags']), [
             'search' => ['string'],
-            'status' => ['exists:items,status']
+            'status' => ['exists:items,status'],
+            'selected_tags' => ['sometimes', 'required', 'string', function ($attribute, $value, $fail) {
+                $tag_ids = collect(explode(',', $value));
+                if (!$tag_ids->every(fn ($tag_id) => Tag::where('id', $tag_id)->exists())) {
+                    $fail('The selected ' . $attribute . ' is invalid.');
+                }
+            }],
         ]);
-        $filters = $validator->safe()->only(['search', 'status']);
+        $filters = $validator->safe()->only(['search', 'status', 'selected_tags']);
+        if (!array_key_exists('status', $filters)) $filters['status'] = 2;
+        $tags = Tag::whereHas('items', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->get();
         $user->items = User::find($user->id)->items()->filter($filters)->paginate(request()->per_page ?? 20);
-        return Inertia::render('User', ['user' => $user, 'filters' => $filters]);
+        return Inertia::render('User', ['user' => $user, 'filters' => $filters, 'tags' => $tags]);
     }
 
     /**

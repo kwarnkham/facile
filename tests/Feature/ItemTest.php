@@ -41,7 +41,7 @@ class ItemTest extends TestCase
 
     public function test_list_items()
     {
-        $count = rand(1, 100);
+        $count = rand(10, 100);
         $per_page = (int)floor($count / 3);
         $items = Item::factory($count)->create(['user_id' => $this->merchant->id]);
         $this->get(
@@ -74,11 +74,14 @@ class ItemTest extends TestCase
         $this->get(route('items.create'))->assertStatus(302);
     }
 
-    public function test_item_screen_can_render()
+    public function test_item_screen_can_be_rendered()
     {
         $item = Item::factory()->create(['user_id' => $this->merchant->id]);
         $this->get(route('items.show', ['item' => $item->id]))->assertOk()->assertInertia(
-            fn (Assert $page) => $page->component('Item')->where('item', $item->toArray())
+            fn (Assert $page) => $page->component('Item')->has(
+                'item',
+                fn (Assert $page) => $page->where('id', $item->id)->etc()
+            )
         );
     }
 }

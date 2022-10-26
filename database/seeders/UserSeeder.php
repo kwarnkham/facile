@@ -16,8 +16,5 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $user = User::factory()->has(Merchant::factory())->create(['email' => '123@gmail.com']);
-        User::factory()->create(['email' => '111@gmail.com']);
-        $user->roles()->attach(2);
     }
 }

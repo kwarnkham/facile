@@ -30,6 +30,12 @@ class Item extends Model
     {
         $query
             ->when(
+                $filters['selected_tags'] ?? null,
+                fn (Builder $query, $selected_tags) => $query->whereHas('tags', function ($q) use ($selected_tags) {
+                    $q->whereIn('tags.id', explode(',', $selected_tags));
+                })
+            )
+            ->when(
                 $filters['status'] ?? null,
                 fn (Builder $query, $status) => $query->where('status', $status)
             )
