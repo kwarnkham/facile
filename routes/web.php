@@ -36,6 +36,8 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('items.store');
         Route::get('create', 'create')->name('items.create');
+        Route::get('edit/{item}', 'edit')->name('items.edit');
+        Route::put('update/{item}', 'update')->name('items.update');
     });
     Route::get('', 'index')->name('items.index');
     Route::get('{item}', 'show')->name('items.show');

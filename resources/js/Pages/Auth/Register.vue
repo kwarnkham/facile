@@ -8,6 +8,8 @@ import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
 const form = useForm({
     name: "",
     email: "",
+    address: "",
+    description: "",
     password: "",
     password_confirmation: "",
     role_id: 2,
@@ -52,6 +54,32 @@ const submit = () => {
                 :class="{ 'daisy-input-error': form.errors.email }"
             />
             <InputError :message="form.errors.email" />
+        </div>
+
+        <div>
+            <InputLabel for="address" value="Address" />
+            <TextInput
+                id="address"
+                type="text"
+                class="w-full"
+                v-model="form.address"
+                required
+                :class="{ 'daisy-input-error': form.errors.address }"
+            />
+            <InputError :message="form.errors.address" />
+        </div>
+
+        <div>
+            <InputLabel for="description" value="Description" />
+            <TextInput
+                id="description"
+                type="text"
+                class="w-full"
+                v-model="form.description"
+                required
+                :class="{ 'daisy-input-error': form.errors.description }"
+            />
+            <InputError :message="form.errors.description" />
         </div>
 
         <div>

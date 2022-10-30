@@ -6,7 +6,7 @@ const img = ref(null);
 
 onMounted(() => {
     img.value.onload = () => {
-        URL.revokeObjectURL(img.value.src); // free memory
+        if (img.value) URL.revokeObjectURL(img.value.src); // free memory
     };
 });
 </script>

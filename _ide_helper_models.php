@@ -18,6 +18,7 @@ namespace App\Models{
  * @property string $name
  * @property float $price
  * @property string $description
+ * @property int $status
  * @property int $user_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -36,6 +37,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Item whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereUserId($value)
  */
@@ -52,6 +54,8 @@ namespace App\Models{
  * @property string $address
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
+ * @property-read int|null $pictures_count
  * @property-read \App\Models\User $user
  * @method static \Database\Factories\MerchantFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Merchant newModelQuery()
@@ -73,6 +77,7 @@ namespace App\Models{
  *
  * @property int $id
  * @property string $name
+ * @property int $type
  * @property int $pictureable_id
  * @property string $pictureable_type
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -87,6 +92,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Picture whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Picture wherePictureableId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Picture wherePictureableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Picture whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Picture whereUpdatedAt($value)
  */
 	class Picture extends \Eloquent {}
@@ -149,6 +155,8 @@ namespace App\Models{
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Item[] $items
+ * @property-read int|null $items_count
  * @property-read \App\Models\Merchant|null $merchant
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
  * @property-read int|null $notifications_count

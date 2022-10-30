@@ -59,8 +59,8 @@ class ItemController extends Controller
     public function store(StoreItemRequest $request)
     {
         $attributes = $request->validated();
-        Item::create([...$attributes, 'user_id' => $request->user()->id]);
-        return Redirect::route('items.create')->with('message', 'success');
+        $item = Item::create([...$attributes, 'user_id' => $request->user()->id]);
+        return Redirect::route('items.show', ['item' => $item->id])->with('message', 'success');
     }
 
     /**
@@ -71,7 +71,7 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
-        return Inertia::render('Item', ['item' => $item]);
+        return Inertia::render('Item', ['item' => $item->load(['pictures'])]);
     }
 
     /**
@@ -82,7 +82,7 @@ class ItemController extends Controller
      */
     public function edit(Item $item)
     {
-        //
+        return Inertia::render('EditItem', ['item' => $item->load(['pictures'])]);
     }
 
     /**
@@ -94,7 +94,8 @@ class ItemController extends Controller
      */
     public function update(UpdateItemRequest $request, Item $item)
     {
-        //
+        $item->update($request->validated());
+        return Redirect::route('items.show', ['item' => $item->id])->with('message', 'success');
     }
 
     /**

@@ -4,16 +4,21 @@ import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
+
+const props = defineProps({
+    item: {
+        required: true,
+        type: Object,
+    },
+});
 const form = useForm({
-    name: "",
-    price: "",
-    description: "",
+    name: props.item.name,
+    price: props.item.price,
+    description: props.item.description,
 });
 
 const submit = () => {
-    form.post(route("items.store"), {
-        onSuccess: () => form.reset("name", "price", "description"),
-    });
+    form.put(route("items.update", { item: props.item.id }));
 };
 </script>
 
@@ -21,7 +26,7 @@ const submit = () => {
     <Head title="Create Item" />
 
     <form @submit.prevent="submit" class="p-4 daisy-form-control space-y-2">
-        <div class="text-center text-2xl text-primary">Create Item</div>
+        <div class="text-center text-2xl text-primary">Edit Item</div>
         <div>
             <InputLabel for="name" value="Name" />
             <TextInput
@@ -70,7 +75,7 @@ const submit = () => {
                 :class="{ 'opacity-25': form.processing }"
                 :disabled="form.processing"
             >
-                Create Item
+                Update
             </PrimaryButton>
         </div>
     </form>

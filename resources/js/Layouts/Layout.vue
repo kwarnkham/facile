@@ -21,15 +21,15 @@ watch(
 
 <template>
     <div class="h-screen w-screen flex flex-col relative" data-theme="garden">
-        <div class="flex-grow flex-shrink-0 basis-0">
+        <div class="flex-grow flex-shrink-0 basis-0 overflow-y-auto">
             <slot />
         </div>
         <div
-            class="h-12 w-full bg-secondary flex items-center text-primary justify-between px-4 relative"
+            class="h-12 w-full bg-secondary flex items-center text-accent justify-between px-4 relative"
             v-if="$page.props.auth.user"
         >
             <div
-                class="absolute -top-6 left-1/2 -translate-x-1/2 bg-accent p-2 rounded-full border-4"
+                class="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary p-2 rounded-full border-4"
             >
                 <HomeIcon
                     class="h-6 w-6"
