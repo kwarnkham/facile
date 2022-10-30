@@ -3,6 +3,7 @@ import { ref, watch } from "vue";
 import pickBy from "lodash/pickBy";
 import debounce from "lodash/debounce";
 import { Inertia } from "@inertiajs/inertia";
+import { Link } from "@inertiajs/inertia-vue3";
 
 const props = defineProps({
     items: {
@@ -43,20 +44,40 @@ watch(
 </script>
 
 <template>
-    <div>Items: page {{ items.current_page }} of {{ items.last_page }}</div>
-    <div class="text-center">
-        <input type="text" placeholder="Search here" v-model="search" />
-    </div>
-    <div class="flex justify-between">
-        <button @click="visitPage(items.current_page - 1)">prev</button>
-        <button @click="visitPage(items.current_page + 1)">next</button>
-    </div>
-    <div v-for="item in items.data" :key="item.id">
-        <button
-            class="border-2 p-1 rounded-md mt-2"
-            @click="$inertia.visit(route('items.show', { item: item.id }))"
-        >
-            {{ item.name }} {{ item.price }} {{ item.description }}
-        </button>
+    <div class="flex flex-col h-full">
+        <div class="text-center">
+            <input type="text" placeholder="Search here" v-model="search" />
+        </div>
+        <div class="flex-grow flex-shrink-0 basis-0 overflow-y-auto space-y-2">
+            <div
+                class="daisy-card bg-base-100 shadow-xl daisy-image-full w-11/12 mx-auto h-52"
+                v-for="item in items.data"
+                :key="item.id"
+            >
+                <figure v-if="item.pictures?.length" class="h-40">
+                    <img :src="item.pictures[0].name" :alt="item.name" />
+                </figure>
+                <div class="h-40" v-else></div>
+                <div class="daisy-card-body">
+                    <h2 class="daisy-card-title">{{ item.name }}</h2>
+                    <p>{{ item.description }}</p>
+                    <p class="text-right">{{ item.price }} MMK</p>
+                    <div class="daisy-card-actions justify-end space-x-2">
+                        <Link :href="route('items.edit', { item: item.id })">
+                            Edit
+                        </Link>
+                        <Link :href="route('items.show', { item: item.id })">
+                            See More
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>Items: page {{ items.current_page }} of {{ items.last_page }}</div>
+        <div class="flex justify-between">
+            <button @click="visitPage(items.current_page - 1)">prev</button>
+            <button @click="visitPage(items.current_page + 1)">next</button>
+        </div>
     </div>
 </template>

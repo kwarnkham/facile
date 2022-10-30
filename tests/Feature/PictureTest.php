@@ -67,4 +67,27 @@ class PictureTest extends TestCase
             'type_id' => $item->id
         ])->assertSessionHasErrors(['pictures.0']);
     }
+
+    public function test_delete_picture()
+    {
+        $item = Item::factory()->create(['user_id' => $this->merchant->id]);
+        $this->actingAs($this->merchant)->post(route('pictures.store'), [
+            'pictures' => [UploadedFile::fake()->image('foo.jpg')],
+            'type' => 'item',
+            'type_id' => $item->id
+        ]);
+
+        $this->assertDatabaseCount('pictures', 1);
+
+        $this->assertTrue($item->pictures->every(fn ($picture) => $picture->exists()));
+
+        $picture = $item->pictures()->first();
+
+        $this->actingAs($this->merchant)->delete(route('pictures.destroy', ['picture' => $picture->id]))
+            ->assertRedirect(route('items.edit', ['item' => $item->id]))
+            ->assertSessionHas('message', 'deleted');
+
+        $this->assertTrue($picture->fileDeleted());
+        $this->assertDatabaseCount('pictures', 0);
+    }
 }

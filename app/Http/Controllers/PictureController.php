@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePictureRequest;
 use App\Http\Requests\UpdatePictureRequest;
 use App\Models\Picture;
+use Illuminate\Support\Facades\Redirect;
 
 class PictureController extends Controller
 {
@@ -90,6 +91,8 @@ class PictureController extends Controller
      */
     public function destroy(Picture $picture)
     {
-        //
+        $item = $picture->pictureable;
+        $picture->delete();
+        return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'deleted');
     }
 }

@@ -36,14 +36,21 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('items.store');
         Route::get('create', 'create')->name('items.create');
-        Route::get('edit/{item}', 'edit')->name('items.edit');
-        Route::put('update/{item}', 'update')->name('items.update');
+        Route::get('{item}/edit', 'edit')->name('items.edit');
+        Route::put('{item}', 'update')->name('items.update');
     });
     Route::get('', 'index')->name('items.index');
     Route::get('{item}', 'show')->name('items.show');
 });
 
-Route::middleware(['auth', 'verified', 'role:merchant'])->post('pictures', [PictureController::class, 'store'])->name('pictures.store');
+Route::controller(PictureController::class)->prefix('/pictures')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+        Route::post('', 'store')->name('pictures.store');
+        Route::delete('{picture}', 'destroy')->name('pictures.destroy');
+    });
+});
+
+
 
 Route::get('users', [UserController::class, 'index'])->name('users.index');
 Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');

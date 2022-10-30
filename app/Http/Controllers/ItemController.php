@@ -35,7 +35,7 @@ class ItemController extends Controller
         $query = Item::query();
         $filters = $validator->safe()->only(['user_id', 'search']);
         return Inertia::render('Items', [
-            'items' => $query->filter($filters)->paginate(request()->per_page ?? 20),
+            'items' => $query->filter($filters)->with(['pictures'])->paginate(request()->per_page ?? 20),
             'filters' => $filters,
         ]);
     }
