@@ -20,5 +20,6 @@ class ItemFeatureTest extends TestCase
         $this->assertDatabaseCount('features', 1);
         $this->assertDatabaseHas('features', $data);
         $this->assertEquals($item->features()->first()->name, $data['name']);
+        $this->actingAs($this->merchant)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
     }
 }

@@ -25,10 +25,11 @@ class StoreFeatureRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'string'],
+            'item_id' => ['required', Rule::exists('items', 'id')->where('user_id', $this->user()->id)],
+            'name' => ['required', 'string', Rule::unique('features', 'name')->where('item_id', $this->item_id)],
             'stock' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],
-            'item_id' => ['required', Rule::exists('items', 'id')->where('user_id', $this->user()->id)]
+
         ];
     }
 }

@@ -84,7 +84,11 @@ class ItemController extends Controller
     public function edit(Item $item)
     {
         $tags = Tag::whereRelation('items', 'user_id', '=', $item->user->id)->get();
-        return Inertia::render('EditItem', ['item' => $item->load(['pictures', 'tags', 'features']), 'tags' => $tags]);
+        return Inertia::render('EditItem', [
+            'item' => $item->load(['pictures', 'tags', 'features']),
+            'tags' => $tags,
+            'edit' => request()->edit ?? 'info'
+        ]);
     }
 
     /**

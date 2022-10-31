@@ -49,6 +49,7 @@ const submit = () => {
 const isInfoExpanded = ref(props.edit == "info");
 const isPicturesExpanded = ref(props.edit == "pictures");
 const isTagsExpanded = ref(props.edit == "tags");
+const isFeaturesExpaned = ref(props.edit == "features");
 const deletePicture = (id) => {
     deletingPicture.value = true;
     Inertia.delete(route("pictures.destroy", { picture: id }), {
@@ -61,137 +62,188 @@ const deletingPicture = ref(false);
 </script>
 
 <template>
-    <Head title="Edit Item" />
-    <Collapse :title="'Item Info'" v-model:checked="isInfoExpanded">
-        <form @submit.prevent="submit" class="p-4 daisy-form-control space-y-2">
-            <div class="text-center text-2xl text-primary">Edit Item</div>
-            <div>
-                <InputLabel for="name" value="Name" />
-                <TextInput
-                    id="name"
-                    type="text"
-                    class="w-full"
-                    v-model="form.name"
-                    required
-                    autofocus
-                    :class="{ 'daisy-input-error': form.errors.name }"
-                />
-                <InputError :message="form.errors.name" />
-            </div>
-
-            <div>
-                <InputLabel for="price" value="Price" />
-                <TextInput
-                    id="price"
-                    type="number"
-                    class="w-full"
-                    v-model="form.price"
-                    required
-                    :class="{ 'daisy-input-error': form.errors.price }"
-                />
-                <InputError :message="form.errors.price" />
-            </div>
-
-            <div>
-                <InputLabel for="description" value="Description" />
-                <textarea
-                    id="description"
-                    class="w-full daisy-textarea daisy-textarea-primary"
-                    placeholder="Description"
-                    v-model="form.description"
-                    required
-                    :class="{
-                        'daisy-input-error': form.errors.description,
-                    }"
-                    rows="3"
-                ></textarea>
-                <InputError :message="form.errors.description" />
-            </div>
-
-            <div class="flex items-center justify-end">
-                <PrimaryButton
-                    type="primary"
-                    class="ml-4"
-                    :disabled="form.processing || !form.isDirty"
-                >
-                    Update
-                </PrimaryButton>
-            </div>
-        </form>
-    </Collapse>
-    <Collapse :title="'Tags'" v-model:checked="isTagsExpanded">
-        <form
-            @submit.prevent="submitTag"
-            class="p-4 daisy-form-control space-y-2 shadow-md mb-2"
+    <div class="flex flex-col min-h-full">
+        <Head title="Edit Item" />
+        <Collapse
+            :title="'Item Info'"
+            v-model:checked="isInfoExpanded"
+            class="shadow-xl"
         >
-            <div class="text-center text-2xl text-primary">Attach new Tag</div>
-            <div>
-                <InputLabel for="name" value="Name" />
-                <TextInput
-                    id="name"
-                    type="text"
-                    class="w-full"
-                    v-model="tagForm.name"
-                    required
-                    autofocus
-                    :class="{ 'daisy-input-error': tagForm.errors.name }"
-                />
-                <InputError :message="tagForm.errors.name" />
-            </div>
-
-            <div class="flex items-center justify-end">
-                <PrimaryButton
-                    type="primary"
-                    class="ml-4"
-                    :disabled="tagForm.processing"
-                >
-                    Attach
-                </PrimaryButton>
-            </div>
-        </form>
-        <div
-            class="flex flex-row justify-evenly flex-wrap items-center space-x-1"
-        >
-            <button
-                class="daisy-btn daisy-btn-xs lowercase mb-1"
-                v-for="tag in tags"
-                :key="tag.id"
-                :class="{
-                    'daisy-btn-success': item.tags.some((e) => e.id == tag.id),
-                }"
-                @click="
-                    $inertia.post(route('tags.toggle', { tag: tag.id }), {
-                        item_id: item.id,
-                    })
-                "
+            <form
+                @submit.prevent="submit"
+                class="p-4 daisy-form-control space-y-2"
             >
-                {{ tag.name }}
-            </button>
-        </div>
-    </Collapse>
-    <Collapse :title="'Pictures'" v-model:checked="isPicturesExpanded">
-        <div
-            class="flex flex-row flex-nowrap h-52 items-center space-x-2 w-full overflow-x-auto scroll-smooth"
-            :class="{ 'justify-center': item.pictures.length == 0 }"
-        >
-            <div class="shrink-0">
-                <PicturePicker multiple type="item" :pictureable="item" />
-            </div>
+                <div class="text-center text-2xl text-primary">Edit Item</div>
+                <div>
+                    <InputLabel for="name" value="Name" />
+                    <TextInput
+                        id="name"
+                        type="text"
+                        class="w-full"
+                        v-model="form.name"
+                        required
+                        autofocus
+                        :class="{ 'daisy-input-error': form.errors.name }"
+                    />
+                    <InputError :message="form.errors.name" />
+                </div>
 
-            <figure
-                v-for="picture in item.pictures"
-                :key="picture.id"
-                class="relative shrink-0"
+                <div>
+                    <InputLabel for="price" value="Price" />
+                    <TextInput
+                        id="price"
+                        type="number"
+                        class="w-full"
+                        v-model="form.price"
+                        required
+                        :class="{ 'daisy-input-error': form.errors.price }"
+                    />
+                    <InputError :message="form.errors.price" />
+                </div>
+
+                <div>
+                    <InputLabel for="description" value="Description" />
+                    <textarea
+                        id="description"
+                        class="w-full daisy-textarea daisy-textarea-primary"
+                        placeholder="Description"
+                        v-model="form.description"
+                        required
+                        :class="{
+                            'daisy-input-error': form.errors.description,
+                        }"
+                        rows="3"
+                    ></textarea>
+                    <InputError :message="form.errors.description" />
+                </div>
+
+                <div class="flex items-center justify-end">
+                    <PrimaryButton
+                        type="primary"
+                        class="ml-4"
+                        :disabled="form.processing || !form.isDirty"
+                    >
+                        Update
+                    </PrimaryButton>
+                </div>
+            </form>
+        </Collapse>
+        <Collapse
+            :title="'Tags'"
+            v-model:checked="isTagsExpanded"
+            class="shadow-xl"
+        >
+            <form
+                @submit.prevent="submitTag"
+                class="p-4 daisy-form-control space-y-2 shadow-md mb-2"
+            >
+                <div class="text-center text-2xl text-primary">
+                    Attach new Tag
+                </div>
+                <div>
+                    <InputLabel for="name" value="Name" />
+                    <TextInput
+                        id="name"
+                        type="text"
+                        class="w-full"
+                        v-model="tagForm.name"
+                        required
+                        autofocus
+                        :class="{ 'daisy-input-error': tagForm.errors.name }"
+                    />
+                    <InputError :message="tagForm.errors.name" />
+                </div>
+
+                <div class="flex items-center justify-end">
+                    <PrimaryButton
+                        type="primary"
+                        class="ml-4"
+                        :disabled="tagForm.processing"
+                    >
+                        Attach
+                    </PrimaryButton>
+                </div>
+            </form>
+            <div
+                class="flex flex-row justify-evenly flex-wrap items-center space-x-1"
             >
                 <button
-                    class="absolute top-1 right-1 daisy-btn daisy-btn-sm daisy-btn-error capitalize"
-                    :disabled="deletingPicture"
-                    @click="deletePicture(picture.id)"
+                    class="daisy-btn daisy-btn-xs lowercase mb-1"
+                    v-for="tag in tags"
+                    :key="tag.id"
+                    :class="{
+                        'daisy-btn-success': item.tags.some(
+                            (e) => e.id == tag.id
+                        ),
+                    }"
+                    @click="
+                        $inertia.post(route('tags.toggle', { tag: tag.id }), {
+                            item_id: item.id,
+                        })
+                    "
                 >
-                    Delete
+                    {{ tag.name }}
                 </button>
-                <img :src="picture.name" :alt="picture.name" class="h-52" />
-            </figure>
-        </div>
-    </Collapse>
+            </div>
+        </Collapse>
+        <Collapse
+            :title="'Pictures'"
+            v-model:checked="isPicturesExpanded"
+            class="shadow-xl"
+            v-if="false"
+        >
+            <div
+                class="flex flex-row flex-nowrap h-52 items-center space-x-2 w-full overflow-x-auto scroll-smooth"
+                :class="{ 'justify-center': item.pictures.length == 0 }"
+            >
+                <div class="shrink-0">
+                    <PicturePicker multiple type="item" :pictureable="item" />
+                </div>
+
+                <figure
+                    v-for="picture in item.pictures"
+                    :key="picture.id"
+                    class="relative shrink-0"
+                >
+                    <button
+                        class="absolute top-1 right-1 daisy-btn daisy-btn-sm daisy-btn-error capitalize"
+                        :disabled="deletingPicture"
+                        @click="deletePicture(picture.id)"
+                    >
+                        Delete
+                    </button>
+                    <img :src="picture.name" :alt="picture.name" class="h-52" />
+                </figure>
+            </div>
+        </Collapse>
+        <Collapse
+            :title="'Features'"
+            v-model:checked="isFeaturesExpaned"
+            class="shadow-xl"
+        >
+            <div class="flex flex-row flex-wrap mb-1 space-x-1 justify-evenly">
+                <div
+                    v-for="feature in item.features"
+                    :key="feature.id"
+                    class="mb-1"
+                >
+                    <button class="daisy-btn daisy-btn-sm capitalize">
+                        {{ feature.name }}
+                    </button>
+                </div>
+            </div>
+            <div class="text-right">
+                <button
+                    class="daisy-btn daisy-btn-sm capitalize daisy-btn-primary"
+                    @click="
+                        $inertia.visit(
+                            route('features.create', { item_id: item.id })
+                        )
+                    "
+                >
+                    Add Features
+                </button>
+            </div>
+        </Collapse>
+    </div>
 </template>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFeatureRequest;
 use App\Http\Requests\UpdateFeatureRequest;
 use App\Models\Feature;
+use App\Models\Item;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -27,7 +28,10 @@ class FeatureController extends Controller
      */
     public function create()
     {
-        //
+        request()->validate([
+            'item_id' => ['required', 'exists:items,id']
+        ]);
+        return Inertia::render('CreateFeature', ['item' => Item::find(request()->item_id)]);
     }
 
     /**
@@ -40,7 +44,7 @@ class FeatureController extends Controller
     {
         $attributes = $request->validated();
         Feature::create($attributes);
-        return Redirect::route('items.edit', ['item' => $attributes['item_id']]);
+        return Redirect::route('items.edit', ['item' => $attributes['item_id'], 'edit' => 'features']);
     }
 
     /**
