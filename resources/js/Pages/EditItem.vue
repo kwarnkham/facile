@@ -14,6 +14,10 @@ const props = defineProps({
         required: true,
         type: Object,
     },
+    tags: {
+        required: true,
+        type: Object,
+    },
     edit: {
         required: false,
         default: "info",
@@ -25,12 +29,26 @@ const form = useForm({
     description: props.item.description,
 });
 
+const tagForm = useForm({
+    name: "",
+    item_id: props.item.id,
+});
+
+const submitTag = () => {
+    tagForm.post(route("tags.store"), {
+        onSuccess() {
+            tagForm.reset("name");
+        },
+    });
+};
+
 const submit = () => {
     if (!form.isDirty) return;
     form.put(route("items.update", { item: props.item.id }));
 };
 const isInfoExpanded = ref(props.edit == "info");
-const isPicturesExpanded = ref(props.edit == "picture");
+const isPicturesExpanded = ref(props.edit == "pictures");
+const isTagsExpanded = ref(props.edit == "tags");
 const deletePicture = (id) => {
     deletingPicture.value = true;
     Inertia.delete(route("pictures.destroy", { picture: id }), {
@@ -100,6 +118,49 @@ const deletingPicture = ref(false);
                 </PrimaryButton>
             </div>
         </form>
+    </Collapse>
+    <Collapse :title="'Tags'" v-model:checked="isTagsExpanded">
+        <form
+            @submit.prevent="submitTag"
+            class="p-4 daisy-form-control space-y-2 shadow-md mb-2"
+        >
+            <div class="text-center text-2xl text-primary">Attach new Tag</div>
+            <div>
+                <InputLabel for="name" value="Name" />
+                <TextInput
+                    id="name"
+                    type="text"
+                    class="w-full"
+                    v-model="tagForm.name"
+                    required
+                    autofocus
+                    :class="{ 'daisy-input-error': tagForm.errors.name }"
+                />
+                <InputError :message="tagForm.errors.name" />
+            </div>
+
+            <div class="flex items-center justify-end">
+                <PrimaryButton
+                    type="primary"
+                    class="ml-4"
+                    :disabled="tagForm.processing"
+                >
+                    Attach
+                </PrimaryButton>
+            </div>
+        </form>
+        <div class="flex flex-row justify-evenly flex-wrap items-center">
+            <button
+                class="daisy-btn daisy-btn-xs capitalize mb-1"
+                v-for="tag in tags"
+                :key="tag.id"
+                :class="{
+                    'daisy-btn-success': item.tags.some((e) => e.id == tag.id),
+                }"
+            >
+                {{ tag.name }}
+            </button>
+        </div>
     </Collapse>
     <Collapse :title="'Pictures'" v-model:checked="isPicturesExpanded">
         <div

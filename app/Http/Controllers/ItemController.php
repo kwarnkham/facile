@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Redirect;
@@ -71,7 +72,7 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
-        return Inertia::render('Item', ['item' => $item->load(['pictures'])]);
+        return Inertia::render('Item', ['item' => $item->load(['pictures', 'tags'])]);
     }
 
     /**
@@ -82,7 +83,8 @@ class ItemController extends Controller
      */
     public function edit(Item $item)
     {
-        return Inertia::render('EditItem', ['item' => $item->load(['pictures'])]);
+        $tags = Tag::whereRelation('items', 'user_id', '=', $item->user->id)->get();
+        return Inertia::render('EditItem', ['item' => $item->load(['pictures', 'tags']), 'tags' => $tags]);
     }
 
     /**

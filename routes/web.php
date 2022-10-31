@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PictureController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,12 @@ Route::controller(PictureController::class)->prefix('/pictures')->group(function
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('pictures.store');
         Route::delete('{picture}', 'destroy')->name('pictures.destroy');
+    });
+});
+
+Route::controller(TagController::class)->prefix('/tags')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+        Route::post('', 'store')->name('tags.store');
     });
 });
 

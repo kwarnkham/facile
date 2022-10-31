@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
+use App\Models\Item;
 use App\Models\Tag;
+use Redirect;
 
 class TagController extends Controller
 {
@@ -36,7 +38,10 @@ class TagController extends Controller
      */
     public function store(StoreTagRequest $request)
     {
-        //
+        $attributes = $request->validated();
+        $item = Item::find($attributes['item_id']);
+        $item->tags()->attach(Tag::create(['name' => $attributes['name']])->id);
+        return Redirect::route('items.edit', ['item' => $item->id]);
     }
 
     /**

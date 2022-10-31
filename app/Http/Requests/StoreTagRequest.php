@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Item;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreTagRequest extends FormRequest
@@ -13,7 +14,7 @@ class StoreTagRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return $this->user()->hasRole('merchant') && Item::find($this->item_id)->user_id == $this->user()->id;
     }
 
     /**
@@ -24,7 +25,8 @@ class StoreTagRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => ['required', 'string'],
+            'item_id' => ['required', 'exists:items,id']
         ];
     }
 }
