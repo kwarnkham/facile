@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\TagController;
@@ -55,6 +56,12 @@ Route::controller(TagController::class)->prefix('/tags')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('tags.store');
         Route::post('{tag}/attach', 'toggle')->name('tags.toggle');
+    });
+});
+
+Route::controller(FeatureController::class)->prefix('/features')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+        Route::post('', 'store')->name('features.store');
     });
 });
 

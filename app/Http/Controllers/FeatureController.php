@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFeatureRequest;
 use App\Http\Requests\UpdateFeatureRequest;
 use App\Models\Feature;
+use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class FeatureController extends Controller
 {
@@ -36,7 +38,9 @@ class FeatureController extends Controller
      */
     public function store(StoreFeatureRequest $request)
     {
-        //
+        $attributes = $request->validated();
+        Feature::create($attributes);
+        return Redirect::route('items.edit', ['item' => $attributes['item_id']]);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreFeatureRequest extends FormRequest
 {
@@ -13,7 +14,7 @@ class StoreFeatureRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return $this->user()->hasRole('merchant');
     }
 
     /**
@@ -24,7 +25,10 @@ class StoreFeatureRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => ['required', 'string'],
+            'stock' => ['required', 'numeric'],
+            'price' => ['required', 'numeric'],
+            'item_id' => ['required', Rule::exists('items', 'id')->where('user_id', $this->user()->id)]
         ];
     }
 }
