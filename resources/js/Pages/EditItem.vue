@@ -1,11 +1,13 @@
 <script setup>
 import Collapse from "@/Components/Collapse.vue";
+import PicturePicker from "@/Components/PicturePicker.vue";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
+import { Inertia } from "@inertiajs/inertia";
 
 const props = defineProps({
     item: {
@@ -24,10 +26,20 @@ const form = useForm({
 });
 
 const submit = () => {
+    if (!form.isDirty) return;
     form.put(route("items.update", { item: props.item.id }));
 };
 const isInfoExpanded = ref(props.edit == "info");
 const isPicturesExpanded = ref(props.edit == "picture");
+const deletePicture = (id) => {
+    deletingPicture.value = true;
+    Inertia.delete(route("pictures.destroy", { picture: id }), {
+        onFinish() {
+            deletingPicture.value = false;
+        },
+    });
+};
+const deletingPicture = ref(false);
 </script>
 
 <template>
@@ -82,8 +94,7 @@ const isPicturesExpanded = ref(props.edit == "picture");
                 <PrimaryButton
                     type="primary"
                     class="ml-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
+                    :disabled="form.processing || !form.isDirty"
                 >
                     Update
                 </PrimaryButton>
@@ -92,24 +103,22 @@ const isPicturesExpanded = ref(props.edit == "picture");
     </Collapse>
     <Collapse :title="'Pictures'" v-model:checked="isPicturesExpanded">
         <div
-            class="flex flex-row flex-nowrap h-52 items-center space-x-2 w-full overflow-x-auto scroll-smooth justify-evenly"
+            class="flex flex-row flex-nowrap h-52 items-center space-x-2 w-full overflow-x-auto scroll-smooth"
+            :class="{ 'justify-center': item.pictures.length == 0 }"
         >
-            <div>
-                <button class="daisy-btn daisy-btn-sm capitalize">Add</button>
+            <div class="shrink-0">
+                <PicturePicker multiple type="item" :pictureable="item" />
             </div>
 
             <figure
                 v-for="picture in item.pictures"
                 :key="picture.id"
-                class="relative"
+                class="relative shrink-0"
             >
                 <button
                     class="absolute top-1 right-1 daisy-btn daisy-btn-sm daisy-btn-error capitalize"
-                    @click="
-                        $inertia.delete(
-                            route('pictures.destroy', { picture: picture.id })
-                        )
-                    "
+                    :disabled="deletingPicture"
+                    @click="deletePicture(picture.id)"
                 >
                     Delete
                 </button>

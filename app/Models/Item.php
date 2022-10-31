@@ -13,7 +13,7 @@ class Item extends Model
 
     public function pictures()
     {
-        return $this->morphMany(Picture::class, 'pictureable');
+        return $this->morphMany(Picture::class, 'pictureable')->orderBy('id', 'desc');
     }
 
     public function tags()

@@ -85,7 +85,7 @@ class PictureTest extends TestCase
 
         $this->actingAs($this->merchant)->delete(route('pictures.destroy', ['picture' => $picture->id]))
             ->assertRedirect(route('items.edit', ['item' => $item->id]))
-            ->assertSessionHas('message', 'deleted');
+            ->assertSessionHas('message', 'Deleted');
 
         $this->assertTrue($picture->fileDeleted());
         $this->assertDatabaseCount('pictures', 0);

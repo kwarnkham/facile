@@ -93,6 +93,6 @@ class PictureController extends Controller
     {
         $item = $picture->pictureable;
         $picture->delete();
-        return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'deleted');
+        return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'Deleted');
     }
 }
