@@ -12,6 +12,18 @@
 
 namespace App\Models{
 /**
+ * App\Models\Feature
+ *
+ * @method static \Database\Factories\FeatureFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature query()
+ */
+	class Feature extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\Item
  *
  * @property int $id

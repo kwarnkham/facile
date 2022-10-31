@@ -16,6 +16,11 @@ class Item extends Model
         return $this->morphMany(Picture::class, 'pictureable')->orderBy('id', 'desc');
     }
 
+    public function features()
+    {
+        return $this->hasMany(Feature::class);
+    }
+
     public function tags()
     {
         return $this->belongsToMany(Tag::class);

@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Picture>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Feature>
  */
-class PictureFactory extends Factory
+class FeatureFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,7 +17,9 @@ class PictureFactory extends Factory
     public function definition()
     {
         return [
-            'name' => fake()->uuid()
+            'name' => fake()->name(),
+            'stock' => fake()->numberBetween(1, 10),
+            'price' => fake()->numberBetween(1000, 10000),
         ];
     }
 }
