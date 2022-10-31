@@ -54,6 +54,7 @@ Route::controller(PictureController::class)->prefix('/pictures')->group(function
 Route::controller(TagController::class)->prefix('/tags')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('tags.store');
+        Route::post('{tag}/attach', 'toggle')->name('tags.toggle');
     });
 });
 

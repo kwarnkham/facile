@@ -149,14 +149,21 @@ const deletingPicture = ref(false);
                 </PrimaryButton>
             </div>
         </form>
-        <div class="flex flex-row justify-evenly flex-wrap items-center">
+        <div
+            class="flex flex-row justify-evenly flex-wrap items-center space-x-1"
+        >
             <button
-                class="daisy-btn daisy-btn-xs capitalize mb-1"
+                class="daisy-btn daisy-btn-xs lowercase mb-1"
                 v-for="tag in tags"
                 :key="tag.id"
                 :class="{
                     'daisy-btn-success': item.tags.some((e) => e.id == tag.id),
                 }"
+                @click="
+                    $inertia.post(route('tags.toggle', { tag: tag.id }), {
+                        item_id: item.id,
+                    })
+                "
             >
                 {{ tag.name }}
             </button>

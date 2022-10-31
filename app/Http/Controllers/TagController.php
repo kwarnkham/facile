@@ -6,6 +6,7 @@ use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
 use App\Models\Item;
 use App\Models\Tag;
+use Illuminate\Http\Request;
 use Redirect;
 
 class TagController extends Controller
@@ -40,8 +41,23 @@ class TagController extends Controller
     {
         $attributes = $request->validated();
         $item = Item::find($attributes['item_id']);
-        $item->tags()->attach(Tag::create(['name' => $attributes['name']])->id);
+        $item->tags()->attach(Tag::firstOrCreate(['name' => strtolower($attributes['name'])])->id);
         return Redirect::route('items.edit', ['item' => $item->id]);
+    }
+
+    /**
+     * Toggle a tag to an item
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function toggle(Request $request, Tag $tag)
+    {
+        $attributes = $request->validate([
+            'item_id' => ['required', 'exists:items,id']
+        ]);
+        $tag->items()->toggle($attributes['item_id']);
+        return Redirect::route('items.edit', ['item' => $attributes['item_id']]);
     }
 
     /**
