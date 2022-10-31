@@ -17,7 +17,7 @@ class FeatureFactory extends Factory
     public function definition()
     {
         return [
-            'name' => fake()->name(),
+            'name' => fake()->unique()->name(),
             'stock' => fake()->numberBetween(1, 10),
             'price' => fake()->numberBetween(1000, 10000),
         ];

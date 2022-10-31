@@ -63,6 +63,7 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('features.store');
         Route::get('create', 'create')->name('features.create');
+        Route::get('', 'index')->name('features.index');
     });
 });
 

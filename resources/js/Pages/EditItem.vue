@@ -216,34 +216,20 @@ const deletingPicture = ref(false);
                 </figure>
             </div>
         </Collapse>
-        <Collapse
-            :title="'Features'"
-            v-model:checked="isFeaturesExpaned"
-            class="shadow-xl"
-        >
-            <div class="flex flex-row flex-wrap mb-1 space-x-1 justify-evenly">
-                <div
-                    v-for="feature in item.features"
-                    :key="feature.id"
-                    class="mb-1"
-                >
-                    <button class="daisy-btn daisy-btn-sm capitalize">
-                        {{ feature.name }}
-                    </button>
-                </div>
-            </div>
-            <div class="text-right">
+
+        <div class="flex-1 flex flex-col-reverse p-1 items-end">
+            <div>
                 <button
-                    class="daisy-btn daisy-btn-sm capitalize daisy-btn-primary"
+                    class="daisy-btn daisy-btn-sm capitalize"
                     @click="
                         $inertia.visit(
-                            route('features.create', { item_id: item.id })
+                            route('features.index', { item_id: item.id })
                         )
                     "
                 >
-                    Add Features
+                    Features
                 </button>
             </div>
-        </Collapse>
+        </div>
     </div>
 </template>

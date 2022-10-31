@@ -18,7 +18,17 @@ class FeatureController extends Controller
      */
     public function index()
     {
-        //
+        $attributes = request()->validate([
+            'item_id' => ['required', 'exists:items,id'],
+            'search' => ['sometimes', 'required', 'string'],
+        ]);
+        $filters = request()->only(['search']);
+        $features = Feature::where('item_id', $attributes['item_id'])->filter($filters)->orderBy('id', 'desc')->paginate(request()->per_page ?? 20);
+        return Inertia::render('Features', [
+            'item' => Item::find($attributes['item_id']),
+            'features' => $features,
+            'filters' => $filters
+        ]);
     }
 
     /**
@@ -44,7 +54,7 @@ class FeatureController extends Controller
     {
         $attributes = $request->validated();
         Feature::create($attributes);
-        return Redirect::route('items.edit', ['item' => $attributes['item_id'], 'edit' => 'features']);
+        return Redirect::route('features.index', ['item_id' => $attributes['item_id']]);
     }
 
     /**
