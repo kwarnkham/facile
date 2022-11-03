@@ -41,7 +41,12 @@ class TagController extends Controller
     {
         $attributes = $request->validated();
         $item = Item::find($attributes['item_id']);
-        $item->tags()->attach(Tag::firstOrCreate(['name' => strtolower($attributes['name'])])->id);
+        if ($item->tags->doesntContain(
+            function ($value) use ($attributes) {
+                return $value->name == strtolower($attributes['name']);
+            }
+        ))
+            $item->tags()->attach(Tag::firstOrCreate(['name' => strtolower($attributes['name'])])->id);
         return Redirect::route('items.edit', ['item' => $item->id]);
     }
 

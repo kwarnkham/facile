@@ -1,4 +1,5 @@
 <script setup>
+import Button from "@/Components/Button.vue";
 import Pagination from "@/Components/Pagination.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { MagnifyingGlassCircleIcon } from "@heroicons/vue/24/solid";
@@ -80,10 +81,46 @@ watch(
             <div
                 v-for="feature in features.data"
                 :key="feature.id"
-                class="py-10 bg-slate-300 mb-1 rounded-md"
+                class="p-2 bg-slate-300 mb-1 rounded-md flex flex-row flex-nowrap"
             >
-                {{ feature.name }} {{ feature.note }} {{ feature.stock }}
-                {{ feature.price }}
+                <div
+                    class="min-h-full w-32 bg-stone-200 bg-no-repeat bg-contain bg-center"
+                    :style="{
+                        backgroundImage: feature.pictures.length
+                            ? 'url(' + feature.pictures[0]?.name + ')'
+                            : 'none',
+                    }"
+                >
+                    <!-- <img
+                        :src="feature.pictures[0].name"
+                        :alt="feature.name"
+                        v-if="feature.pictures.length"
+                    /> -->
+                </div>
+                <div class="flex-1 ml-1">
+                    <div>Name: {{ feature.name }}</div>
+                    <div>Price: {{ feature.price }}</div>
+                    <div>Stock: {{ feature.stock }}</div>
+                    <div
+                        v-if="feature.note"
+                        class="text-ellipsis whitespace-nowrap overflow-hidden w-40"
+                    >
+                        Note: {{ feature.note }}
+                    </div>
+                    <div class="flex flex-row justify-between">
+                        <Button>View</Button>
+                        <Button
+                            @click="
+                                $inertia.visit(
+                                    route('features.edit', {
+                                        feature: feature.id,
+                                    })
+                                )
+                            "
+                            >Edit</Button
+                        >
+                    </div>
+                </div>
             </div>
         </div>
         <div class="mb-5 mt-1 text-center">

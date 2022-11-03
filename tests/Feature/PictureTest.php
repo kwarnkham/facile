@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ResponseStatus;
+use App\Models\Feature;
 use App\Models\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -13,7 +15,7 @@ class PictureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_store_pictures()
+    public function test_store_pictures_item()
     {
         $item = Item::factory()->create(['user_id' => $this->merchant->id]);
         $this->actingAs($this->merchant)->post(route('pictures.store'), [
@@ -27,6 +29,25 @@ class PictureTest extends TestCase
         $this->assertTrue($item->pictures->every(fn ($picture) => $picture->exists()));
 
         $this->assertTrue($item->pictures->every(function ($picture) {
+            $picture->delete();
+            return $picture->fileDeleted();
+        }));
+    }
+
+    public function test_store_pictures_feature()
+    {
+        $feature = Feature::factory()->for(Item::factory()->state(['user_id' => $this->merchant->id]))->create();
+        $this->actingAs($this->merchant)->post(route('pictures.store'), [
+            'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
+            'type' => 'feature',
+            'type_id' => $feature->id
+        ]);
+
+        $this->assertDatabaseCount('pictures', 2);
+
+        $this->assertTrue($feature->pictures->every(fn ($picture) => $picture->exists()));
+
+        $this->assertTrue($feature->pictures->every(function ($picture) {
             $picture->delete();
             return $picture->fileDeleted();
         }));
@@ -54,6 +75,12 @@ class PictureTest extends TestCase
         $this->actingAs($this->merchant)->post(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
             'type' => 'item',
+            'type_id' => $item->id + 1
+        ])->assertSessionHasErrors(['type_id']);
+
+        $this->actingAs($this->merchant)->post(route('pictures.store'), [
+            'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
+            'type' => 'feature',
             'type_id' => $item->id + 1
         ])->assertSessionHasErrors(['type_id']);
     }
@@ -84,7 +111,7 @@ class PictureTest extends TestCase
         $picture = $item->pictures()->first();
 
         $this->actingAs($this->merchant)->delete(route('pictures.destroy', ['picture' => $picture->id]))
-            ->assertRedirect(route('items.edit', ['item' => $item->id]))
+            ->assertStatus(ResponseStatus::REDIRECTED_BACK->value)
             ->assertSessionHas('message', 'Deleted');
 
         $this->assertTrue($picture->fileDeleted());

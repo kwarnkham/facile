@@ -23,7 +23,7 @@ class FeatureController extends Controller
             'search' => ['sometimes', 'required', 'string'],
         ]);
         $filters = request()->only(['search']);
-        $features = Feature::where('item_id', $attributes['item_id'])->filter($filters)->orderBy('id', 'desc')->paginate(request()->per_page ?? 20);
+        $features = Feature::with(['pictures'])->where('item_id', $attributes['item_id'])->filter($filters)->orderBy('id', 'desc')->paginate(request()->per_page ?? 20);
         return Inertia::render('Features', [
             'item' => Item::find($attributes['item_id']),
             'features' => $features,
@@ -65,7 +65,7 @@ class FeatureController extends Controller
      */
     public function show(Feature $feature)
     {
-        //
+        return Inertia::render('Feature', ['feature' => $feature->load(['item'])]);
     }
 
     /**
@@ -76,7 +76,7 @@ class FeatureController extends Controller
      */
     public function edit(Feature $feature)
     {
-        //
+        return Inertia::render('EditFeature', ['feature' => $feature->load(['item', 'pictures']), 'edit' => request()->edit ?? 'info']);
     }
 
     /**
@@ -88,7 +88,9 @@ class FeatureController extends Controller
      */
     public function update(UpdateFeatureRequest $request, Feature $feature)
     {
-        //
+        $attributes = $request->validated();
+        $feature->update($attributes);
+        return Redirect::route('features.edit', ['feature' => $feature->id])->with('message', 'Success');
     }
 
     /**

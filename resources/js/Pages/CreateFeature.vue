@@ -4,6 +4,7 @@ import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
+import pickBy from "lodash/pickBy";
 
 const props = defineProps({
     item: {
@@ -19,7 +20,7 @@ const form = useForm({
     item_id: props.item.id,
 });
 const submit = () => {
-    form.post(route("features.store"));
+    form.transform((data) => pickBy(data)).post(route("features.store"));
 };
 </script>
 
@@ -92,9 +93,9 @@ const submit = () => {
 
             <div class="flex items-center justify-end">
                 <PrimaryButton
-                    type="primary"
+                    type="submit"
                     class="ml-4"
-                    :disabled="form.processing || !form.isDirty"
+                    :disabled="form.processing"
                 >
                     Create
                 </PrimaryButton>

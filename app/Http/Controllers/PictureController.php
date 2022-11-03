@@ -91,8 +91,7 @@ class PictureController extends Controller
      */
     public function destroy(Picture $picture)
     {
-        $item = $picture->pictureable;
         $picture->delete();
-        return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'Deleted');
+        return Redirect::back()->with('message', 'Deleted');
     }
 }

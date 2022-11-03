@@ -56,7 +56,7 @@ class User extends Authenticatable
     }
 
     /**
-     *
+     * Determine if the user has the given role
      * @param string $roleName
      * @return bool
      */
@@ -64,6 +64,17 @@ class User extends Authenticatable
     {
         return $this->roles->contains(fn ($role) => $role->name == $roleName);
     }
+
+    /**
+     * Determine if the user own the given item
+     * @param string $itemId
+     * @return bool
+     */
+    public function ownItem(string $itemId)
+    {
+        return Item::find($itemId)->user_id == $this->id;
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

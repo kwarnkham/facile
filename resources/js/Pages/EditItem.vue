@@ -49,7 +49,6 @@ const submit = () => {
 const isInfoExpanded = ref(props.edit == "info");
 const isPicturesExpanded = ref(props.edit == "pictures");
 const isTagsExpanded = ref(props.edit == "tags");
-const isFeaturesExpaned = ref(props.edit == "features");
 const deletePicture = (id) => {
     deletingPicture.value = true;
     Inertia.delete(route("pictures.destroy", { picture: id }), {
@@ -119,7 +118,7 @@ const deletingPicture = ref(false);
 
                 <div class="flex items-center justify-end">
                     <PrimaryButton
-                        type="primary"
+                        type="submit"
                         class="ml-4"
                         :disabled="form.processing || !form.isDirty"
                     >
@@ -156,7 +155,7 @@ const deletingPicture = ref(false);
 
                 <div class="flex items-center justify-end">
                     <PrimaryButton
-                        type="primary"
+                        type="submit"
                         class="ml-4"
                         :disabled="tagForm.processing"
                     >

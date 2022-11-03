@@ -61,7 +61,7 @@ class ItemController extends Controller
     {
         $attributes = $request->validated();
         $item = Item::create([...$attributes, 'user_id' => $request->user()->id]);
-        return Redirect::route('items.show', ['item' => $item->id])->with('message', 'success');
+        return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'success');
     }
 
     /**
@@ -101,7 +101,7 @@ class ItemController extends Controller
     public function update(UpdateItemRequest $request, Item $item)
     {
         $item->update($request->validated());
-        return Redirect::route('items.show', ['item' => $item->id])->with('message', 'success');
+        return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'success');
     }
 
     /**

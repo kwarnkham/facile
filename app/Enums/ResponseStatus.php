@@ -6,6 +6,7 @@ enum ResponseStatus: int
 {
     case OK = 200;
     case CREATED = 201;
+    case REDIRECTED_BACK = 302;
     case BAD_REQUEST = 400;
     case UNAUTHENTICATED = 401;
     case PAYMENT_REQUIRED = 402;
