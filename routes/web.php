@@ -5,6 +5,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WholesaleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -69,8 +70,15 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
     });
 });
 
-
-
+Route::controller(WholesaleController::class)->prefix('/wholesales')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+        Route::post('', 'store')->name('wholesales.store');
+        Route::get('create', 'create')->name('wholesales.create');
+        Route::get('', 'index')->name('wholesales.index');
+        Route::get('{wholesale}', 'edit')->name('wholesales.edit');
+        Route::put('{wholesale}', 'update')->name('wholesales.update');
+    });
+});
 
 Route::get('users', [UserController::class, 'index'])->name('users.index');
 Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');

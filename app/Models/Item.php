@@ -16,6 +16,11 @@ class Item extends Model
         return $this->morphMany(Picture::class, 'pictureable')->orderBy('id', 'desc');
     }
 
+    public function wholesales()
+    {
+        return $this->hasMany(Wholesale::class)->orderBy('quantity');
+    }
+
     public function features()
     {
         return $this->hasMany(Feature::class);

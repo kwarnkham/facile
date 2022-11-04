@@ -8,6 +8,7 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
 import { Inertia } from "@inertiajs/inertia";
+import { PencilIcon } from "@heroicons/vue/24/solid";
 
 const props = defineProps({
     item: {
@@ -49,6 +50,7 @@ const submit = () => {
 const isInfoExpanded = ref(props.edit == "info");
 const isPicturesExpanded = ref(props.edit == "pictures");
 const isTagsExpanded = ref(props.edit == "tags");
+const isWholesalesExpanded = ref(props.edit == "wholesales");
 const deletePicture = (id) => {
     deletingPicture.value = true;
     Inertia.delete(route("pictures.destroy", { picture: id }), {
@@ -58,6 +60,20 @@ const deletePicture = (id) => {
     });
 };
 const deletingPicture = ref(false);
+
+const wholesaleForm = useForm({
+    item_id: props.item.id,
+    quantity: "",
+    price: "",
+});
+
+const submitWholesale = () => {
+    wholesaleForm.post(route("wholesales.store"), {
+        onSuccess() {
+            wholesaleForm.reset("quantity", "price");
+        },
+    });
+};
 </script>
 
 <template>
@@ -213,6 +229,87 @@ const deletingPicture = ref(false);
                     </button>
                     <img :src="picture.name" :alt="picture.name" class="h-52" />
                 </figure>
+            </div>
+        </Collapse>
+        <Collapse
+            :title="'Wholesales'"
+            v-model:checked="isWholesalesExpanded"
+            class="shadow-xl"
+        >
+            <form
+                @submit.prevent="submitWholesale"
+                class="p-4 daisy-form-control space-y-2 shadow-md mb-2"
+            >
+                <div class="text-center text-2xl text-primary">
+                    Create wholesale price
+                </div>
+                <div>
+                    <InputLabel for="quantity" value="Quantity" />
+                    <TextInput
+                        id="quantity"
+                        type="number"
+                        class="w-full"
+                        v-model="wholesaleForm.quantity"
+                        required
+                        autofocus
+                        :class="{
+                            'daisy-input-error': wholesaleForm.errors.quantity,
+                        }"
+                    />
+                    <InputError :message="wholesaleForm.errors.quantity" />
+                </div>
+
+                <div>
+                    <InputLabel for="price" value="Price" />
+                    <TextInput
+                        id="price"
+                        type="number"
+                        class="w-full"
+                        v-model="wholesaleForm.price"
+                        required
+                        autofocus
+                        :class="{
+                            'daisy-input-error': wholesaleForm.errors.price,
+                        }"
+                    />
+                    <InputError :message="wholesaleForm.errors.price" />
+                </div>
+
+                <div class="flex items-center justify-end">
+                    <PrimaryButton
+                        type="submit"
+                        class="ml-4"
+                        :disabled="wholesaleForm.processing"
+                    >
+                        Create
+                    </PrimaryButton>
+                </div>
+            </form>
+            <div>
+                <div
+                    v-for="wholesale in item.wholesales"
+                    :key="wholesale.id"
+                    class="px-1 py-2"
+                >
+                    <PencilIcon
+                        class="w-6 h-6 inline-block mr-1"
+                        @click="
+                            $inertia.visit(
+                                route('wholesales.edit', {
+                                    wholesale: wholesale.id,
+                                })
+                            )
+                        "
+                    />
+                    Quantity
+                    <span class="font-bold underline">{{
+                        wholesale.quantity
+                    }}</span>
+                    wholesale price is
+                    <span class="font-bold underline">{{
+                        wholesale.price
+                    }}</span>
+                </div>
             </div>
         </Collapse>
 

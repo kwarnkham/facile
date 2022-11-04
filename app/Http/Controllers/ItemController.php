@@ -85,9 +85,9 @@ class ItemController extends Controller
     {
         $tags = Tag::whereRelation('items', 'user_id', '=', $item->user->id)->get();
         return Inertia::render('EditItem', [
-            'item' => $item->load(['pictures', 'tags']),
+            'item' => $item->load(['pictures', 'tags', 'wholesales']),
             'tags' => $tags,
-            'edit' => request()->edit ?? 'info'
+            'edit' => request()->edit ?? 'info',
         ]);
     }
 

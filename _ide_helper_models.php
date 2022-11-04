@@ -14,10 +14,30 @@ namespace App\Models{
 /**
  * App\Models\Feature
  *
+ * @property int $id
+ * @property string $name
+ * @property int $stock
+ * @property float $price
+ * @property string|null $note
+ * @property int $item_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Item|null $item
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
+ * @property-read int|null $pictures_count
  * @method static \Database\Factories\FeatureFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Feature newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Feature newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Feature query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereStock($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereUpdatedAt($value)
  */
 	class Feature extends \Eloquent {}
 }
@@ -34,6 +54,8 @@ namespace App\Models{
  * @property int $user_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
+ * @property-read int|null $features_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
  * @property-read int|null $pictures_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tag[] $tags
@@ -193,5 +215,17 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
  */
 	class User extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\Wholesale
+ *
+ * @method static \Database\Factories\WholesaleFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wholesale newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Wholesale newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Wholesale query()
+ */
+	class Wholesale extends \Eloquent {}
 }
 
