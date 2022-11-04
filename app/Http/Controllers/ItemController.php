@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
+use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Tag;
 use App\Models\User;
@@ -72,7 +73,8 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
-        return Inertia::render('Item', ['item' => $item->load(['pictures', 'tags'])]);
+        $item->features = Feature::whereBelongsTo($item)->with(['pictures'])->paginate(20);
+        return Inertia::render('Item', ['item' => $item->load(['pictures', 'tags', 'wholesales'])]);
     }
 
     /**

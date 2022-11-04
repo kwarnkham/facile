@@ -1,40 +1,19 @@
 <script setup>
-import { useForm } from "@inertiajs/inertia-vue3";
 import Img from "@/Components/Img.vue";
 import { ref } from "vue";
+import Collapse from "@/Components/Collapse.vue";
+import Button from "@/Components/Button.vue";
 const props = defineProps({
     item: {
         type: Object,
         required: true,
     },
 });
-const fileInput = ref(null);
-const form = useForm({
-    pictures: [],
-    type: "item",
-    type_id: props.item.id,
-});
-const submit = () => {
-    if (form.pictures.length <= 0) return;
-    form.post(route("pictures.store"), {
-        onSuccess: () => {
-            form.pictures = [];
-            fileInput.value.value = "";
-        },
-    });
-};
-const removeFromFile = (picture) => {
-    form.pictures.splice(
-        form.pictures.findIndex((e) => e.name == picture.name),
-        1
-    );
-    if (form.pictures.length == 0) fileInput.value.value = "";
-};
-const theURL = URL;
+const isWholesalesExpanded = ref(false);
 </script>
 <template>
-    <div class="p-1 w-full flex flex-col items-center">
-        <div class="w-full">
+    <div class="p-1 flex flex-col pb-6">
+        <div>
             <div class="text-center w-full font-bold text-xl">
                 Name : {{ item.name }}
             </div>
@@ -43,15 +22,17 @@ const theURL = URL;
         </div>
 
         <div
-            class="daisy-carousel daisy-carousel-center p-4 bg-neutral rounded-box w-10/12 h-60"
+            class="daisy-carousel daisy-carousel-center p-4 bg-neutral rounded-box w-10/12 h-60 self-center"
             v-if="item.pictures.length > 0"
-            :class="{ 'space-x-4': item.pictures.length > 1 }"
+            :class="{
+                'space-x-4': item.pictures.length > 1,
+                'justify-center': item.pictures.length == 1,
+            }"
         >
             <div
                 class="daisy-carousel-item"
                 v-for="picture in item.pictures"
                 :key="picture.id"
-                :class="{ 'w-full': item.pictures.length == 1 }"
             >
                 <img
                     :src="picture.name"
@@ -61,31 +42,44 @@ const theURL = URL;
             </div>
         </div>
 
-        <div v-for="(picture, key) in form.pictures" :key="key">
-            <Img
-                :src="theURL.createObjectURL(picture)"
-                :alt="picture.name"
-                @remove="removeFromFile(picture)"
-            />
-        </div>
-        <form
-            @submit.prevent="submit"
-            class="p-10"
-            v-if="$page.props.auth.user"
+        <Collapse
+            title="Wholesale prices"
+            v-model:checked="isWholesalesExpanded"
+            class="shadow-xl w-full rounded-md mt-1"
         >
-            <input
-                type="file"
-                multiple
-                accept="image/*"
-                @input="form.pictures = Array.from($event.target.files)"
-                class="hidden"
-                ref="fileInput"
-            />
-            <button @click="fileInput.click" v-if="form.pictures.length <= 0">
-                choose file
-            </button>
-
-            <button type="submit">submit</button>
-        </form>
+            <div
+                class="flex flex-row justify-between font-bold border-b border-primary"
+            >
+                <div>Quantity</div>
+                <div>Price</div>
+            </div>
+            <div
+                v-for="wholesale in item.wholesales"
+                :key="wholesale.id"
+                class="flex flex-row justify-between"
+            >
+                <div>{{ wholesale.quantity }}</div>
+                <div>{{ wholesale.price }}</div>
+            </div>
+        </Collapse>
+        <div class="text-lg font-bold text-center">Features</div>
+        <div class="flex flex-row flex-wrap justify-evenly mt-1">
+            <div
+                v-for="feature in item.features.data"
+                class="h-40 w-2/5 bg-base-300 rounded-md flex justify-center mb-1"
+            >
+                <img
+                    :src="feature.pictures[0]?.name"
+                    :alt="feature.name"
+                    class="h-full w-auto"
+                />
+            </div>
+        </div>
+        <div
+            class="text-right p-1"
+            v-if="item.features.total > item.features.to"
+        >
+            <Button>More</Button>
+        </div>
     </div>
 </template>

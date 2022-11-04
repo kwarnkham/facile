@@ -3,7 +3,7 @@ import { ref, watch } from "vue";
 import pickBy from "lodash/pickBy";
 import debounce from "lodash/debounce";
 import { Inertia } from "@inertiajs/inertia";
-import { Link } from "@inertiajs/inertia-vue3";
+import Button from "@/Components/Button.vue";
 
 const props = defineProps({
     items: {
@@ -50,25 +50,38 @@ watch(
         </div>
         <div class="flex-grow flex-shrink-0 basis-0 overflow-y-auto space-y-2">
             <div
-                class="daisy-card bg-base-100 shadow-xl daisy-image-full w-11/12 mx-auto h-52"
+                class="daisy-card bg-base-100 shadow-xl w-11/12 mx-auto h-52 bg-contain bg-no-repeat bg-center"
+                :style="{
+                    backgroundImage: item.pictures?.length
+                        ? 'url(' + item.pictures[0].name + ')'
+                        : 'none',
+                }"
                 v-for="item in items.data"
                 :key="item.id"
             >
-                <figure v-if="item.pictures?.length" class="h-40">
-                    <img :src="item.pictures[0].name" :alt="item.name" />
-                </figure>
-                <div class="h-40" v-else></div>
-                <div class="daisy-card-body">
+                <div class="daisy-card-body bg-white/20">
                     <h2 class="daisy-card-title">{{ item.name }}</h2>
                     <p>{{ item.description }}</p>
                     <p class="text-right">{{ item.price }} MMK</p>
                     <div class="daisy-card-actions justify-end space-x-2">
-                        <Link :href="route('items.edit', { item: item.id })">
+                        <Button
+                            @click="
+                                $inertia.visit(
+                                    route('items.edit', { item: item.id })
+                                )
+                            "
+                        >
                             Edit
-                        </Link>
-                        <Link :href="route('items.show', { item: item.id })">
+                        </Button>
+                        <Button
+                            @click="
+                                $inertia.visit(
+                                    route('items.show', { item: item.id })
+                                )
+                            "
+                        >
                             See More
-                        </Link>
+                        </Button>
                     </div>
                 </div>
             </div>

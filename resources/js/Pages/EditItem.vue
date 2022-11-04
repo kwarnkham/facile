@@ -205,7 +205,6 @@ const submitWholesale = () => {
             :title="'Pictures'"
             v-model:checked="isPicturesExpanded"
             class="shadow-xl"
-            v-if="false"
         >
             <div
                 class="flex flex-row flex-nowrap h-52 items-center space-x-2 w-full overflow-x-auto scroll-smooth"
