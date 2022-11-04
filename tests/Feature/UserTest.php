@@ -15,7 +15,7 @@ class UserTest extends TestCase
     use RefreshDatabase;
     public function test_users_screen_of_merchant_role_can_be_rendered()
     {
-        $count = rand(1, 100);
+        $count = rand(3, 100);
         $per_page = (int)floor($count / 3);
 
         Role::where('name', 'merchant')->first()->update(['name' => 'not merchant']);
