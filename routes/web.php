@@ -65,8 +65,9 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
         Route::post('', 'store')->name('features.store');
         Route::get('create', 'create')->name('features.create');
         Route::get('', 'index')->name('features.index');
-        Route::get('{feature}', 'edit')->name('features.edit');
+        Route::get('{feature}/edit', 'edit')->name('features.edit');
         Route::put('{feature}', 'update')->name('features.update');
+        Route::get('{feature}', 'show')->name('features.show');
     });
 });
 
@@ -75,7 +76,7 @@ Route::controller(WholesaleController::class)->prefix('/wholesales')->group(func
         Route::post('', 'store')->name('wholesales.store');
         Route::get('create', 'create')->name('wholesales.create');
         Route::get('', 'index')->name('wholesales.index');
-        Route::get('{wholesale}', 'edit')->name('wholesales.edit');
+        Route::get('{wholesale}/edit', 'edit')->name('wholesales.edit');
         Route::put('{wholesale}', 'update')->name('wholesales.update');
     });
 });

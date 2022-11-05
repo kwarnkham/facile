@@ -79,7 +79,14 @@ const isWholesalesExpanded = ref(false);
             class="text-right p-1"
             v-if="item.features.total > item.features.to"
         >
-            <Button>More</Button>
+            <Button
+                @click="
+                    $inertia.visit(
+                        route('features.index', { item_id: item.id })
+                    )
+                "
+                >More</Button
+            >
         </div>
     </div>
 </template>

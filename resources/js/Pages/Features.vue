@@ -108,7 +108,16 @@ watch(
                         Note: {{ feature.note }}
                     </div>
                     <div class="flex flex-row justify-between">
-                        <Button>View</Button>
+                        <Button
+                            @click="
+                                $inertia.visit(
+                                    route('features.show', {
+                                        feature: feature.id,
+                                    })
+                                )
+                            "
+                            >View</Button
+                        >
                         <Button
                             @click="
                                 $inertia.visit(

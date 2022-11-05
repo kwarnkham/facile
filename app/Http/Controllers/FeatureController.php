@@ -65,7 +65,7 @@ class FeatureController extends Controller
      */
     public function show(Feature $feature)
     {
-        return Inertia::render('Feature', ['feature' => $feature->load(['item'])]);
+        return Inertia::render('Feature', ['feature' => $feature->load(['item', 'pictures'])]);
     }
 
     /**
