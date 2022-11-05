@@ -32,5 +32,7 @@ class Feature extends Model
                     ->orWhere('price', 'like', '%' . $search . '%');
             })
         );
+
+        $query->when($filters['stocked'] ?? null, fn (Builder $query) => $query->where('stock', '>', 0));
     }
 }

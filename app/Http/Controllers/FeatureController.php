@@ -21,8 +21,9 @@ class FeatureController extends Controller
         $attributes = request()->validate([
             'item_id' => ['required', 'exists:items,id'],
             'search' => ['sometimes', 'required', 'string'],
+            'stocked' => ['boolean']
         ]);
-        $filters = request()->only(['search']);
+        $filters = request()->only(['search', 'stocked']);
         $features = Feature::with(['pictures'])->where('item_id', $attributes['item_id'])->filter($filters)->orderBy('id', 'desc')->paginate(request()->per_page ?? 20);
         return Inertia::render('Features', [
             'item' => Item::find($attributes['item_id']),
