@@ -3,6 +3,7 @@
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PictureController;
+use App\Http\Controllers\RouteController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WholesaleController;
@@ -78,6 +79,12 @@ Route::controller(WholesaleController::class)->prefix('/wholesales')->group(func
         Route::get('', 'index')->name('wholesales.index');
         Route::get('{wholesale}/edit', 'edit')->name('wholesales.edit');
         Route::put('{wholesale}', 'update')->name('wholesales.update');
+    });
+});
+
+Route::controller(RouteController::class)->group(function () {
+    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+        Route::get('cart', 'cart')->name('routes.cart');
     });
 });
 

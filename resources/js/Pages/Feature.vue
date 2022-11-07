@@ -1,6 +1,10 @@
 <script setup>
+import Button from "@/Components/Button.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import TextInput from "@/Components/TextInput.vue";
+import { store } from "@/store";
 import { XMarkIcon } from "@heroicons/vue/24/solid";
-import { onMounted, ref } from "vue";
+import { inject, onMounted, ref } from "vue";
 
 defineProps({
     feature: {
@@ -15,6 +19,12 @@ const showPicture = (picture) => {
 };
 
 const open = ref(false);
+const quantity = ref("1");
+const { updateMessage } = inject("message");
+const addToCart = (feature) => {
+    store.addToCart(feature, quantity.value);
+    updateMessage("Added");
+};
 
 onMounted(() => {
     setTimeout(() => {
@@ -24,7 +34,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="h-full p-1 flex flex-col space-y-1">
+    <div class="h-full p-1 flex flex-col space-y-1 pb-6">
         <div
             class="daisy-card daisy-card-compact bg-primary text-primary-content"
         >
@@ -56,6 +66,19 @@ onMounted(() => {
                     :class="{ 'w-full': feature.pictures.length == 1 }"
                 />
             </div>
+        </div>
+        <div class="flex-1 flex items-end justify-end">
+            <div class="mr-2">
+                <InputLabel for="quantity" value="Quantity" />
+                <TextInput
+                    id="quantity"
+                    type="number"
+                    class="w-full"
+                    v-model="quantity"
+                    required
+                />
+            </div>
+            <Button @click="addToCart(feature)"> Add to cart </Button>
         </div>
         <Teleport to="body">
             <div class="daisy-modal" :class="{ 'daisy-modal-open': open }">

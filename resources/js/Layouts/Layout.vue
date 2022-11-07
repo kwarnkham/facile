@@ -2,6 +2,8 @@
 import { provide, ref, watch } from "vue";
 import { HomeIcon, ArrowLeftIcon } from "@heroicons/vue/24/outline";
 import { usePage, Link } from "@inertiajs/inertia-vue3";
+import { ShoppingCartIcon } from "@heroicons/vue/24/solid";
+import { store } from "@/store";
 
 const message = ref("");
 const back = () => {
@@ -38,7 +40,19 @@ watch(
             class="h-12 w-full bg-secondary text-primary flex items-center justify-between px-4 relative"
             v-if="$page.props.auth.user"
         >
-            <div class="invisible">something</div>
+            <div
+                :class="{
+                    invisible:
+                        store.cart.length == 0 ||
+                        $page.props.ziggy.location == route('routes.cart'),
+                }"
+            >
+                <ShoppingCartIcon
+                    class="h-6 w-6"
+                    @click="$inertia.visit(route('routes.cart'))"
+                />
+            </div>
+
             <div
                 class="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary p-2 rounded-full border-4"
             >
@@ -77,13 +91,15 @@ watch(
             >
         </div>
         <div
-            class="absolute bottom-4 right-4 rounded-md px-2 py-1 text-sm font-semibold shadow-md"
+            class="absolute bottom-10 right-4 rounded-md px-2 py-1 text-sm font-semibold shadow-md"
             v-if="message"
-            :class="[
-                $page.props.flash.message
-                    ? 'bg-secondary-focus text-secondary-content'
-                    : 'bg-error text-error-content',
-            ]"
+            :class="{
+                'bg-secondary-focus text-secondary-content':
+                    $page.props.flash.message,
+                'bg-error text-error-content': $page.props.flash.error,
+                'bg-info text-info-content':
+                    !$page.props.flash.message && !$page.props.flash.error,
+            }"
         >
             {{ message }}
         </div>

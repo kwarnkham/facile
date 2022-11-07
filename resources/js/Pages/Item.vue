@@ -67,6 +67,11 @@ const isWholesalesExpanded = ref(false);
             <div
                 v-for="feature in item.features.data"
                 class="h-40 w-2/5 bg-base-300 rounded-md flex justify-center mb-1"
+                @click="
+                    $inertia.visit(
+                        route('features.show', { feature: feature.id })
+                    )
+                "
             >
                 <img
                     :src="feature.pictures[0]?.name"
