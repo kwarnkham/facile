@@ -4,6 +4,7 @@ import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { store } from "@/store";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
+import { Inertia } from "@inertiajs/inertia";
 import { Head } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
 
@@ -27,18 +28,27 @@ const updateCartFeature = () => {
     store.updateCart(cartFeatureInEdit.value);
     open.value = false;
 };
+
+const clearCart = () => {
+    store.clearCart();
+    Inertia.visit(route("items.index"), {
+        replace: true,
+    });
+};
 </script>
 <template>
     <div class="h-full overflow-y-auto flex flex-col p-1 pb-8">
         <Head title="Cart" />
-
+        <div class="text-right mb-2">
+            <Button @click="clearCart">Clear Cart</Button>
+        </div>
         <table class="daisy-table daisy-table-compact w-full daisy-table-zebra">
             <thead class="sticky top-0">
                 <tr>
                     <th></th>
                     <th>Name</th>
-                    <th class="text-right">Qty</th>
                     <th class="text-right">Price</th>
+                    <th class="text-right">Qty</th>
                     <th class="text-right">Amount</th>
                 </tr>
             </thead>
@@ -46,15 +56,16 @@ const updateCartFeature = () => {
                 <tr v-for="(feature, index) in store.cart" :key="feature.id">
                     <th>{{ index + 1 }}</th>
                     <td>{{ feature.name }}</td>
+                    <td class="text-right">
+                        {{ feature.price.toLocaleString() }}
+                    </td>
                     <td
                         class="text-right underline text-info"
                         @click="editCartFeature(feature)"
                     >
                         {{ feature.quantity }}
                     </td>
-                    <td class="text-right">
-                        {{ feature.price.toLocaleString() }}
-                    </td>
+
                     <td class="text-right">
                         {{
                             (feature.quantity * feature.price).toLocaleString()
@@ -63,7 +74,7 @@ const updateCartFeature = () => {
                 </tr>
                 <tr class="font-bold">
                     <th class="underline"></th>
-                    <td>Total</td>
+                    <td colspan="2">Total</td>
                     <td class="text-right">
                         {{
                             store.cart.reduce(
@@ -72,13 +83,7 @@ const updateCartFeature = () => {
                             )
                         }}
                     </td>
-                    <td class="text-right">
-                        {{
-                            store.cart
-                                .reduce((carry, e) => e.price + carry, 0)
-                                .toLocaleString()
-                        }}
-                    </td>
+
                     <td class="text-right">
                         {{
                             store.cart

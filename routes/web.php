@@ -86,6 +86,8 @@ Route::controller(WholesaleController::class)->prefix('/wholesales')->group(func
 Route::controller(OrderController::class)->prefix('/orders')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('orders.store');
+        Route::get('', 'index')->name('orders.index');
+        Route::get('{order}', 'show')->name('orders.show');
     });
 });
 

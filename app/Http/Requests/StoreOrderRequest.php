@@ -27,6 +27,7 @@ class StoreOrderRequest extends FormRequest
             'customer' => ['required', 'string'],
             'phone' => ['required', 'numeric'],
             'address' => ['sometimes', 'required', 'string'],
+            'note' => ['sometimes', 'required', 'string'],
             'features' => ['required', 'array'],
             'features.*' => ['required', 'array'],
             'features.*.id' => ['required', 'exists:features,id', 'distinct'],

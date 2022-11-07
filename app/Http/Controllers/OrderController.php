@@ -8,6 +8,7 @@ use App\Models\Feature;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
@@ -18,7 +19,8 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+        $order = Order::paginate(request()->per_page ?? 20);
+        return Inertia::render('Orders', ['orders' => $order]);
     }
 
     /**
@@ -41,23 +43,31 @@ class OrderController extends Controller
     {
         $attributes = $request->validated();
         $prices = collect(Feature::whereIn('id', array_map(fn ($v) => $v['id'], $attributes['features']))->get(['id', 'price'])->toArray());
+        $attributes['features'] = collect($attributes['features'])->map(function ($feature) use ($prices) {
+            $feature['price'] = $prices->first(fn ($price) => $price['id'] == $feature['id'])['price'];
+            return $feature;
+        });
 
-        DB::transaction(function () use ($attributes, $request, $prices) {
+        $createdOrder = DB::transaction(function () use ($attributes, $request, $prices) {
             $order = Order::create(
                 collect([
                     ...[
                         'user_id' => $request->user()->id,
-                        'amount' => collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $prices->first(fn ($price) => $price['id'] == $feature['id'])['price']),
+                        'amount' => collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['price']),
                     ],
                     ...$attributes
                 ])->except(['features'])->toArray()
             );
             $order->features()->attach(
-                collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => ['quantity' => $feature['quantity']]])->toArray()
+                collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => [
+                    'quantity' => $feature['quantity'],
+                    'price' => $feature['price']
+                ]])->toArray()
             );
+            return $order;
         });
 
-        return Redirect::back()->with('message', 'Success');
+        return Redirect::route('orders.show', ['order' => $createdOrder->id])->with('message', 'Success');
     }
 
     /**
@@ -68,7 +78,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        //
+        return Inertia::render('Order', ['order' => $order->load(['features'])]);
     }
 
     /**

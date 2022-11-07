@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('feature_id')->constrained();
             $table->foreignId('order_id')->constrained();
             $table->unsignedInteger('quantity');
+            $table->double('price');
             $table->timestamps();
         });
     }
