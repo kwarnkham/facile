@@ -11,4 +11,9 @@ class RouteController extends Controller
     {
         return Inertia::render('Cart');
     }
+
+    public function checkout()
+    {
+        return Inertia::render('Checkout');
+    }
 }

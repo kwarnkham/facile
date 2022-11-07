@@ -21,6 +21,11 @@ class Feature extends Model
         return $this->morphMany(Picture::class, 'pictureable')->orderBy('id', 'desc');
     }
 
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class);
+    }
+
     public function scopeFilter(Builder $query, $filters)
     {
         $query->when(

@@ -56,11 +56,15 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
  * @property-read int|null $features_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
+ * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
  * @property-read int|null $pictures_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tag[] $tags
  * @property-read int|null $tags_count
  * @property-read \App\Models\User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Wholesale[] $wholesales
+ * @property-read int|null $wholesales_count
  * @method static \Database\Factories\ItemFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Item filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Item newModelQuery()
@@ -103,6 +107,20 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Merchant whereUserId($value)
  */
 	class Merchant extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\Order
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Item[] $items
+ * @property-read int|null $items_count
+ * @method static \Database\Factories\OrderFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Order newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Order newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Order query()
+ */
+	class Order extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -221,10 +239,23 @@ namespace App\Models{
 /**
  * App\Models\Wholesale
  *
+ * @property int $id
+ * @property int $item_id
+ * @property float $price
+ * @property int $quantity
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Item $item
  * @method static \Database\Factories\WholesaleFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Wholesale newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Wholesale newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Wholesale query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Wholesale whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wholesale whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wholesale whereItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wholesale wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wholesale whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Wholesale whereUpdatedAt($value)
  */
 	class Wholesale extends \Eloquent {}
 }

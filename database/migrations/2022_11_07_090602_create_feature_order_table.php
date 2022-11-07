@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('wholesales', function (Blueprint $table) {
+        Schema::create('feature_order', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('item_id')->constrained();
-            $table->double('price');
+            $table->foreignId('feature_id')->constrained();
+            $table->foreignId('order_id')->constrained();
             $table->unsignedInteger('quantity');
-            $table->unique(['item_id', 'quantity']);
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('wholesales');
+        Schema::dropIfExists('feature_order');
     }
 };

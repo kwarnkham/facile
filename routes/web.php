@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\TagController;
@@ -82,9 +83,16 @@ Route::controller(WholesaleController::class)->prefix('/wholesales')->group(func
     });
 });
 
+Route::controller(OrderController::class)->prefix('/orders')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+        Route::post('', 'store')->name('orders.store');
+    });
+});
+
 Route::controller(RouteController::class)->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::get('cart', 'cart')->name('routes.cart');
+        Route::get('checkout', 'checkout')->name('routes.checkout');
     });
 });
 

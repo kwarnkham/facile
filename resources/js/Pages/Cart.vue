@@ -29,77 +29,74 @@ const updateCartFeature = () => {
 };
 </script>
 <template>
-    <div class="h-full overflow-y-auto flex flex-col">
+    <div class="h-full overflow-y-auto flex flex-col p-1 pb-8">
         <Head title="Cart" />
-        <div class="overflow-x-auto">
-            <table
-                class="daisy-table daisy-table-compact w-full daisy-table-zebra"
-            >
-                <thead class="sticky top-0">
-                    <tr>
-                        <th></th>
-                        <th>Name</th>
-                        <th class="text-right">Qty</th>
-                        <th class="text-right">Price</th>
-                        <th class="text-right">Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="(feature, index) in store.cart"
-                        :key="feature.id"
+
+        <table class="daisy-table daisy-table-compact w-full daisy-table-zebra">
+            <thead class="sticky top-0">
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th class="text-right">Qty</th>
+                    <th class="text-right">Price</th>
+                    <th class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(feature, index) in store.cart" :key="feature.id">
+                    <th>{{ index + 1 }}</th>
+                    <td>{{ feature.name }}</td>
+                    <td
+                        class="text-right underline text-info"
+                        @click="editCartFeature(feature)"
                     >
-                        <th>{{ index + 1 }}</th>
-                        <td>{{ feature.name }}</td>
-                        <td
-                            class="text-right underline text-info"
-                            @click="editCartFeature(feature)"
-                        >
-                            {{ feature.quantity }}
-                        </td>
-                        <td class="text-right">
-                            {{ feature.price.toLocaleString() }}
-                        </td>
-                        <td class="text-right">
-                            {{
-                                (
-                                    feature.quantity * feature.price
-                                ).toLocaleString()
-                            }}
-                        </td>
-                    </tr>
-                    <tr class="font-bold">
-                        <th class="underline"></th>
-                        <td>Total</td>
-                        <td class="text-right">
-                            {{
-                                store.cart.reduce(
-                                    (carry, e) => e.quantity + carry,
+                        {{ feature.quantity }}
+                    </td>
+                    <td class="text-right">
+                        {{ feature.price.toLocaleString() }}
+                    </td>
+                    <td class="text-right">
+                        {{
+                            (feature.quantity * feature.price).toLocaleString()
+                        }}
+                    </td>
+                </tr>
+                <tr class="font-bold">
+                    <th class="underline"></th>
+                    <td>Total</td>
+                    <td class="text-right">
+                        {{
+                            store.cart.reduce(
+                                (carry, e) => e.quantity + carry,
+                                0
+                            )
+                        }}
+                    </td>
+                    <td class="text-right">
+                        {{
+                            store.cart
+                                .reduce((carry, e) => e.price + carry, 0)
+                                .toLocaleString()
+                        }}
+                    </td>
+                    <td class="text-right">
+                        {{
+                            store.cart
+                                .reduce(
+                                    (carry, e) => e.quantity * e.price + carry,
                                     0
                                 )
-                            }}
-                        </td>
-                        <td class="text-right">
-                            {{
-                                store.cart
-                                    .reduce((carry, e) => e.price + carry, 0)
-                                    .toLocaleString()
-                            }}
-                        </td>
-                        <td class="text-right">
-                            {{
-                                store.cart
-                                    .reduce(
-                                        (carry, e) =>
-                                            e.quantity * e.price + carry,
-                                        0
-                                    )
-                                    .toLocaleString()
-                            }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                                .toLocaleString()
+                        }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="flex-1 flex items-end justify-end">
+            <Button @click="$inertia.visit(route('routes.checkout'))"
+                >Checkout</Button
+            >
         </div>
         <Teleport to="body">
             <div
