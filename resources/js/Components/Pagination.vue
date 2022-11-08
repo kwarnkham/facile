@@ -1,14 +1,46 @@
 <script setup>
-defineProps({
+import { Inertia } from "@inertiajs/inertia";
+import debounce from "lodash/debounce";
+import pickBy from "lodash/pickBy";
+import { computed, watch } from "vue";
+
+const props = defineProps({
     data: {
         required: true,
         type: Object,
     },
-    navigate: {
+    url: {
         required: true,
-        type: Function,
+        type: String,
+    },
+    query: {
+        required: false,
+        type: Object,
     },
 });
+
+const params = computed(() => {
+    const temp = JSON.parse(JSON.stringify(props.query));
+    if (temp.hasOwnProperty("stocked")) temp.stocked = Number(temp.stocked);
+    return temp;
+});
+
+const getPage = (page = 1) => {
+    Inertia.visit(props.url, {
+        method: "get",
+        replace: true,
+        data: { ...pickBy(params.value), page: page },
+        preserveState: true,
+    });
+};
+
+watch(
+    props.query,
+    debounce(() => {
+        getPage();
+    }, 400),
+    { deep: true }
+);
 </script>
 
 <template>
@@ -19,7 +51,7 @@ defineProps({
                 'daisy-btn-disabled text-gray-500': data.current_page == 1,
                 'text-info': data.current_page != 1,
             }"
-            @click="navigate(1)"
+            @click="getPage(1)"
         >
             «
         </button>
@@ -29,7 +61,7 @@ defineProps({
                 'daisy-btn-disabled text-gray-500': !data.prev_page_url,
                 'text-info': data.prev_page_url,
             }"
-            @click="navigate(data.current_page - 1)"
+            @click="getPage(data.current_page - 1)"
         >
             Prev
         </button>
@@ -44,7 +76,7 @@ defineProps({
                 'daisy-btn-disabled text-gray-500': !data.next_page_url,
                 'text-info': data.next_page_url,
             }"
-            @click="navigate(data.current_page + 1)"
+            @click="getPage(data.current_page + 1)"
         >
             Next
         </button>
@@ -55,7 +87,7 @@ defineProps({
                     data.current_page == data.last_page,
                 'text-info': data.current_page != data.last_page,
             }"
-            @click="navigate(data.last_page)"
+            @click="getPage(data.last_page)"
         >
             »
         </button>

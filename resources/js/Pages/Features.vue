@@ -4,11 +4,9 @@ import Checkbox from "@/Components/Checkbox.vue";
 import Pagination from "@/Components/Pagination.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { MagnifyingGlassCircleIcon, PlusIcon } from "@heroicons/vue/24/solid";
-import { Inertia } from "@inertiajs/inertia";
 import { Head } from "@inertiajs/inertia-vue3";
-import debounce from "lodash/debounce";
-import pickBy from "lodash/pickBy";
-import { ref, watch } from "vue";
+import { ref } from "vue";
+import usePagination from "@/Composables/pagination";
 
 const props = defineProps({
     item: {
@@ -24,46 +22,12 @@ const props = defineProps({
         default: () => ({}),
     },
 });
-const search = ref(props.filters.search ?? "");
-const visitPage = (page) => {
-    fetchMore(route("features.index"), {
-        item_id: props.item.id,
-        search: search.value,
-        stocked: onlyStocked.value,
-        page,
-    });
-};
 
-const onlyStocked = ref(Boolean(props.filters.stocked) ?? false);
-
-const fetchMore = (url, data) => {
-    data.stocked = Number(data.stocked);
-    Inertia.visit(url, {
-        method: "get",
-        replace: true,
-        data: pickBy(data),
-        preserveState: true,
-    });
-};
-
-watch(onlyStocked, () => {
-    fetchMore(route("features.index"), {
-        item_id: props.item.id,
-        search: search.value,
-        stocked: onlyStocked.value,
-    });
+const query = ref({
+    search: props.filters.search ?? "",
+    stocked: Boolean(props.filters.stocked) ?? false,
+    item_id: props.item.id,
 });
-
-watch(
-    search,
-    debounce(() => {
-        fetchMore(route("features.index"), {
-            item_id: props.item.id,
-            search: search.value,
-            stocked: onlyStocked.value,
-        });
-    }, 400)
-);
 </script>
 
 <template>
@@ -88,9 +52,13 @@ watch(
             <div>
                 <MagnifyingGlassCircleIcon class="w-8 h-8 text-primary" />
             </div>
-            <TextInput placeholder="Search" class="flex-1" v-model="search" />
+            <TextInput
+                placeholder="Search"
+                class="flex-1"
+                v-model="query.search"
+            />
             <label class="flex items-center cursor-pointer">
-                <Checkbox name="only stocked" v-model:checked="onlyStocked" />
+                <Checkbox name="only stocked" v-model:checked="query.stocked" />
                 <span class="ml-1 daisy-label-text">Only Stocked</span>
             </label>
         </div>
@@ -150,7 +118,11 @@ watch(
             </div>
         </div>
         <div class="mb-5 mt-1 text-center">
-            <Pagination :data="features" :navigate="visitPage" />
+            <Pagination
+                :data="features"
+                :url="route('features.index')"
+                :query="query"
+            />
         </div>
     </div>
 </template>
