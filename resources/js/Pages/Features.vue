@@ -6,7 +6,6 @@ import TextInput from "@/Components/TextInput.vue";
 import { MagnifyingGlassCircleIcon, PlusIcon } from "@heroicons/vue/24/solid";
 import { Head } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
-import usePagination from "@/Composables/pagination";
 
 const props = defineProps({
     item: {

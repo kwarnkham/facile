@@ -1,10 +1,7 @@
 <script setup>
-import { Inertia } from "@inertiajs/inertia";
-import pickBy from "lodash/pickBy";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import TextInput from "@/Components/TextInput.vue";
 import { MagnifyingGlassCircleIcon } from "@heroicons/vue/24/solid";
-import debounce from "lodash/debounce";
 import Pagination from "@/Components/Pagination.vue";
 const props = defineProps({
     users: {
@@ -15,34 +12,11 @@ const props = defineProps({
         type: Object,
     },
 });
-const search = ref(props.filters.search);
-const visitPage = (page) => {
-    Inertia.visit(route("users.index"), {
-        method: "get",
-        replace: true,
-        data: pickBy({
-            role: props.filters.role,
-            search: search.value,
-            page,
-        }),
-        preserveState: true,
-    });
-};
 
-watch(
-    search,
-    debounce(() => {
-        Inertia.visit(route("users.index"), {
-            method: "get",
-            replace: true,
-            data: pickBy({
-                role: props.filters.role,
-                search: search.value,
-            }),
-            preserveState: true,
-        });
-    }, 400)
-);
+const query = ref({
+    search: props.filters.search ?? "",
+    role: props.filters.role,
+});
 </script>
 <template>
     <div class="h-full flex flex-col">
@@ -50,7 +24,11 @@ watch(
             <div class="px-1">
                 <MagnifyingGlassCircleIcon class="w-8 h-8 text-primary" />
             </div>
-            <TextInput placeholder="Search" class="flex-1" v-model="search" />
+            <TextInput
+                placeholder="Search"
+                class="flex-1"
+                v-model="query.search"
+            />
         </div>
         <div class="overflow-y-auto flex-grow flex-shrink-0 basis-0">
             <div v-for="user in users.data" :key="user.id" class="p-2">
@@ -82,7 +60,11 @@ watch(
             </div>
         </div>
         <div class="py-2 text-center">
-            <Pagination :data="users" :navigate="visitPage" />
+            <Pagination
+                :data="users"
+                :url="route('users.index')"
+                :query="query"
+            />
         </div>
     </div>
 </template>

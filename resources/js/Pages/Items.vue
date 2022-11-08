@@ -1,9 +1,9 @@
 <script setup>
-import { ref, watch } from "vue";
-import pickBy from "lodash/pickBy";
-import debounce from "lodash/debounce";
-import { Inertia } from "@inertiajs/inertia";
+import { ref } from "vue";
 import Button from "@/Components/Button.vue";
+import Pagination from "@/Components/Pagination.vue";
+import TextInput from "@/Components/TextInput.vue";
+import { MagnifyingGlassCircleIcon } from "@heroicons/vue/24/solid";
 
 const props = defineProps({
     items: {
@@ -14,39 +14,26 @@ const props = defineProps({
         type: Object,
     },
 });
-const search = ref(props.filters.search);
 
-const visitPage = (page) => {
-    Inertia.visit(route("items.index"), {
-        method: "get",
-        data: pickBy({
-            user_id: props.filters.user_id,
-            search: search.value,
-            page,
-        }),
-        preserveState: true,
-    });
-};
-
-watch(
-    search,
-    debounce(() => {
-        Inertia.visit(route("items.index"), {
-            method: "get",
-            data: pickBy({
-                user_id: props.filters.user_id,
-                search: search.value,
-            }),
-            preserveState: true,
-        });
-    }, 400)
-);
+const query = ref({
+    search: props.filters.search ?? "",
+    user_id: props.filters.user_id ?? "",
+});
 </script>
 
 <template>
-    <div class="flex flex-col h-full">
-        <div class="text-center">
-            <input type="text" placeholder="Search here" v-model="search" />
+    <div class="flex flex-col h-full p-2 pb-6">
+        <div
+            class="mb-2 flex flex-row flex-nowrap justify-between items-center space-x-2"
+        >
+            <div>
+                <MagnifyingGlassCircleIcon class="w-8 h-8 text-primary" />
+            </div>
+            <TextInput
+                placeholder="Search"
+                class="flex-1"
+                v-model="query.search"
+            />
         </div>
         <div class="flex-grow flex-shrink-0 basis-0 overflow-y-auto space-y-2">
             <div
@@ -59,7 +46,7 @@ watch(
                 v-for="item in items.data"
                 :key="item.id"
             >
-                <div class="daisy-card-body bg-white/20">
+                <div class="daisy-card-body bg-white/50">
                     <h2 class="daisy-card-title">{{ item.name }}</h2>
                     <p>{{ item.description }}</p>
                     <p class="text-right">{{ item.price }} MMK</p>
@@ -87,10 +74,12 @@ watch(
             </div>
         </div>
 
-        <div>Items: page {{ items.current_page }} of {{ items.last_page }}</div>
-        <div class="flex justify-between">
-            <button @click="visitPage(items.current_page - 1)">prev</button>
-            <button @click="visitPage(items.current_page + 1)">next</button>
+        <div class="text-center">
+            <Pagination
+                :data="items"
+                :url="route('items.index')"
+                :query="query"
+            />
         </div>
     </div>
 </template>
