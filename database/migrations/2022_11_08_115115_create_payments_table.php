@@ -13,14 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('features', function (Blueprint $table) {
+        Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->unsignedInteger('stock');
-            $table->double('price');
-            $table->string('note')->nullable();
-            $table->foreignId('item_id')->constrained();
-            $table->unique(['item_id', 'name']);
+            $table->string('name')->unique();
             $table->timestamps();
         });
     }
@@ -32,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('features');
+        Schema::dropIfExists('payments');
     }
 };

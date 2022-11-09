@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Enums\ResponseStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
@@ -54,7 +55,7 @@ class RegisteredUserController extends Controller
 
         if ($request->exists('role_id')) {
             $user->roles()->attach($request->role_id);
-            if ($request->role_id == 2) $user->merchant()->create([
+            if ($request->role_id == Role::where('name', 'merchant')->first()->id) $user->merchant()->create([
                 'address' => $request->address,
                 'description' => $request->description
             ]);

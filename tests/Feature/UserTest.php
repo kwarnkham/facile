@@ -4,15 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use Inertia\Testing\AssertableInertia as Assert;
 
 class UserTest extends TestCase
 {
-    use RefreshDatabase;
+
     public function test_users_screen_of_merchant_role_can_be_rendered()
     {
         $count = rand(3, 100);

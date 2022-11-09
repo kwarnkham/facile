@@ -5,15 +5,12 @@ namespace Tests\Feature;
 use App\Enums\ResponseStatus;
 use App\Models\Feature;
 use App\Models\Item;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PictureTest extends TestCase
 {
-    use RefreshDatabase;
+
 
     public function test_store_pictures_item()
     {

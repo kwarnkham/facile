@@ -6,8 +6,11 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Feature;
 use App\Models\Order;
+use App\Models\Payment;
+use App\Models\UserPayment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -21,6 +24,29 @@ class OrderController extends Controller
     {
         $order = Order::paginate(request()->per_page ?? 20);
         return Inertia::render('Orders', ['orders' => $order]);
+    }
+
+    /**
+     * Pay the order
+     *
+     * @return \Inertia\Response
+     */
+    public function pay(Order $order)
+    {
+        $attributes = request()->validate([
+            'payment_id' => ['required', Rule::exists('user_payments', 'id')->where('user_id', request()->user()->id)],
+            'amount' => ['required', 'numeric', 'gt:0']
+        ]);
+
+        $order->payments()->attach(
+            $attributes['payment_id'],
+            [
+                'amount' => $attributes['amount'],
+                'number' => UserPayment::find($attributes['payment_id'])->number
+            ]
+        );
+
+        return Redirect::back()->with('message', 'Success');
     }
 
     /**

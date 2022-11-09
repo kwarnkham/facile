@@ -5,13 +5,12 @@ namespace Tests\Feature;
 use App\Enums\ResponseStatus;
 use App\Models\Feature;
 use App\Models\Item;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class ItemFeatureTest extends TestCase
 {
-    use RefreshDatabase;
+
+
     public function test_add_feature_to_an_item()
     {
         $data = Feature::factory()->make()->toArray();

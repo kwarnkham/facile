@@ -3,14 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Item;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Inertia\Testing\AssertableInertia as Assert;
 
 class ItemTest extends TestCase
 {
-    use RefreshDatabase;
+
 
     public function test_merchant_can_add_item()
     {

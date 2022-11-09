@@ -13,14 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('features', function (Blueprint $table) {
+        Schema::create('user_payments', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->unsignedInteger('stock');
-            $table->double('price');
-            $table->string('note')->nullable();
-            $table->foreignId('item_id')->constrained();
-            $table->unique(['item_id', 'name']);
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('payment_id')->constrained();
+            $table->string('number')->nullable();
+            $table->tinyInteger('status')->default(1);
+            $table->unique(['user_id', 'payment_id', 'number']);
             $table->timestamps();
         });
     }
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('features');
+        Schema::dropIfExists('user_payments');
     }
 };

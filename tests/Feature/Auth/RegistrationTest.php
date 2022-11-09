@@ -2,14 +2,15 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
 {
-    use RefreshDatabase;
+
 
     public function test_registration_screen_can_be_rendered()
     {
@@ -38,7 +39,7 @@ class RegistrationTest extends TestCase
             'email' => 'merchant@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-            'role_id' => 2,
+            'role_id' => Role::where('name', 'merchant')->first()->id,
             'description' => 'description',
             'address' => 'address'
         ];

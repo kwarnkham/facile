@@ -4,13 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\Item;
 use App\Models\Tag;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class TagTest extends TestCase
 {
-    use RefreshDatabase;
+
     public function test_create_new_tag_and_attach_to_an_item()
     {
         $item = Item::factory()->create([
@@ -38,16 +36,15 @@ class TagTest extends TestCase
             'item_id' => $item->id
         ];
         $this->actingAs($this->merchant)->post(route('tags.store'), $data);
-        $tag = Tag::find(1);
-        $this->actingAs($this->merchant)->post(route('tags.toggle', ['tag' => $tag->id]), [
+        $this->actingAs($this->merchant)->post(route('tags.toggle', ['tag' => $this->tag->id]), [
             'item_id' => $item->id
         ]);
-        $this->assertTrue($item->tags->contains(fn ($value) => $value->id == $tag->id));
+        $this->assertTrue($item->tags->contains(fn ($value) => $value->id == $this->tag->id));
 
-        $this->actingAs($this->merchant)->post(route('tags.toggle', ['tag' => $tag->id]), [
+        $this->actingAs($this->merchant)->post(route('tags.toggle', ['tag' => $this->tag->id]), [
             'item_id' => $item->id
         ]);
-        $this->assertFalse($item->fresh()->tags->contains(fn ($value) => $value->id == $tag->id));
+        $this->assertFalse($item->fresh()->tags->contains(fn ($value) => $value->id == $this->tag->id));
     }
 
     public function test_create_tag_only_if_it_does_not_exist()

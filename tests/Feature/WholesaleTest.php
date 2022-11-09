@@ -5,13 +5,11 @@ namespace Tests\Feature;
 use App\Enums\ResponseStatus;
 use App\Models\Item;
 use App\Models\Wholesale;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class WholesaleTest extends TestCase
 {
-    use RefreshDatabase;
+
     public function test_wholesale_can_be_added()
     {
         $data = Wholesale::factory()->make()->toArray();
