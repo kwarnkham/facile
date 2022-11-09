@@ -6,8 +6,7 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Feature;
 use App\Models\Order;
-use App\Models\Payment;
-use App\Models\UserPayment;
+use App\Models\MerchantPayment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -34,7 +33,7 @@ class OrderController extends Controller
     public function pay(Order $order)
     {
         $attributes = request()->validate([
-            'payment_id' => ['required', Rule::exists('user_payments', 'id')->where('user_id', request()->user()->id)],
+            'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
             'amount' => ['required', 'numeric', 'gt:0']
         ]);
 
@@ -42,7 +41,7 @@ class OrderController extends Controller
             $attributes['payment_id'],
             [
                 'amount' => $attributes['amount'],
-                'number' => UserPayment::find($attributes['payment_id'])->number
+                'number' => MerchantPayment::find($attributes['payment_id'])->number
             ]
         );
 

@@ -45,11 +45,6 @@ class User extends Authenticatable
         return $this->hasMany(Item::class);
     }
 
-    public function payments()
-    {
-        return $this->belongsToMany(Payment::class, 'user_payments')->using(UserPayment::class)->withPivot('number', 'status', 'id')->withTimestamps();
-    }
-
     public function roles()
     {
         return $this->belongsToMany(Role::class)->withTimestamps();

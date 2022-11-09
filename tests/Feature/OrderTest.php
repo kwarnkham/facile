@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\ResponseStatus;
 use App\Models\Feature;
 use App\Models\Item;
+use App\Models\Merchant;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Role;
@@ -50,15 +51,15 @@ class OrderTest extends TestCase
     {
         $order = Order::factory()->create(['user_id' => $this->merchant->id, 'amount' => 123]);
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
-            'payment_id' => $this->merchant->payments()->first()->pivot->id,
+            'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
             'amount' => '1000'
         ]);
         $this->assertDatabaseCount('order_payment', 1);
 
-        $user = User::factory()->hasAttached(Role::where('name', 'merchant')->first())->create();
-        $user->payments()->attach(Payment::factory()->create());
+        $user = User::factory()->hasAttached(Role::where('name', 'merchant')->first())->has(Merchant::factory())->create();
+        $user->merchant->payments()->attach(Payment::factory()->create());
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
-            'payment_id' => $user->payments()->first()->pivot->id,
+            'payment_id' => $user->merchant->payments()->first()->pivot->id,
             'amount' => '1000'
         ])->assertSessionHasErrors(['payment_id']);
     }

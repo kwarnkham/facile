@@ -2,12 +2,12 @@
 
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\MerchantPaymentController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PictureController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\UserPaymentController;
 use App\Http\Controllers\WholesaleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -74,7 +74,7 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
     });
 });
 
-Route::controller(UserPaymentController::class)->prefix('/user-payments')->group(function () {
+Route::controller(MerchantPaymentController::class)->prefix('/user-payments')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('user_payments.store');
     });

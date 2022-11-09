@@ -19,4 +19,9 @@ class Merchant extends Model
     {
         return $this->morphMany(Picture::class, 'pictureable');
     }
+
+    public function payments()
+    {
+        return $this->belongsToMany(Payment::class, 'merchant_payments')->using(MerchantPayment::class)->withPivot('number', 'status', 'id')->withTimestamps();
+    }
 }

@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_payments', function (Blueprint $table) {
+        Schema::create('merchant_payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('merchant_id')->constrained();
             $table->foreignId('payment_id')->constrained();
             $table->string('number')->nullable();
             $table->tinyInteger('status')->default(1);
-            $table->unique(['user_id', 'payment_id', 'number']);
+            $table->unique(['merchant_id', 'payment_id', 'number']);
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_payments');
+        Schema::dropIfExists('merchant_payments');
     }
 };

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class UserPayment extends Pivot
+class MerchantPayment extends Pivot
 {
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -18,10 +18,10 @@ class UserPayment extends Pivot
      *
      * @var string
      */
-    protected $table = 'user_payments';
+    protected $table = 'merchant_payments';
 
     public function orders()
     {
-        return $this->belongsToMany(Order::class, 'order_payment', 'order_id', 'user_payment_id')->withPivot('amount', 'number')->withTimestamps();
+        return $this->belongsToMany(Order::class, 'order_payment', 'order_id', 'merchant_payment_id')->withPivot('amount', 'number')->withTimestamps();
     }
 }

@@ -9,8 +9,8 @@ class Payment extends Model
 {
     use HasFactory;
 
-    public function users()
+    public function merchants()
     {
-        return $this->belongsToMany(User::class)->using(UserPayment::class)->withPivot('number', 'status', 'id')->withTimestamps();
+        return $this->belongsToMany(Merchant::class)->using(MerchantPayment::class)->withPivot('number', 'status', 'id')->withTimestamps();
     }
 }

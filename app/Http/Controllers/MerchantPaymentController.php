@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserPayment;
+use App\Models\Merchant;
+use App\Models\MerchantPayment;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Redirect;
 
-class UserPaymentController extends Controller
+class MerchantPaymentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -42,15 +43,15 @@ class UserPaymentController extends Controller
             'number' => [
                 'required',
                 'numeric',
-                Rule::unique('user_payments', 'number')->where(fn ($query) => $query->where([
+                Rule::unique('merchant_payments', 'number')->where(fn ($query) => $query->where([
                     'payment_id' => $request->payment_id,
-                    'user_id' => $request->user()->id
+                    'merchant_id' => $request->user()->merchant->id
                 ]))
             ],
         ]);
 
-        $attributes['user_id'] = $request->user()->id;
-        UserPayment::create($attributes);
+        $attributes['merchant_id'] = $request->user()->merchant->id;
+        MerchantPayment::create($attributes);
 
         return Redirect::back()->with('message', 'Success');
     }
