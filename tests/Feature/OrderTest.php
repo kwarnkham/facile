@@ -136,4 +136,29 @@ class OrderTest extends TestCase
             'amount' => $order->amount
         ])->assertSessionHasErrors(['amount']);
     }
+
+    public function test_pay_order_with_discount()
+    {
+        $item = Item::factory()->create(['user_id' => $this->merchant]);
+        $count = rand(2, 14);
+        $features = Feature::factory($count)->create(['item_id' => $item->id])->map(
+            fn ($feature) =>
+            ['id' => $feature->id, 'quantity' => rand(1, 10)]
+        )->toArray();
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...['features' => $features, 'discount' => (int)(Feature::all()->reduce(fn ($carry, $feature) => $feature->price + $carry, 0)) / 2],
+            ...Order::factory()->make()->toArray()
+        ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value);
+        $order = Order::first();
+        $this->assertEquals($order->amount / 2, $order->discount);
+
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
+            'amount' => $order->amount / 2
+        ]);
+
+        $this->assertDatabaseCount('order_payment', 1);
+        $this->assertEquals($order->fresh()->status, 3);
+    }
 }

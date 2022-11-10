@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->double('amount');
+            $table->double('discount')->default(0);
             $table->tinyInteger('status')->default(1);
             $table->string('customer');
             $table->string('phone');

@@ -33,8 +33,7 @@ class OrderController extends Controller
      */
     public function pay(Order $order)
     {
-        $paidAmount = (int) $order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
-
+        $paidAmount = (int) $order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0) + $order->discount;
         $attributes = request()->validate([
             'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
             'amount' => ['required', 'numeric', 'gt:0', 'lte:' . $order->amount - $paidAmount]
