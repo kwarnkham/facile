@@ -33,14 +33,14 @@ class OrderController extends Controller
      */
     public function pay(Order $order)
     {
+        $paidAmount = (int) $order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
+
         $attributes = request()->validate([
             'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
-            'amount' => ['required', 'numeric', 'gt:0']
+            'amount' => ['required', 'numeric', 'gt:0', 'lte:' . $order->amount - $paidAmount]
         ]);
 
-        DB::transaction(function () use ($order, $attributes) {
-            $paidAmount = (int) $order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
-            abort_if($paidAmount >= $order->amount, ResponseStatus::BAD_REQUEST->value, 'Order is already fully paid');
+        DB::transaction(function () use ($order, $attributes, $paidAmount) {
             $order->payments()->attach(
                 $attributes['payment_id'],
                 [

@@ -99,6 +99,41 @@ class OrderTest extends TestCase
             'amount' => $order->amount
         ]);
         $this->assertDatabaseCount('order_payment', 1);
-        $this->assertEquals($order->fresh()->status,  3);
+        $this->assertEquals($order->fresh()->status, 3);
+    }
+
+    public function test_cannot_pay_more_than_order_amount()
+    {
+        $features = Feature::factory(10)->for(Item::factory()->state(['user_id' => $this->merchant->id]))->create();
+        $order = Order::factory()->create([
+            'user_id' => $this->merchant->id,
+            'amount' => $features->reduce(fn ($carry, $feature) => $feature->price + $carry, 0)
+        ]);
+        $features->each(fn ($feature) => $order->features()->attach($feature->id, ['price' => $feature->price, 'quantity' => $feature->id]));
+
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
+            'amount' => floor($order->amount / 2)
+        ]);
+        $this->assertEquals($order->fresh()->status, 2);
+
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
+            'amount' => floor($order->amount / 4)
+        ]);
+        $this->assertEquals($order->fresh()->status, 2);
+
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
+            'amount' => $order->amount - $order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
+        ]);
+
+        $this->assertDatabaseCount('order_payment', 3);
+        $this->assertEquals($order->fresh()->status, 3);
+
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
+            'amount' => $order->amount
+        ])->assertSessionHasErrors(['amount']);
     }
 }
