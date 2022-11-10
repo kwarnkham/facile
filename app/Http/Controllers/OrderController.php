@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Feature;
@@ -37,13 +38,22 @@ class OrderController extends Controller
             'amount' => ['required', 'numeric', 'gt:0']
         ]);
 
-        $order->payments()->attach(
-            $attributes['payment_id'],
-            [
-                'amount' => $attributes['amount'],
-                'number' => MerchantPayment::find($attributes['payment_id'])->number
-            ]
-        );
+        DB::transaction(function () use ($order, $attributes) {
+            $paidAmount = (int) $order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
+            abort_if($paidAmount >= $order->amount, ResponseStatus::BAD_REQUEST->value, 'Order is already fully paid');
+            $order->payments()->attach(
+                $attributes['payment_id'],
+                [
+                    'amount' => $attributes['amount'],
+                    'number' => MerchantPayment::find($attributes['payment_id'])->number
+                ]
+            );
+
+            if (($attributes['amount'] + $paidAmount) < $order->amount) $order->status = 2;
+            else if (($attributes['amount'] + $paidAmount) >= $order->amount) $order->status = 3;
+            $order->save();
+        });
+
 
         return Redirect::back()->with('message', 'Success');
     }
