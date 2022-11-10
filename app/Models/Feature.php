@@ -11,9 +11,16 @@ class Feature extends Model
 {
     use HasFactory, Spaceable;
 
+    // protected $with = ['discounts'];
+
     public function item()
     {
         return $this->belongsTo(Item::class);
+    }
+
+    public function discounts()
+    {
+        return $this->morphToMany(Discount::class, 'discountable');
     }
 
     public function pictures()
@@ -23,7 +30,7 @@ class Feature extends Model
 
     public function orders()
     {
-        return $this->belongsToMany(Order::class)->withPivot(['quantity', 'price'])->withTimestamps();
+        return $this->belongsToMany(Order::class)->withPivot(['quantity', 'price', 'discount'])->withTimestamps();
     }
 
     public function scopeFilter(Builder $query, $filters)
@@ -39,5 +46,10 @@ class Feature extends Model
         );
 
         $query->when($filters['stocked'] ?? null, fn (Builder $query) => $query->where('stock', '>', 0));
+    }
+
+    public function totalDiscount()
+    {
+        return (int)$this->discounts->reduce(fn ($carry, $discount) => $discount->percentage + $carry, 0) / 100 * $this->price;
     }
 }

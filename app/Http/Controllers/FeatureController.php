@@ -32,6 +32,15 @@ class FeatureController extends Controller
         ]);
     }
 
+    public function discount(Feature $feature)
+    {
+        request()->validate([
+            'discount_id' => ['required', 'exists:discounts,id']
+        ]);
+        $feature->discounts()->attach(request()->discount_id);
+        return Redirect::back()->with('message', 'success');
+    }
+
     /**
      * Show the form for creating a new resource.
      *

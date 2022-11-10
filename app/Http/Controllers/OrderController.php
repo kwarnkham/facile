@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ResponseStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Feature;
@@ -33,7 +32,7 @@ class OrderController extends Controller
      */
     public function pay(Order $order)
     {
-        $paidAmount = (int) $order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0) + $order->discount;
+        $paidAmount = $order->paidAmount() + $order->discount + $order->getFeatureDiscounts();
         $attributes = request()->validate([
             'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
             'amount' => ['required', 'numeric', 'gt:0', 'lte:' . $order->amount - $paidAmount]
@@ -76,18 +75,23 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         $attributes = $request->validated();
-        $prices = collect(Feature::whereIn('id', array_map(fn ($v) => $v['id'], $attributes['features']))->get(['id', 'price'])->toArray());
-        $attributes['features'] = collect($attributes['features'])->map(function ($feature) use ($prices) {
-            $feature['price'] = $prices->first(fn ($price) => $price['id'] == $feature['id'])['price'];
+        $features = Feature::whereIn('id', array_map(fn ($v) => $v['id'], $attributes['features']))->with(['discounts'])->get();
+        $attributes['features'] = collect($attributes['features'])->map(function ($feature) use ($features) {
+            $features->each(function ($val) use (&$feature) {
+                if ($val->id == $feature['id']) {
+                    $feature['price'] = $val->price;
+                    $feature['discount'] = $val->totalDiscount();
+                }
+            });
             return $feature;
         });
 
-        $createdOrder = DB::transaction(function () use ($attributes, $request, $prices) {
+        $createdOrder = DB::transaction(function () use ($attributes, $request) {
             $order = Order::create(
                 collect([
                     ...[
                         'user_id' => $request->user()->id,
-                        'amount' => collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['price']),
+                        'amount' => collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['price'] * $feature['quantity']),
                     ],
                     ...$attributes
                 ])->except(['features'])->toArray()
@@ -95,7 +99,8 @@ class OrderController extends Controller
             $order->features()->attach(
                 collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => [
                     'quantity' => $feature['quantity'],
-                    'price' => $feature['price']
+                    'price' => $feature['price'],
+                    'discount' => $feature['discount']
                 ]])->toArray()
             );
             return $order;

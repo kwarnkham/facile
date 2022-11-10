@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MerchantPaymentController;
@@ -63,6 +64,12 @@ Route::controller(TagController::class)->prefix('/tags')->group(function () {
     });
 });
 
+Route::controller(DiscountController::class)->prefix('/discounts')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+        Route::post('', 'store')->name('discounts.store');
+    });
+});
+
 Route::controller(FeatureController::class)->prefix('/features')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('features.store');
@@ -71,6 +78,7 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
         Route::get('{feature}/edit', 'edit')->name('features.edit');
         Route::put('{feature}', 'update')->name('features.update');
         Route::get('{feature}', 'show')->name('features.show');
+        Route::post('{feature}/discount', 'discount')->name('features.discount');
     });
 });
 

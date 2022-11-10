@@ -12,6 +12,20 @@
 
 namespace App\Models{
 /**
+ * App\Models\Discount
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
+ * @property-read int|null $features_count
+ * @method static \Database\Factories\DiscountFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Discount newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Discount newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Discount query()
+ */
+	class Discount extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\Feature
  *
  * @property int $id
@@ -22,6 +36,8 @@ namespace App\Models{
  * @property int $item_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Discount[] $discounts
+ * @property-read int|null $discounts_count
  * @property-read \App\Models\Item|null $item
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
@@ -164,12 +180,20 @@ namespace App\Models{
 /**
  * App\Models\Payment
  *
+ * @property int $id
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Merchant[] $merchants
  * @property-read int|null $merchants_count
  * @method static \Database\Factories\PaymentFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Payment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Payment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Payment query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereUpdatedAt($value)
  */
 	class Payment extends \Eloquent {}
 }

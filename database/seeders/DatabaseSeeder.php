@@ -49,7 +49,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'handmade'],
             ['name' => 'lamp']
         ]);
-        DB::table('user_payments')->insert([
+        DB::table('payments')->insert([
             ['name' => 'KPZPay']
         ]);
     }

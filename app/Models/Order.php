@@ -11,11 +11,23 @@ class Order extends Model
 
     public function features()
     {
-        return $this->belongsToMany(Feature::class)->withPivot(['quantity', 'price'])->withTimestamps();
+        return $this->belongsToMany(Feature::class)->withPivot(['quantity', 'price', 'discount'])->withTimestamps();
     }
 
     public function payments()
     {
         return $this->belongsToMany(MerchantPayment::class, 'order_payment', 'order_id', 'merchant_payment_id')->withPivot('amount', 'number')->withTimestamps();
+    }
+
+    public function getFeatureDiscounts()
+    {
+        return (int)$this->features->reduce(function ($carry, $feature) {
+            return $feature->pivot->discount * $feature->pivot->quantity + $carry;
+        }, 0);
+    }
+
+    public function paidAmount()
+    {
+        return (int)$this->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
     }
 }

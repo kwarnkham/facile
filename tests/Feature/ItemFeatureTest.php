@@ -3,14 +3,13 @@
 namespace Tests\Feature;
 
 use App\Enums\ResponseStatus;
+use App\Models\Discount;
 use App\Models\Feature;
 use App\Models\Item;
 use Tests\TestCase;
 
 class ItemFeatureTest extends TestCase
 {
-
-
     public function test_add_feature_to_an_item()
     {
         $data = Feature::factory()->make()->toArray();
@@ -33,5 +32,17 @@ class ItemFeatureTest extends TestCase
         $this->assertDatabaseCount('features', 1);
         $data['item_id'] = $item->id + rand(1, 10);
         $this->actingAs($this->merchant)->put(route('features.update', ['feature' => $item->features()->first()->id]), $data)->assertStatus(ResponseStatus::UNAUTHORIZED->value);
+    }
+
+    public function test_apply_a_discount()
+    {
+        $discount = Discount::factory()->create();
+        $feature = Feature::factory()->for(Item::factory()->state(['user_id' => $this->merchant->id]))->create();
+        $this->actingAs($this->merchant)->post(route('features.discount', ['feature' => $feature->id]), [
+            'discount_id' => $discount->id
+        ]);
+
+        $this->assertDatabaseCount('discountables', 1);
+        $this->assertEquals($feature->fresh()->discounts->count(), 1);
     }
 }
