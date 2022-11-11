@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->double('percentage');
+            $table->foreignId('merchant_id');
+            $table->unique(['name', 'merchant_id']);
             $table->timestamps();
         });
     }

@@ -36,7 +36,7 @@ class ItemFeatureTest extends TestCase
 
     public function test_apply_a_discount()
     {
-        $discount = Discount::factory()->create();
+        $discount = Discount::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $feature = Feature::factory()->for(Item::factory()->state(['user_id' => $this->merchant->id]))->create();
         $this->actingAs($this->merchant)->post(route('features.discount', ['feature' => $feature->id]), [
             'discount_id' => $discount->id

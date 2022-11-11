@@ -11,7 +11,6 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
@@ -194,12 +193,12 @@ class OrderTest extends TestCase
         $item = Item::factory()->create(['user_id' => $this->merchant]);
         $count = rand(2, 14);
 
-        $features = Feature::factory($count)->create(['item_id' => $item->id, 'price' => 3200])->map(
+        $features = Feature::factory($count)->create(['item_id' => $item->id, 'price' => rand(1, 100) * 10])->map(
             fn ($feature) =>
             ['id' => $feature->id, 'quantity' => 1]
         )->toArray();
         $percentage = 0.1;
-        $discount = Discount::factory()->create(['percentage' => $percentage * 100]);
+        $discount = Discount::factory()->create(['percentage' => $percentage * 100, 'merchant_id' => $this->merchant->merchant->id]);
         Feature::all()->each(fn ($feature) => $feature->discounts()->attach($discount->id));
         $this->actingAs($this->merchant)->post(route('orders.store'), [
             ...['features' => $features],
@@ -252,12 +251,12 @@ class OrderTest extends TestCase
         $item = Item::factory()->create(['user_id' => $this->merchant]);
         $count = rand(2, 14);
 
-        $features = Feature::factory($count)->create(['item_id' => $item->id, 'price' => 5800])->map(
+        $features = Feature::factory($count)->create(['item_id' => $item->id, 'price' => rand(1, 100) * 10])->map(
             fn ($feature) =>
             ['id' => $feature->id, 'quantity' => rand(1, 4)]
         )->toArray();
         $percentage = 0.2;
-        $discount = Discount::factory()->create(['percentage' => $percentage * 100]);
+        $discount = Discount::factory()->create(['percentage' => $percentage * 100, 'merchant_id' => $this->merchant->merchant->id]);
         $orderDiscount = 100;
         Feature::all()->each(fn ($feature) => $feature->discounts()->attach($discount->id));
         $this->actingAs($this->merchant)->post(route('orders.store'), [

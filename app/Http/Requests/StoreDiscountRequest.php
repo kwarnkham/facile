@@ -25,6 +25,7 @@ class StoreDiscountRequest extends FormRequest
     {
         return [
             'name' => ['required', 'unique:discounts'],
+            'merchant_id' => ['required', 'exists:merchants,id'],
             'percentage' => ['required', 'numeric']
         ];
     }

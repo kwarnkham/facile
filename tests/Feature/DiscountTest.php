@@ -12,7 +12,7 @@ class DiscountTest extends TestCase
 
     public function test_create_a_discount()
     {
-        $discount = Discount::factory()->make()->toArray();
+        $discount = Discount::factory()->make(['merchant_id' => $this->merchant->merchant->id])->toArray();
         $this->actingAs($this->merchant)->post(route('discounts.store'), $discount);
 
         $this->assertDatabaseCount('discounts', 1);

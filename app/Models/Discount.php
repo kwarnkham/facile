@@ -13,4 +13,9 @@ class Discount extends Model
     {
         return $this->morphedByMany(Feature::class, 'discountable');
     }
+
+    public function merchant()
+    {
+        return $this->belongsTo(Merchant::class);
+    }
 }
