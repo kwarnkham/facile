@@ -40,11 +40,6 @@ class User extends Authenticatable
         );
     }
 
-    public function items()
-    {
-        return $this->hasMany(Item::class);
-    }
-
     public function roles()
     {
         return $this->belongsToMany(Role::class)->withTimestamps();
@@ -63,16 +58,6 @@ class User extends Authenticatable
     public function hasRole(string $roleName)
     {
         return $this->roles->contains(fn ($role) => $role->name == $roleName);
-    }
-
-    /**
-     * Determine if the user own the given item
-     * @param string $itemId
-     * @return bool
-     */
-    public function ownItem(string $itemId)
-    {
-        return Item::find($itemId)->user_id == $this->id;
     }
 
 

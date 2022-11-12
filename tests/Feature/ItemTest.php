@@ -17,12 +17,13 @@ class ItemTest extends TestCase
             'price' => '1000',
             'description' => 'item description'
         ];
+
         $this->actingAs($this->merchant)->post(route('items.store'), $data)
             ->assertSessionHas('message', 'success');
         // ->assertRedirect(route('items.create'));
 
         $this->assertDatabaseCount('items', 1);
-        $this->assertDatabaseHas('items', [...$data, 'user_id' => $this->merchant->id]);
+        $this->assertDatabaseHas('items', [...$data, 'merchant_id' => $this->merchant->merchant->id]);
 
         $this->actingAs($this->merchant)->post(route('items.store'), $data)->assertSessionHasErrors(['name']);
     }
@@ -33,7 +34,7 @@ class ItemTest extends TestCase
             'name' => 'item name',
             'price' => '1000',
             'description' => 'item description',
-            'user_id' => $this->merchant->id
+            'merchant_id' => $this->merchant->merchant->id
         ]);
 
         $data = [
@@ -52,7 +53,7 @@ class ItemTest extends TestCase
             'name' => 'item name',
             'price' => '1000',
             'description' => 'item description',
-            'user_id' => $this->merchant->id
+            'merchant_id' => $this->merchant->merchant->id
         ]);
 
         //can update item with same name
@@ -87,12 +88,12 @@ class ItemTest extends TestCase
     {
         $count = rand(10, 100);
         $per_page = (int)floor($count / 3);
-        $items = Item::factory($count)->create(['user_id' => $this->merchant->id]);
+        $items = Item::factory($count)->create(['merchant_id' => $this->merchant->merchant->id]);
         $this->get(
             route(
                 'items.index',
                 http_build_query([
-                    'user_id' => $this->merchant->id,
+                    'merchant_id' => $this->merchant->merchant->id,
                     'per_page' => $per_page
                 ])
             )
@@ -105,7 +106,7 @@ class ItemTest extends TestCase
                     'items.data.0',
                     fn (Assert $page) => $page
                         ->where('id', $items[0]->id)
-                        ->where('user_id', $this->merchant->id)
+                        ->where('merchant_id', $this->merchant->merchant->id)
                         ->etc()
                 )
         )->assertOk();
@@ -120,7 +121,7 @@ class ItemTest extends TestCase
 
     public function test_item_screen_can_be_rendered()
     {
-        $item = Item::factory()->create(['user_id' => $this->merchant->id]);
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $this->get(route('items.show', ['item' => $item->id]))->assertOk()->assertInertia(
             fn (Assert $page) => $page->component('Item')->has(
                 'item',

@@ -14,7 +14,7 @@ class PictureTest extends TestCase
 
     public function test_store_pictures_item()
     {
-        $item = Item::factory()->create(['user_id' => $this->merchant->id]);
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $this->actingAs($this->merchant)->post(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
             'type' => 'item',
@@ -33,7 +33,7 @@ class PictureTest extends TestCase
 
     public function test_store_pictures_feature()
     {
-        $feature = Feature::factory()->for(Item::factory()->state(['user_id' => $this->merchant->id]))->create();
+        $feature = Feature::factory()->for(Item::factory()->state(['merchant_id' => $this->merchant->merchant->id]))->create();
         $this->actingAs($this->merchant)->post(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
             'type' => 'feature',
@@ -58,7 +58,7 @@ class PictureTest extends TestCase
             'type_id' => 1
         ])->assertSessionHasErrors(['type', 'type_id']);
 
-        $item = Item::factory()->create(['user_id' => $this->merchant->id]);
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $this->actingAs($this->merchant)->post(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
             'type' => 'role',
@@ -68,7 +68,7 @@ class PictureTest extends TestCase
 
     public function test_picture_type_id()
     {
-        $item = Item::factory()->create(['user_id' => $this->merchant->id]);
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $this->actingAs($this->merchant)->post(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
             'type' => 'item',
@@ -84,7 +84,7 @@ class PictureTest extends TestCase
 
     public function test_pictures_are_image_type()
     {
-        $item = Item::factory()->create(['user_id' => $this->merchant->id]);
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $this->actingAs($this->merchant)->post(route('pictures.store'), [
             'pictures' => ['foo.jpg', 'bar.jpg'],
             'type' => 'item',
@@ -94,7 +94,7 @@ class PictureTest extends TestCase
 
     public function test_delete_picture()
     {
-        $item = Item::factory()->create(['user_id' => $this->merchant->id]);
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $this->actingAs($this->merchant)->post(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg')],
             'type' => 'item',

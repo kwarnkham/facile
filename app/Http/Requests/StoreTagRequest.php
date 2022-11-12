@@ -14,7 +14,7 @@ class StoreTagRequest extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()->hasRole('merchant') && Item::find($this->item_id)->user_id == $this->user()->id;
+        return $this->user()->hasRole('merchant') && Item::find($this->item_id)->merchant_id == $this->user()->merchant->id;
     }
 
     /**

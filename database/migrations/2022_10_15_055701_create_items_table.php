@@ -19,8 +19,8 @@ return new class extends Migration
             $table->float('price');
             $table->string('description');
             $table->tinyInteger('status')->default(1);
-            $table->foreignId('user_id')->constrained();
-            $table->unique(['name', 'user_id']);
+            $table->foreignId('merchant_id')->constrained();
+            $table->unique(['name', 'merchant_id']);
             $table->timestamps();
         });
     }

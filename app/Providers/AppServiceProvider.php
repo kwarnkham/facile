@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         Model::preventLazyLoading();
+        Model::preventAccessingMissingAttributes();
 
         Password::defaults(function () {
             $rule = Password::min(5);

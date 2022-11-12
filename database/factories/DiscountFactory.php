@@ -18,7 +18,7 @@ class DiscountFactory extends Factory
     {
         return [
             'name' => fake()->unique()->name(),
-            'percentage' => fake()->numberBetween(1, 10)
+            'percentage' => fake()->numberBetween(1, 100)
         ];
     }
 }

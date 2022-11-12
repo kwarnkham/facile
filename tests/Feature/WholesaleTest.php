@@ -13,7 +13,7 @@ class WholesaleTest extends TestCase
     public function test_wholesale_can_be_added()
     {
         $data = Wholesale::factory()->make()->toArray();
-        $item = Item::factory()->create(['user_id' => $this->merchant->id]);
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $data['item_id'] = $item->id;
         $this->actingAs($this->merchant)->post(route('wholesales.store'), $data);
         $this->actingAs($this->merchant)->post(route('wholesales.store'), $data)->assertSessionHasErrors(['quantity']);
@@ -26,7 +26,7 @@ class WholesaleTest extends TestCase
 
     public function test_wholesale_can_be_updated()
     {
-        $item = Item::factory()->create(['user_id' => $this->merchant->id]);
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $wholesale = Wholesale::factory()->create(['item_id' => $item->id]);
         $data = Wholesale::factory()->make()->toArray();
         $data['item_id'] = $item->id;

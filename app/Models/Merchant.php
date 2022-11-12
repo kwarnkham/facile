@@ -29,4 +29,9 @@ class Merchant extends Model
     {
         return $this->hasMany(Discount::class);
     }
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 }

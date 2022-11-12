@@ -25,7 +25,7 @@ class StoreWholesaleRequest extends FormRequest
     public function rules()
     {
         return [
-            'item_id' => ['required', Rule::exists('items', 'id')->where('user_id', $this->user()->id)],
+            'item_id' => ['required', Rule::exists('items', 'id')->where('merchant_id', $this->user()->merchant->id)],
             'price' => ['required', 'numeric'],
             'quantity' => ['required', 'numeric', Rule::unique('wholesales', 'quantity')->where('item_id', $this->item_id)],
         ];

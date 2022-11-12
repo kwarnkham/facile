@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Feature;
@@ -33,9 +34,19 @@ class OrderController extends Controller
     public function pay(Order $order)
     {
         $paidAmount = $order->paidAmount() + $order->discount + $order->getFeatureDiscounts();
+        $remaining = round($order->amount - $paidAmount, 2);
         $attributes = request()->validate([
             'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
-            'amount' => ['required', 'numeric', 'gt:0', 'lte:' . $order->amount - $paidAmount]
+            'amount' => [
+                'required', 'numeric', function ($attribute, $value, $fail) use ($remaining) {
+                    if (strval($remaining) > 0 && strval($value) <= 0) {
+                        $fail('The ' . $attribute . ' must be greater than zero.');
+                    }
+                    if (strval($value) > strval($remaining)) {
+                        $fail("The $attribute $value is greater than the remaining order amount $remaining.");
+                    }
+                }
+            ]
         ]);
 
         DB::transaction(function () use ($order, $attributes, $paidAmount) {
@@ -46,9 +57,8 @@ class OrderController extends Controller
                     'number' => MerchantPayment::find($attributes['payment_id'])->number
                 ]
             );
-
-            if (($attributes['amount'] + $paidAmount) < $order->amount) $order->status = 2;
-            else if (($attributes['amount'] + $paidAmount) >= $order->amount) $order->status = 3;
+            if ((strval($attributes['amount']) + strval($paidAmount)) < strval($order->amount)) $order->status = 2;
+            else if ((strval($attributes['amount']) + strval($paidAmount)) == strval($order->amount)) $order->status = 3;
             $order->save();
         });
 
@@ -85,13 +95,17 @@ class OrderController extends Controller
             });
             return $feature;
         });
+        $amount = (float) collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['price'] * $feature['quantity']);
+        if ($amount - ($attributes['discount'] ?? 0) - (float)collect($attributes['features'])->reduce(fn ($carry, $v) => $carry + $v['discount'], 0) < 0) {
+            abort(ResponseStatus::BAD_REQUEST->value, 'Total discount is greater than the amount');
+        }
 
-        $createdOrder = DB::transaction(function () use ($attributes, $request) {
+        $createdOrder = DB::transaction(function () use ($attributes, $request, $amount) {
             $order = Order::create(
                 collect([
                     ...[
                         'user_id' => $request->user()->id,
-                        'amount' => collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['price'] * $feature['quantity']),
+                        'amount' => $amount,
                     ],
                     ...$attributes
                 ])->except(['features'])->toArray()

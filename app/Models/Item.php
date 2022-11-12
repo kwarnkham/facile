@@ -31,7 +31,7 @@ class Item extends Model
         return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
-    public function user()
+    public function merchant()
     {
         return $this->belongsTo(User::class);
     }
@@ -50,8 +50,8 @@ class Item extends Model
                 fn (Builder $query, $status) => $query->where('status', $status)
             )
             ->when(
-                $filters['user_id'] ?? null,
-                fn (Builder $query, $user_id) => $query->where('user_id', $user_id)
+                $filters['merchant_id'] ?? null,
+                fn (Builder $query, $merchant_id) => $query->where('merchant_id', $merchant_id)
             )
             ->when(
                 $filters['search'] ?? null,

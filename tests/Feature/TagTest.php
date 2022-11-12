@@ -12,7 +12,7 @@ class TagTest extends TestCase
     public function test_create_new_tag_and_attach_to_an_item()
     {
         $item = Item::factory()->create([
-            'user_id' => $this->merchant->id
+            'merchant_id' => $this->merchant->merchant->id
         ]);
         $data = [
             'name' => 'tag',
@@ -29,7 +29,7 @@ class TagTest extends TestCase
     public function test_toggle_tag_from_an_item()
     {
         $item = Item::factory()->create([
-            'user_id' => $this->merchant->id
+            'merchant_id' => $this->merchant->merchant->id
         ]);
         $data = [
             'name' => 'tag',
@@ -50,7 +50,7 @@ class TagTest extends TestCase
     public function test_create_tag_only_if_it_does_not_exist()
     {
         $item = Item::factory()->create([
-            'user_id' => $this->merchant->id
+            'merchant_id' => $this->merchant->merchant->id
         ]);
         $tag = Tag::factory()->create();
         $data = [

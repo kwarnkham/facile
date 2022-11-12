@@ -18,6 +18,4 @@ trait Spaceable
     {
         return strtolower(substr(static::class, strrpos(static::class, '\\') + 1));
     }
-
-    // Item::factory()->has(Picture::factory()->state(['name'=>Item::saveFile(UploadedFile::fake()->image('foo.jpg'))]))->create(['user_id'=>2])
 }
