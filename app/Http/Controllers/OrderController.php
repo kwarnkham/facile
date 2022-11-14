@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrderStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Feature;
@@ -64,6 +65,18 @@ class OrderController extends Controller
 
 
         return Redirect::back()->with('message', 'Success');
+    }
+
+    public function cancel(Order $order)
+    {
+        if (in_array($order->status, [OrderStatus::PENDING->value])) {
+            $order->update(['status' => OrderStatus::CANCELED->value]);
+            $order->features->each(function ($feature) {
+                $feature->stock += $feature->pivot->quantity;
+                $feature->save();
+            });
+        }
+        return Redirect::back();
     }
 
     /**

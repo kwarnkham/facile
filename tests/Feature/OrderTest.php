@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\OrderStatus;
 use App\Enums\ResponseStatus;
 use App\Models\Discount;
 use App\Models\Feature;
@@ -35,6 +36,48 @@ class OrderTest extends TestCase
         $this->assertEquals(Order::first()->amount, $amount);
     }
 
+    public function test_cancel_an_order()
+    {
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $stock = rand(2, 14);
+        $count = rand(1, 4);
+        $features = Feature::factory($count)->create(['item_id' => $item->id, 'stock' => $stock])->map(
+            fn ($feature) =>
+            ['id' => $feature->id, 'quantity' => $stock]
+        )->toArray();
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...['features' => $features],
+            ...Order::factory()->make()->toArray()
+        ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value);
+
+        $this->assertDatabaseCount('orders', 1);
+        $order = Order::first();
+        $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]));
+        $this->assertEquals(OrderStatus::CANCELED->value, $order->fresh()->status);
+    }
+
+    public function test_stock_is_restocked_when_order_is_canceled()
+    {
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $stock = rand(2, 14);
+        $count = rand(1, 4);
+        $features = Feature::factory($count)->create(['item_id' => $item->id, 'stock' => $stock])->map(
+            fn ($feature) =>
+            ['id' => $feature->id, 'quantity' => $stock]
+        )->toArray();
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...['features' => $features],
+            ...Order::factory()->make()->toArray()
+        ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value);
+
+        $this->assertDatabaseCount('orders', 1);
+        $order = Order::first();
+        $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]));
+        $this->assertEquals(OrderStatus::CANCELED->value, $order->fresh()->status);
+
+        Feature::all()->each(fn ($feature) => $this->assertEquals($feature->stock, $stock));
+    }
+
     public function test_create_an_order_with_order_discount()
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
@@ -54,6 +97,65 @@ class OrderTest extends TestCase
         ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value);
 
         $this->assertEquals(Order::first()->amount / 10, $amount / 10);
+    }
+
+    public function test_out_of_stock_feature_cannot_be_created_for_order()
+    {
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $stock = rand(1, 10);
+        $features = Feature::factory(rand(1, 10))->create(['item_id' => $item->id, 'stock' => $stock])->map(
+            fn ($feature) =>
+            ['id' => $feature->id, 'quantity' => $stock]
+        )->toArray();
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...[
+                'features' => $features,
+            ],
+            ...Order::factory()->make()->toArray()
+        ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value);
+
+        $this->assertDatabaseCount('orders', 1);
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...[
+                'features' => $features,
+            ],
+            ...Order::factory()->make()->toArray()
+        ]);
+
+        $this->assertDatabaseCount('orders', 1);
+        Feature::all()->each(fn ($feature) => $this->assertEquals($feature->stock, 0));
+    }
+
+    public function test_stock_is_reduced_properly()
+    {
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $stock = 10;
+        $features = Feature::factory(rand(1, 10))->create(['item_id' => $item->id, 'stock' => $stock])->map(
+            fn ($feature) =>
+            ['id' => $feature->id, 'quantity' => 5]
+        )->toArray();
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...[
+                'features' => $features,
+            ],
+            ...Order::factory()->make()->toArray()
+        ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value);
+
+        $this->assertDatabaseCount('orders', 1);
+        Feature::all()->each(fn ($feature) => $this->assertEquals($feature->stock, $stock - 5));
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...[
+                'features' => $features,
+            ],
+            ...Order::factory()->make()->toArray()
+        ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value);
+
+        $this->assertDatabaseCount('orders', 2);
+        Feature::all()->each(fn ($feature) => $this->assertEquals($feature->stock, 0));
     }
 
     public function test_create_an_order_with_full_order_discount()
