@@ -89,9 +89,9 @@ class OrderTest extends TestCase
             fn ($feature) =>
             ['id' => $feature->id, 'quantity' => rand(1, 10)]
         )->toArray();
-        $amount = (float)Feature::where('item_id', $item->id)->get()->reduce(fn ($carry, $feature) => $carry + $feature->price * collect($features)->first(fn ($v) => $v['id'] == $feature->id)['quantity'], 0);
-        $discount = Discount::factory()->create(['merchant_id' => $this->merchant->id]);
+        $discount = Discount::factory()->create(['merchant_id' => $this->merchant->id, 'percentage' => 10]);
         Feature::where('item_id', $item->id)->each(fn ($feat) => $feat->discounts()->attach($discount->id));
+        $amount = (float)Feature::where('item_id', $item->id)->with(['discounts'])->get()->reduce(fn ($carry, $feature) => $carry + (($feature->price - $feature->totalDiscount()) * collect($features)->first(fn ($v) => $v['id'] == $feature->id)['quantity']), 0);
 
         $this->actingAs($this->merchant)->post(route('orders.store'), [
             ...[
@@ -100,8 +100,8 @@ class OrderTest extends TestCase
             ],
             ...Order::factory()->make()->toArray()
         ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value);
-        $this->assertEquals(Order::first()->amount, $amount);
         $order = Order::first();
+        $this->assertEquals(round($order->amount - $order->getFeatureDiscounts(), 2), round($amount, 2));
         $this->assertEquals(
             round($order->getFeatureDiscounts(), 2),
             round((float)($order->features()->with(['discounts'])->get()->reduce(fn ($carry, $val) => $carry + $val->totalDiscount() * $val->pivot->quantity, 0)), 2)
