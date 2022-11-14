@@ -15,6 +15,7 @@ const props = defineProps({
 const form = useForm({
     name: "",
     price: props.item.price,
+    purchase_price: "",
     stock: "1",
     note: "",
     item_id: props.item.id,
@@ -48,6 +49,19 @@ const submit = () => {
                     :class="{ 'daisy-input-error': form.errors.name }"
                 />
                 <InputError :message="form.errors.name" />
+            </div>
+
+            <div>
+                <InputLabel for="purchase_price" value="Purchase Price" />
+                <TextInput
+                    id="purchase_price"
+                    type="number"
+                    class="w-full"
+                    v-model="form.purchase_price"
+                    required
+                    :class="{ 'daisy-input-error': form.errors.purchase_price }"
+                />
+                <InputError :message="form.errors.purchase_price" />
             </div>
 
             <div>

@@ -18,6 +18,11 @@ class Feature extends Model
         return $this->belongsTo(Item::class);
     }
 
+    public function purchases()
+    {
+        return $this->morphMany(Purchase::class, 'purchasable');
+    }
+
     public function discounts()
     {
         return $this->morphToMany(Discount::class, 'discountable');

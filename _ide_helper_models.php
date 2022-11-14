@@ -14,12 +14,25 @@ namespace App\Models{
 /**
  * App\Models\Discount
  *
+ * @property int $id
+ * @property string $name
+ * @property float $percentage
+ * @property int $merchant_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
  * @property-read int|null $features_count
+ * @property-read \App\Models\Merchant|null $merchant
  * @method static \Database\Factories\DiscountFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Discount newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Discount newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Discount query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Discount whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Discount whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Discount whereMerchantId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Discount whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Discount wherePercentage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Discount whereUpdatedAt($value)
  */
 	class Discount extends \Eloquent {}
 }
@@ -38,7 +51,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Discount[] $discounts
  * @property-read int|null $discounts_count
- * @property-read \App\Models\Item|null $item
+ * @property-read \App\Models\Item $item
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
@@ -69,16 +82,16 @@ namespace App\Models{
  * @property float $price
  * @property string $description
  * @property int $status
- * @property int $user_id
+ * @property int $merchant_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
  * @property-read int|null $features_count
+ * @property-read \App\Models\User $merchant
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
  * @property-read int|null $pictures_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tag[] $tags
  * @property-read int|null $tags_count
- * @property-read \App\Models\User $user
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Wholesale[] $wholesales
  * @property-read int|null $wholesales_count
  * @method static \Database\Factories\ItemFactory factory(...$parameters)
@@ -89,11 +102,11 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Item whereMerchantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Item whereUserId($value)
  */
 	class Item extends \Eloquent {}
 }
@@ -108,6 +121,12 @@ namespace App\Models{
  * @property string $address
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Discount[] $discounts
+ * @property-read int|null $discounts_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Item[] $items
+ * @property-read int|null $items_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
+ * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Payment[] $payments
  * @property-read int|null $payments_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
@@ -131,11 +150,25 @@ namespace App\Models{
 /**
  * App\Models\MerchantPayment
  *
+ * @property int $id
+ * @property int $merchant_id
+ * @property int $payment_id
+ * @property string|null $number
+ * @property int $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment query()
+ * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereMerchantId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment wherePaymentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereUpdatedAt($value)
  */
 	class MerchantPayment extends \Eloquent {}
 }
@@ -145,8 +178,10 @@ namespace App\Models{
  * App\Models\Order
  *
  * @property int $id
- * @property int $user_id
+ * @property int $merchant_id
  * @property float $amount
+ * @property float $deposit
+ * @property float $discount
  * @property int $status
  * @property string $customer
  * @property string $phone
@@ -156,6 +191,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
  * @property-read int|null $features_count
+ * @property-read \App\Models\Merchant $merchant
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MerchantPayment[] $payments
  * @property-read int|null $payments_count
  * @method static \Database\Factories\OrderFactory factory(...$parameters)
@@ -166,12 +202,14 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereCustomer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Order whereDeposit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Order whereDiscount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Order whereMerchantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereNote($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Order whereUserId($value)
  */
 	class Order extends \Eloquent {}
 }
@@ -223,6 +261,18 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Picture whereUpdatedAt($value)
  */
 	class Picture extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\Purchase
+ *
+ * @method static \Database\Factories\PurchaseFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase query()
+ */
+	class Purchase extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -282,8 +332,6 @@ namespace App\Models{
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Item[] $items
- * @property-read int|null $items_count
  * @property-read \App\Models\Merchant|null $merchant
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
  * @property-read int|null $notifications_count

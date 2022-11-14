@@ -29,7 +29,8 @@ class StoreFeatureRequest extends FormRequest
             'name' => ['required', 'string', Rule::unique('features', 'name')->where('item_id', $this->item_id)],
             'stock' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],
-            'note' => ['sometimes', 'required', 'string']
+            'note' => ['sometimes', 'required', 'string'],
+            'purchase_price' => ['required', 'numeric']
         ];
     }
 }

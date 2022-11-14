@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateFeatureRequest;
 use App\Models\Discount;
 use App\Models\Feature;
 use App\Models\Item;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -67,7 +68,13 @@ class FeatureController extends Controller
     public function store(StoreFeatureRequest $request)
     {
         $attributes = $request->validated();
-        Feature::create($attributes);
+        DB::transaction(function () use ($attributes) {
+            $feature = Feature::create(collect($attributes)->except('purchase_price')->toArray());
+            $feature->purchases()->create([
+                'price' => $attributes['purchase_price'],
+                'quantity' => $attributes['stock']
+            ]);
+        });
         return Redirect::route('features.index', ['item_id' => $attributes['item_id']]);
     }
 

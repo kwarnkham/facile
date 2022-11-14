@@ -526,9 +526,11 @@ class OrderTest extends TestCase
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $stock = rand(1, 10);
+        $feature = Feature::factory()->make(['stock' => $stock]);
         $this->actingAs($this->merchant)->post(route('features.store'), [
             ...['item_id' => $item->id],
-            ...Feature::factory()->make(['stock' => $stock])->toArray()
+            ...$feature->toArray(),
+            ...['purchase_price' => floor($feature->price * 0.9)]
         ]);
         $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();
         $deposit = (float)($features->reduce(fn ($carry, $feat) => $feat->price - $feat->totalDiscount() + $carry)) / 50;
@@ -551,9 +553,11 @@ class OrderTest extends TestCase
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $stock = rand(1, 10);
         for ($i = 0; $i < rand(1, 10); $i++) {
+            $feature = Feature::factory()->make(['stock' => $stock]);
             $this->actingAs($this->merchant)->post(route('features.store'), [
                 ...['item_id' => $item->id],
-                ...Feature::factory()->make(['stock' => $stock])->toArray()
+                ...$feature->toArray(),
+                ...['purchase_price' => floor($feature->price * 0.9)]
             ]);
         }
         $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();

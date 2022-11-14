@@ -6,6 +6,7 @@ use App\Enums\ResponseStatus;
 use App\Models\Discount;
 use App\Models\Feature;
 use App\Models\Item;
+use App\Models\Purchase;
 use Tests\TestCase;
 
 class ItemFeatureTest extends TestCase
@@ -15,9 +16,10 @@ class ItemFeatureTest extends TestCase
         $data = Feature::factory()->make()->toArray();
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $data['item_id'] = $item->id;
+        $data['purchase_price'] = floor($data['price'] * 0.9);
         $this->actingAs($this->merchant)->post(route('features.store'), $data);
         $this->assertDatabaseCount('features', 1);
-        $this->assertDatabaseHas('features', $data);
+        $this->assertDatabaseHas('features', collect($data)->except('purchase_price')->toArray());
         $this->assertEquals($item->features()->first()->name, $data['name']);
         $this->actingAs($this->merchant)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
     }
@@ -58,5 +60,21 @@ class ItemFeatureTest extends TestCase
         $this->actingAs($this->merchant)->post(route('features.discount', ['feature' => $feature->id]), [
             'discount_id' => $discount->id
         ])->assertSessionHas('error');
+    }
+
+    public function test_purchase_is_created_with_feature()
+    {
+        $data = Feature::factory()->make()->toArray();
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $data['item_id'] = $item->id;
+        $data['purchase_price'] = floor($data['price'] * 0.9);
+        $this->actingAs($this->merchant)->post(route('features.store'), $data);
+        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseHas('features', collect($data)->except('purchase_price')->toArray());
+        $this->assertEquals($item->features()->first()->name, $data['name']);
+        $this->actingAs($this->merchant)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
+        $this->assertDatabaseCount('purchases', 1);
+        $this->assertEquals(Purchase::first()->purchasable_id, Feature::first()->id);
+        $this->assertEquals(Purchase::first()->purchasable_type, Feature::class);
     }
 }
