@@ -102,7 +102,7 @@ class OrderController extends Controller
             ($attributes['discount'] ?? 0) -
             (float)collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['discount'] * $feature['quantity'], 0);
 
-        if ($remaining < 0) abort(ResponseStatus::BAD_REQUEST->value, 'Total discount is greater than the amount');
+        if ($remaining < 0) return Redirect::back()->with('message', 'Total discount is greater than the amount');
 
         $createdOrder = DB::transaction(function () use ($attributes, $request, $amount, $remaining) {
             $order = Order::create(
