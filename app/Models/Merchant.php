@@ -15,6 +15,11 @@ class Merchant extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function pictures()
     {
         return $this->morphMany(Picture::class, 'pictureable');

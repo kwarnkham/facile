@@ -88,12 +88,6 @@ Route::controller(MerchantPaymentController::class)->prefix('/user-payments')->g
     });
 });
 
-Route::controller(OrderController::class)->prefix('/orders')->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
-        Route::post('{order}/pay', 'pay')->name('orders.pay');
-    });
-});
-
 Route::controller(WholesaleController::class)->prefix('/wholesales')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('wholesales.store');
@@ -109,6 +103,7 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
         Route::post('', 'store')->name('orders.store');
         Route::get('', 'index')->name('orders.index');
         Route::get('{order}', 'show')->name('orders.show');
+        Route::post('{order}/pay', 'pay')->name('orders.pay');
     });
 });
 

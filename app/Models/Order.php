@@ -31,4 +31,9 @@ class Order extends Model
     {
         return (float)$this->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
     }
+
+    public function merchant()
+    {
+        return $this->belongsTo(Merchant::class);
+    }
 }

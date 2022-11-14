@@ -108,7 +108,7 @@ class OrderController extends Controller
             $order = Order::create(
                 collect([
                     ...[
-                        'user_id' => $request->user()->id,
+                        'merchant_id' => $request->user()->merchant->id,
                         'amount' => $amount,
                     ],
                     ...$attributes

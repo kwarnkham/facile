@@ -16,7 +16,7 @@ class OrderTest extends TestCase
         $data = ['merchant_id' => $this->merchant->merchant->id];
         $features = Feature::factory()->for(Item::factory()->state($data))->has(Discount::factory(2)->state($data))->create();
 
-        $order = Order::factory()->create(['amount' => Feature::all()->reduce(fn ($carry, $v) => $carry + $v->price, 0), 'user_id' => $this->merchant->id]);
+        $order = Order::factory()->create(['amount' => Feature::all()->reduce(fn ($carry, $v) => $carry + $v->price, 0), 'merchant_id' => $this->merchant->merchant->id]);
 
         $features->each(fn ($f) => $order->features()->attach($f->id, ['price' => $f->price, 'quantity' => rand(1, 10), 'discount' => $f->totalDiscount()]));
 

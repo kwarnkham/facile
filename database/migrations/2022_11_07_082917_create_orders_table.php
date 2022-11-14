@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('merchant_id')->constrained();
             $table->double('amount');
             $table->double('discount')->default(0);
             $table->tinyInteger('status')->default(1);

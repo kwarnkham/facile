@@ -17,7 +17,7 @@ const props = defineProps({
 
 const query = ref({
     search: props.filters.search ?? "",
-    user_id: props.filters.user_id ?? "",
+    merchant_id: props.filters.merchant_id ?? "",
 });
 </script>
 
