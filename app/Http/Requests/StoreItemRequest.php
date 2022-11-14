@@ -29,7 +29,6 @@ class StoreItemRequest extends FormRequest
                 'required', 'string',
                 Rule::unique('items', 'name')->where(fn ($query) => $query->where('merchant_id', $this->user()->merchant->id))
             ],
-            'price' => ['required', 'numeric'],
             'description' => ['required', 'string', 'max:255']
         ];
     }

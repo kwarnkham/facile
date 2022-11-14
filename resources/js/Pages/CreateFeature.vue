@@ -14,7 +14,7 @@ const props = defineProps({
 });
 const form = useForm({
     name: "",
-    price: props.item.price,
+    price: "",
     purchase_price: "",
     stock: "1",
     note: "",

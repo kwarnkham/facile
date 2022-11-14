@@ -16,7 +16,6 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->float('price');
             $table->string('description');
             $table->tinyInteger('status')->default(1);
             $table->foreignId('merchant_id')->constrained();

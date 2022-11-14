@@ -32,7 +32,6 @@ class UpdateItemRequest extends FormRequest
                     ['id', '!=', $this->item->id]
                 ]))
             ],
-            'price' => ['required', 'numeric'],
             'description' => ['required', 'string', 'max:255']
         ];
     }

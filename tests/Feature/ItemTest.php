@@ -12,15 +12,9 @@ class ItemTest extends TestCase
 
     public function test_merchant_can_add_item()
     {
-        $data = [
-            'name' => 'item name',
-            'price' => '1000',
-            'description' => 'item description'
-        ];
-
+        $data = Item::factory()->make()->toArray();
         $this->actingAs($this->merchant)->post(route('items.store'), $data)
             ->assertSessionHas('message', 'success');
-        // ->assertRedirect(route('items.create'));
 
         $this->assertDatabaseCount('items', 1);
         $this->assertDatabaseHas('items', [...$data, 'merchant_id' => $this->merchant->merchant->id]);
@@ -31,44 +25,25 @@ class ItemTest extends TestCase
     public function test_merchant_can_update_item()
     {
         $item = Item::factory()->create([
-            'name' => 'item name',
-            'price' => '1000',
-            'description' => 'item description',
             'merchant_id' => $this->merchant->merchant->id
         ]);
 
-        $data = [
-            'name' => 'item name updated',
-            'price' => '2000',
-            'description' => 'item description updated'
-        ];
+        $data = Item::factory()->make(['name' => 'updated'])->toArray();
 
         $this->actingAs($this->merchant)->put(route('items.update', ['item' => $item->id]), $data)
             ->assertSessionHas('message', 'success');
 
         $this->assertDatabaseHas('items', $data);
 
-        //add another item to test item name uniqueness
         Item::factory()->create([
-            'name' => 'item name',
-            'price' => '1000',
-            'description' => 'item description',
+            'name' => 'dupe',
             'merchant_id' => $this->merchant->merchant->id
         ]);
 
-        //can update item with same name
-        $data = [
-            'name' => 'item name updated',
-            'price' => '3000',
-            'description' => 'item description updated again'
-        ];
-
-        $this->actingAs($this->merchant)->put(route('items.update', ['item' => $item->id]), $data)
+        $this->actingAs($this->merchant)->put(route('items.update', ['item' => $item->id]), Item::factory()->make(['name' => 'updated'])->toArray())
             ->assertSessionHas('message', 'success');
 
-        //can't update item with another item name
-        $data['name'] = 'item name';
-        $this->actingAs($this->merchant)->put(route('items.update', ['item' => $item->id]), $data)
+        $this->actingAs($this->merchant)->put(route('items.update', ['item' => $item->id]), Item::factory()->make(['name' => 'dupe'])->toArray())
             ->assertSessionHasErrors(['name']);
     }
 

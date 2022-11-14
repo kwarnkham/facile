@@ -6,7 +6,6 @@ import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 const form = useForm({
     name: "",
-    price: "",
     description: "",
 });
 
@@ -34,19 +33,6 @@ const submit = () => {
                 :class="{ 'daisy-input-error': form.errors.name }"
             />
             <InputError :message="form.errors.name" />
-        </div>
-
-        <div>
-            <InputLabel for="price" value="Price" />
-            <TextInput
-                id="price"
-                type="number"
-                class="w-full"
-                v-model="form.price"
-                required
-                :class="{ 'daisy-input-error': form.errors.price }"
-            />
-            <InputError :message="form.errors.price" />
         </div>
 
         <div>
