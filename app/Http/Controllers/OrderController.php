@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ResponseStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Feature;
@@ -33,10 +32,9 @@ class OrderController extends Controller
      */
     public function pay(Order $order)
     {
-
         if ($order->status == 3) return Redirect::back()->with('message', 'Order cannot be paid anymore');
-        $paidAmount = $order->paidAmount() + $order->discount + $order->getFeatureDiscounts();
-        $remaining = round($order->amount - $paidAmount, 2);
+        $paidAmount = $order->paidAmount() + $order->discount + $order->deposit + $order->getFeatureDiscounts();
+        $remaining = floor($order->amount - $paidAmount);
         $attributes = request()->validate([
             'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
             'amount' => [
@@ -87,6 +85,10 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         $attributes = $request->validated();
+        foreach ($attributes['features'] as $val) {
+            $feature = Feature::find($val['id']);
+            if ($feature->stock < $val['quantity']) return Redirect::back()->with('message', $feature->name . ' is out of stock');
+        }
         $features = Feature::whereIn('id', array_map(fn ($v) => $v['id'], $attributes['features']))->with(['discounts'])->get();
         $attributes['features'] = collect($attributes['features'])->map(function ($feature) use ($features) {
             $features->each(function ($val) use (&$feature) {
@@ -97,12 +99,14 @@ class OrderController extends Controller
             });
             return $feature;
         });
-        $amount = (float) collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['price'] * $feature['quantity']);
-        $remaining = $amount -
-            ($attributes['discount'] ?? 0) -
-            (float)collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['discount'] * $feature['quantity'], 0);
+        $amount = floor((float) collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['price'] * $feature['quantity']));
 
-        if ($remaining < 0) return Redirect::back()->with('message', 'Total discount is greater than the amount');
+        $featuresDiscount = floor((float)collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['discount'] * $feature['quantity'], 0));
+
+        $remaining = $amount -
+            floor($attributes['discount'] ?? 0) - floor($attributes['deposit'] ?? 0) - $featuresDiscount;
+
+        if ($remaining < 0) return Redirect::back()->with('message', 'Total discount and deposit is greater than the amount');
 
         $createdOrder = DB::transaction(function () use ($attributes, $request, $amount, $remaining) {
             $order = Order::create(
@@ -123,6 +127,12 @@ class OrderController extends Controller
                     'discount' => $feature['discount']
                 ]])->toArray()
             );
+
+            foreach ($attributes['features'] as $val) {
+                $feature = Feature::find($val['id']);
+                $feature->stock -= $val['quantity'];
+                $feature->save();
+            }
             return $order;
         });
 

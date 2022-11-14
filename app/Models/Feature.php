@@ -50,7 +50,7 @@ class Feature extends Model
 
     public function totalDiscount()
     {
-        return round((float)$this->discounts->reduce(fn ($carry, $discount) => $discount->percentage + $carry, 0) / 100 * $this->price, 2);
+        return floor((float)$this->discounts->reduce(fn ($carry, $discount) => $discount->percentage + $carry, 0) / 100 * $this->price);
     }
 
     public function totalDiscountPercentage()

@@ -8,8 +8,6 @@ use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Merchant;
 use App\Models\Tag;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;

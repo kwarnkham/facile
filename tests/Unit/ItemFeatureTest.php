@@ -17,6 +17,12 @@ class ItemFeatureTest extends TestCase
             ->has(Discount::factory(rand(1, 3))->state($data))
             ->create();
 
-        $this->assertEquals($feature->totalDiscount(), round($feature->discounts->reduce(fn ($carry, $v) => $carry + ($v->percentage / 100) * $feature->price), 2));
+        $this->assertEquals(
+            $feature->totalDiscount(),
+            floor((float)$feature->discounts->reduce(
+                fn ($carry, $discount) => $carry + $discount->percentage,
+                0
+            ) / 100 * $feature->price)
+        );
     }
 }

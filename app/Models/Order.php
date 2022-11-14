@@ -22,9 +22,9 @@ class Order extends Model
 
     public function getFeatureDiscounts()
     {
-        return (float)$this->features->reduce(function ($carry, $feature) {
+        return floor((float)$this->features->reduce(function ($carry, $feature) {
             return $feature->pivot->discount * $feature->pivot->quantity + $carry;
-        }, 0);
+        }, 0));
     }
 
     public function paidAmount()
