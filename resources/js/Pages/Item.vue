@@ -18,7 +18,6 @@ const isWholesalesExpanded = ref(false);
                 Name : {{ item.name }}
             </div>
             <div class="indent-5">Description : {{ item.description }}</div>
-            <div class="text-right">{{ item.price }} MMK</div>
         </div>
 
         <div
@@ -46,6 +45,7 @@ const isWholesalesExpanded = ref(false);
             title="Wholesale prices"
             v-model:checked="isWholesalesExpanded"
             class="shadow-xl w-full rounded-md mt-1"
+            v-if="item.wholesales.length"
         >
             <div
                 class="flex flex-row justify-between font-bold border-b border-primary"

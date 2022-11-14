@@ -83,7 +83,7 @@ const query = ref({
                 </div>
                 <div class="flex-1 ml-1">
                     <div>Name: {{ feature.name }}</div>
-                    <div>Price: {{ feature.price }}</div>
+                    <div>Price: {{ feature.price }} MMK</div>
                     <div>Stock: {{ feature.stock }}</div>
                     <div
                         v-if="feature.note"

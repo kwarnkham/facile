@@ -64,7 +64,6 @@ const deletingPicture = ref(false);
 const wholesaleForm = useForm({
     item_id: props.item.id,
     quantity: "",
-    price: "",
 });
 
 const submitWholesale = () => {
@@ -101,19 +100,6 @@ const submitWholesale = () => {
                         :class="{ 'daisy-input-error': form.errors.name }"
                     />
                     <InputError :message="form.errors.name" />
-                </div>
-
-                <div>
-                    <InputLabel for="price" value="Price" />
-                    <TextInput
-                        id="price"
-                        type="number"
-                        class="w-full"
-                        v-model="form.price"
-                        required
-                        :class="{ 'daisy-input-error': form.errors.price }"
-                    />
-                    <InputError :message="form.errors.price" />
                 </div>
 
                 <div>

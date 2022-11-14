@@ -49,7 +49,6 @@ const query = ref({
                 <div class="daisy-card-body bg-white/50">
                     <h2 class="daisy-card-title">{{ item.name }}</h2>
                     <p>{{ item.description }}</p>
-                    <p class="text-right">{{ item.price }} MMK</p>
                     <div class="daisy-card-actions justify-end space-x-2">
                         <Button
                             @click="

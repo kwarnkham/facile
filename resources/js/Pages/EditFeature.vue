@@ -7,6 +7,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Inertia } from "@inertiajs/inertia";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
+import pickBy from "lodash/pickBy";
 import { ref } from "vue";
 
 const props = defineProps({
@@ -24,7 +25,9 @@ const isItemExpanded = ref(props.edit == "item");
 const isFeatureExpanded = ref(props.edit == "info");
 const isPicturesExpanded = ref(props.edit == "pictures");
 const submit = () => {
-    form.put(route("features.update", { feature: props.feature.id }));
+    form.transform((data) => pickBy(data)).put(
+        route("features.update", { feature: props.feature.id })
+    );
 };
 const form = useForm({
     name: props.feature.name,
@@ -116,7 +119,6 @@ const deletePicture = (id) => {
                         class="w-full daisy-textarea daisy-textarea-primary"
                         placeholder="Note"
                         v-model="form.note"
-                        required
                         :class="{
                             'daisy-input-error': form.errors.note,
                         }"
