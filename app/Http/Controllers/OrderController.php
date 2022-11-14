@@ -33,13 +33,15 @@ class OrderController extends Controller
      */
     public function pay(Order $order)
     {
+
+        if ($order->status == 3) return Redirect::back()->with('message', 'Order cannot be paid anymore');
         $paidAmount = $order->paidAmount() + $order->discount + $order->getFeatureDiscounts();
         $remaining = round($order->amount - $paidAmount, 2);
         $attributes = request()->validate([
             'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
             'amount' => [
                 'required', 'numeric', function ($attribute, $value, $fail) use ($remaining) {
-                    if (strval($remaining) > 0 && strval($value) <= 0) {
+                    if (strval($value) <= 0) {
                         $fail('The ' . $attribute . ' must be greater than zero.');
                     }
                     if (strval($value) > strval($remaining)) {
@@ -96,11 +98,13 @@ class OrderController extends Controller
             return $feature;
         });
         $amount = (float) collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['price'] * $feature['quantity']);
-        if ($amount - ($attributes['discount'] ?? 0) - (float)collect($attributes['features'])->reduce(fn ($carry, $v) => $carry + $v['discount'], 0) < 0) {
-            abort(ResponseStatus::BAD_REQUEST->value, 'Total discount is greater than the amount');
-        }
+        $remaining = $amount -
+            ($attributes['discount'] ?? 0) -
+            (float)collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['discount'] * $feature['quantity'], 0);
 
-        $createdOrder = DB::transaction(function () use ($attributes, $request, $amount) {
+        if ($remaining < 0) abort(ResponseStatus::BAD_REQUEST->value, 'Total discount is greater than the amount');
+
+        $createdOrder = DB::transaction(function () use ($attributes, $request, $amount, $remaining) {
             $order = Order::create(
                 collect([
                     ...[
@@ -110,6 +114,8 @@ class OrderController extends Controller
                     ...$attributes
                 ])->except(['features'])->toArray()
             );
+
+            if ($remaining == 0) $order->update(['status' => 3]);
             $order->features()->attach(
                 collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => [
                     'quantity' => $feature['quantity'],
