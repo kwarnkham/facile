@@ -63,6 +63,7 @@ const deletingPicture = ref(false);
 
 const wholesaleForm = useForm({
     item_id: props.item.id,
+    price: "",
     quantity: "",
 });
 

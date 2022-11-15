@@ -6,7 +6,7 @@ import { store } from "@/store";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { Inertia } from "@inertiajs/inertia";
 import { Head } from "@inertiajs/inertia-vue3";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const open = ref(false);
 
@@ -15,22 +15,34 @@ const editCartFeature = (feature) => {
     open.value = true;
     cartFeatureInEdit.value = JSON.parse(JSON.stringify(feature));
 };
+const checkout = () => {
+    localStorage.setItem("cartDiscount", JSON.stringify(discount.value));
+    localStorage.setItem("cartDeposit", JSON.stringify(deposit.value));
+    Inertia.visit(route("routes.checkout"));
+};
+const cartTotal = computed(() =>
+    store.cart.items.reduce((carry, e) => e.quantity * e.price + carry, 0)
+);
+
+const discount = ref(JSON.parse(localStorage.getItem("cartDiscount")) ?? "");
+const deposit = ref(JSON.parse(localStorage.getItem("cartDeposit")) ?? "");
 
 const removeFromCart = () => {
-    store.removeFromCart(
+    store.cart.remove(
         cartFeatureInEdit.value,
-        store.cart.find((e) => e.id == cartFeatureInEdit.value.id).quantity
+        store.cart.items.find((e) => e.id == cartFeatureInEdit.value.id)
+            .quantity
     );
     open.value = false;
 };
 
 const updateCartFeature = () => {
-    store.updateCart(cartFeatureInEdit.value);
+    store.cart.update(cartFeatureInEdit.value);
     open.value = false;
 };
 
 const clearCart = () => {
-    store.clearCart();
+    store.cart.clear();
     Inertia.visit(route("items.index"), {
         replace: true,
     });
@@ -53,11 +65,14 @@ const clearCart = () => {
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(feature, index) in store.cart" :key="feature.id">
+                <tr
+                    v-for="(feature, index) in store.cart.items"
+                    :key="feature.id"
+                >
                     <th>{{ index + 1 }}</th>
                     <td>{{ feature.name }}</td>
                     <td class="text-right">
-                        {{ feature.price.toLocaleString() }}
+                        {{ feature.price?.toLocaleString() }}
                     </td>
                     <td
                         class="text-right underline text-info"
@@ -77,7 +92,7 @@ const clearCart = () => {
                     <td colspan="2">Total</td>
                     <td class="text-right">
                         {{
-                            store.cart.reduce(
+                            store.cart.items.reduce(
                                 (carry, e) => e.quantity + carry,
                                 0
                             )
@@ -85,21 +100,55 @@ const clearCart = () => {
                     </td>
 
                     <td class="text-right">
-                        {{
-                            store.cart
-                                .reduce(
-                                    (carry, e) => e.quantity * e.price + carry,
-                                    0
-                                )
-                                .toLocaleString()
-                        }}
+                        {{ cartTotal.toLocaleString() }}
+                    </td>
+                </tr>
+                <tr class="font-bold">
+                    <th class="underline"></th>
+                    <td colspan="2"></td>
+                    <td class="text-right">Discount</td>
+
+                    <td class="text-right">
+                        <input
+                            type="number"
+                            v-model.number="discount"
+                            class="w-16 text-right"
+                        />
+                    </td>
+                </tr>
+                <tr class="font-bold">
+                    <th class="underline"></th>
+                    <td colspan="2"></td>
+                    <td class="text-right">Deposit</td>
+
+                    <td class="text-right">
+                        <input
+                            type="number"
+                            v-model.number="deposit"
+                            class="w-16 text-right"
+                        />
+                    </td>
+                </tr>
+                <tr
+                    class="font-bold"
+                    :class="{
+                        'text-error': cartTotal - deposit - discount < 0,
+                    }"
+                >
+                    <th class="underline"></th>
+                    <td colspan="2"></td>
+                    <td class="text-right">Amount</td>
+
+                    <td class="text-right">
+                        {{ (cartTotal - deposit - discount).toLocaleString() }}
                     </td>
                 </tr>
             </tbody>
         </table>
-
         <div class="flex-1 flex items-end justify-end">
-            <Button @click="$inertia.visit(route('routes.checkout'))"
+            <Button
+                @click="checkout"
+                :disabled="cartTotal - deposit - discount < 0"
                 >Checkout</Button
             >
         </div>
@@ -123,19 +172,34 @@ const clearCart = () => {
                         />
                     </div>
                     <div class="flex flex-row justify-evenly">
-                        <Button @click="cartFeatureInEdit.quantity++"
-                            >Increase</Button
+                        <Button
+                            @click="cartFeatureInEdit.quantity++"
+                            :disabled="
+                                cartFeatureInEdit.quantity >=
+                                cartFeatureInEdit.stock
+                            "
                         >
-                        <Button @click="cartFeatureInEdit.quantity--"
-                            >Decrease</Button
+                            Increase
+                        </Button>
+                        <Button
+                            @click="cartFeatureInEdit.quantity--"
+                            :disabled="cartFeatureInEdit.quantity <= 0"
                         >
+                            Decrease
+                        </Button>
                         <Button @click="removeFromCart">Remove</Button>
                     </div>
                     <div class="daisy-modal-action items-center space-x-2">
                         <XCircleIcon class="w-8 h-8" @click="open = false" />
                         <Button
                             @click="updateCartFeature"
-                            :disabled="cartFeatureInEdit.quantity % 1 != 0"
+                            :disabled="
+                                cartFeatureInEdit.quantity % 1 != 0 ||
+                                cartFeatureInEdit.quantity >
+                                    cartFeatureInEdit.stock ||
+                                cartFeatureInEdit.quantity < 0 ||
+                                cartFeatureInEdit.quantity === ''
+                            "
                             >Ok</Button
                         >
                     </div>

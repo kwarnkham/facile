@@ -31,7 +31,6 @@ const submit = () => {
         <div class="text-xs font-bold">
             <div>Name: {{ item.name }}</div>
             <div>Description: {{ item.description }}</div>
-            <div>Price: {{ item.price }}</div>
         </div>
         <form @submit.prevent="submit" class="p-4 daisy-form-control space-y-2">
             <div class="text-center text-2xl text-primary">

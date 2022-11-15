@@ -3,7 +3,7 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
-import { Inertia } from "@inertiajs/inertia";
+import { store } from "@/store";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 import pickBy from "lodash/pickBy";
 
@@ -12,13 +12,17 @@ const form = useForm({
     phone: "",
     address: "",
     note: "",
-    features: JSON.parse(localStorage.getItem("cart")),
+    features: JSON.parse(localStorage.getItem("cartItems")),
+    discount: JSON.parse(localStorage.getItem("cartDiscount")) ?? "",
+    deposit: JSON.parse(localStorage.getItem("cartDeposit")) ?? "",
 });
 const submit = () => {
     form.transform((data) => pickBy(data)).post(route("orders.store"), {
         replace: true,
         onSuccess() {
-            localStorage.removeItem("cart");
+            localStorage.removeItem("cartItems");
+            localStorage.removeItem("cartDeposit");
+            store.cart.clear();
         },
     });
 };

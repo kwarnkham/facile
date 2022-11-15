@@ -1,5 +1,5 @@
 <script setup>
-import { provide, ref, watch } from "vue";
+import { computed, provide, ref, watch } from "vue";
 import { HomeIcon, ArrowLeftIcon } from "@heroicons/vue/24/outline";
 import { usePage, Link } from "@inertiajs/inertia-vue3";
 import { ShoppingCartIcon } from "@heroicons/vue/24/solid";
@@ -29,6 +29,10 @@ watch(
     },
     { deep: true }
 );
+
+const cartItems = computed(() => {
+    return store.cart.items;
+});
 </script>
 
 <template>
@@ -43,7 +47,7 @@ watch(
             <div
                 :class="{
                     invisible:
-                        store.cart.length == 0 ||
+                        cartItems.length == 0 ||
                         $page.props.ziggy.location == route('routes.cart'),
                 }"
             >

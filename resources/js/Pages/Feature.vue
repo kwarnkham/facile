@@ -1,12 +1,13 @@
 <script setup>
 import Button from "@/Components/Button.vue";
+import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { store } from "@/store";
 import { XMarkIcon } from "@heroicons/vue/24/solid";
-import { inject, onMounted, ref } from "vue";
+import { computed, inject, onMounted, ref } from "vue";
 
-defineProps({
+const props = defineProps({
     feature: {
         type: Object,
         required: true,
@@ -19,12 +20,22 @@ const showPicture = (picture) => {
 };
 
 const open = ref(false);
-const quantity = ref("1");
+const quantity = ref(
+    (store.cart.items.find((e) => e.id == props.feature.id)?.quantity ?? 0) <
+        props.feature.stock
+        ? 1
+        : ""
+);
 const { updateMessage } = inject("message");
 const addToCart = (feature) => {
-    store.addToCart(feature, quantity.value);
+    store.cart.add(feature, quantity.value);
     updateMessage("Added");
+    quantity.value = "";
 };
+
+const cartQty = computed(
+    () => store.cart.items.find((e) => e.id == props.feature.id)?.quantity ?? 0
+);
 
 onMounted(() => {
     setTimeout(() => {
@@ -67,6 +78,7 @@ onMounted(() => {
                 />
             </div>
         </div>
+        <div class="text-center text-xl">Cart quantity: {{ cartQty }}</div>
         <div class="flex-1 flex items-end justify-end">
             <div class="mr-2">
                 <InputLabel for="quantity" value="Quantity" />
@@ -74,11 +86,24 @@ onMounted(() => {
                     id="quantity"
                     type="number"
                     class="w-full"
-                    v-model="quantity"
+                    v-model.number="quantity"
+                    :class="{
+                        'daisy-input-error': quantity + cartQty > feature.stock,
+                    }"
                     required
                 />
+                <InputError
+                    :message="'Quantity is greater than stock'"
+                    :class="{ invisible: quantity + cartQty <= feature.stock }"
+                />
             </div>
-            <Button @click="addToCart(feature)"> Add to cart </Button>
+            <Button
+                @click="addToCart(feature)"
+                class="mb-5"
+                :disabled="quantity + cartQty > feature.stock || !quantity"
+            >
+                Add to cart
+            </Button>
         </div>
         <Teleport to="body">
             <div class="daisy-modal" :class="{ 'daisy-modal-open': open }">
