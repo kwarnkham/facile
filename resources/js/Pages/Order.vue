@@ -12,13 +12,29 @@ const props = defineProps({
     <div class="h-full overflow-y-auto p-1 flex flex-col">
         <Head title="Order" />
         <div>
-            <div>Customer: {{ order.customer }}</div>
-            <div>Phone: {{ order.phone }}</div>
-            <div v-if="order.address">Address: {{ order.address }}</div>
-            <div>Date: {{ order.created_at }}</div>
-            <div>Status: {{ order.status }} {{ order.updated_at }}</div>
+            <div>Name : {{ order.customer }}</div>
+            <div>Phone : {{ order.phone }}</div>
+            <div v-if="order.address">Address : {{ order.address }}</div>
+            <div>
+                {{
+                    new Date(order.created_at)
+                        .toLocaleString("en-GB", {
+                            hour12: true,
+                        })
+                        .toUpperCase()
+                }}
+            </div>
+            <div>
+                Status: {{ order.status }}
+                {{
+                    new Date(order.updated_at)
+                        .toLocaleString("en-GB", {
+                            hour12: true,
+                        })
+                        .toUpperCase()
+                }}
+            </div>
             <div v-if="order.note">Note: {{ order.note }}</div>
-            <div>Amount: {{ order.amount }}</div>
         </div>
         <table class="daisy-table daisy-table-compact w-full daisy-table-zebra">
             <thead class="sticky top-0">
@@ -38,7 +54,10 @@ const props = defineProps({
                     <th>{{ index + 1 }}</th>
                     <td>{{ feature.name }}</td>
                     <td class="text-right">
-                        {{ feature.price.toLocaleString() }}
+                        {{ feature.pivot.price.toLocaleString() }}
+                        <strong v-if="feature.pivot.discount">
+                            ({{ feature.pivot.discount }})
+                        </strong>
                     </td>
                     <td class="text-right">
                         {{ feature.pivot.quantity }}
@@ -46,7 +65,10 @@ const props = defineProps({
                     <td class="text-right">
                         {{
                             (
-                                feature.pivot.quantity * feature.pivot.price
+                                feature.pivot.quantity *
+                                Math.floor(
+                                    feature.pivot.price - feature.pivot.discount
+                                )
                             ).toLocaleString()
                         }}
                     </td>
@@ -67,11 +89,38 @@ const props = defineProps({
                             order.features
                                 .reduce(
                                     (carry, e) =>
-                                        e.pivot.quantity * e.pivot.price +
+                                        e.pivot.quantity *
+                                            Math.floor(
+                                                e.pivot.price - e.pivot.discount
+                                            ) +
                                         carry,
                                     0
                                 )
                                 .toLocaleString()
+                        }}
+                    </td>
+                </tr>
+                <tr class="font-bold">
+                    <td colspan="4" class="text-right">Discount</td>
+                    <td class="text-right">
+                        {{ order.discount.toLocaleString() }}
+                    </td>
+                </tr>
+                <tr class="font-bold">
+                    <td colspan="4" class="text-right">Deposit</td>
+                    <td class="text-right">
+                        {{ order.deposit.toLocaleString() }}
+                    </td>
+                </tr>
+                <tr class="font-bold">
+                    <td colspan="4" class="text-right">Amount</td>
+                    <td class="text-right">
+                        {{
+                            (
+                                order.amount -
+                                order.deposit -
+                                order.discount
+                            ).toLocaleString()
                         }}
                     </td>
                 </tr>
