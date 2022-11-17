@@ -11,6 +11,6 @@ class Payment extends Model
 
     public function merchants()
     {
-        return $this->belongsToMany(Merchant::class)->using(MerchantPayment::class)->withPivot('number', 'status', 'id')->withTimestamps();
+        return $this->belongsToMany(Merchant::class, 'merchant_payments')->using(MerchantPayment::class)->withPivot('number', 'status', 'id')->withTimestamps();
     }
 }

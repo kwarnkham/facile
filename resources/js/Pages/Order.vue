@@ -1,5 +1,6 @@
 <script setup>
 import Collapse from "@/Components/Collapse.vue";
+import Dialog from "@/Components/Dialog.vue";
 import {
     CalendarIcon,
     InformationCircleIcon,
@@ -7,7 +8,6 @@ import {
     PhoneIcon,
     UserIcon,
 } from "@heroicons/vue/24/solid";
-import { Inertia } from "@inertiajs/inertia";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
 
@@ -16,12 +16,21 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    payments: {
+        type: Array,
+        required: true,
+    },
 });
 
 const isExpanded = ref(true);
 const completeOrderForm = useForm();
+const payOrderForm = useForm();
 const completeOrder = () => {
     completeOrderForm.post(route("orders.complete", { order: props.order.id }));
+};
+const open = ref(false);
+const payOrder = () => {
+    open.value = true;
 };
 </script>
 <template>
@@ -178,10 +187,32 @@ const completeOrder = () => {
                 </button>
             </form>
 
+            <button
+                type="submit"
+                class="daisy-btn-sm daisy-btn-primary rounded-md"
+                @click="payOrder"
+                :disabled="payOrderForm.processing"
+            >
+                Pay
+            </button>
+
             <button class="daisy-btn-sm daisy-btn-warning rounded-md">
                 Cancel
             </button>
         </div>
+        <Dialog :title="'Payment method'" :open="open">
+            <div class="daisy-form-control">
+                <label class="daisy-label cursor-pointer">
+                    <span class="daisy-label-text">Red pill</span>
+                    <input
+                        type="radio"
+                        name="radio-10"
+                        class="daisy-radio checked:bg-red-500"
+                        checked
+                    />
+                </label>
+            </div>
+        </Dialog>
     </div>
 </template>
 

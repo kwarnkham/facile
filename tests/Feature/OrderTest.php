@@ -601,5 +601,9 @@ class OrderTest extends TestCase
 
     public function test_complete_the_order()
     {
+        $this->makeOrder();
+        $order = Order::first();
+        $this->actingAs($this->merchant)->post(route('orders.complete', ['order' => $order->id]));
+        $this->assertEquals($order->fresh()->status, 3);
     }
 }

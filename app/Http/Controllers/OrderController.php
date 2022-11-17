@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Feature;
 use App\Models\Order;
 use App\Models\MerchantPayment;
+use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -160,7 +161,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        return Inertia::render('Order', ['order' => $order->load(['features'])]);
+        return Inertia::render('Order', ['order' => $order->load(['features']), 'payments' => Payment::whereRelation('merchants', 'merchant_id', '=', $order->merchant->id)->get()]);
     }
 
     /**
