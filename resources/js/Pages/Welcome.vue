@@ -9,6 +9,9 @@ import { Head, Link } from "@inertiajs/inertia-vue3";
         <Button @click="$inertia.visit(route('items.create'))">Add item</Button>
         <Button @click="$inertia.visit(route('items.index'))">Item List</Button>
         <Button @click="$inertia.visit(route('orders.index'))">Orders</Button>
+        <Button @click="$inertia.visit(route('merchant_payments.index'))"
+            >Payments</Button
+        >
         <Button
             @click="$inertia.post(route('logout'))"
             v-if="$page.props.auth.user"

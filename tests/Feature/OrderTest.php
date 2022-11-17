@@ -599,11 +599,11 @@ class OrderTest extends TestCase
         $this->assertEquals(Order::first()->amount, $remaining);
     }
 
-    public function test_complete_the_order()
-    {
-        $this->makeOrder();
-        $order = Order::first();
-        $this->actingAs($this->merchant)->post(route('orders.complete', ['order' => $order->id]));
-        $this->assertEquals($order->fresh()->status, 3);
-    }
+    // public function test_complete_the_order()
+    // {
+    //     $this->makeOrder();
+    //     $order = Order::first();
+    //     $this->actingAs($this->merchant)->post(route('orders.complete', ['order' => $order->id]));
+    //     $this->assertEquals($order->fresh()->status, 3);
+    // }
 }

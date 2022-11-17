@@ -38,19 +38,49 @@ class DatabaseSeeder extends Seeder
 
         ]);
         DB::table('role_user')->insert([
-            ['role_id' => 1, 'user_id' => 1],
-            ['role_id' => 2, 'user_id' => 2],
+            [
+                'role_id' => 1,
+                'user_id' => 1,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'role_id' => 2,
+                'user_id' => 2,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
         ]);
         DB::table('merchants')->insert([
-            ['user_id' => 2, 'address' => 'merchant address', 'description' => 'merchant business description']
-        ]);
-        DB::table('tags')->insert([
-            ['name' => 'accessory'],
-            ['name' => 'handmade'],
-            ['name' => 'lamp']
+            [
+                'user_id' => 2,
+                'address' => 'merchant address',
+                'description' => 'merchant business description',
+                'created_at' => $now,
+                'updated_at' => $now
+            ]
         ]);
         DB::table('payments')->insert([
-            ['name' => 'KPZPay']
+            [
+                'name' => 'KBZPay',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'name' => 'WavePay',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'name' => 'KBZmBanking',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'name' => 'CB Pay',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
         ]);
     }
 }

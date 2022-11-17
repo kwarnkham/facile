@@ -24,4 +24,9 @@ class MerchantPayment extends Pivot
     {
         return $this->belongsToMany(Order::class, 'order_payment', 'order_id', 'merchant_payment_id')->withPivot('amount', 'number')->withTimestamps();
     }
+
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class);
+    }
 }

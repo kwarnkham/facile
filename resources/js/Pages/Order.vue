@@ -200,7 +200,7 @@ const payOrder = () => {
                 Cancel
             </button>
         </div>
-        <Dialog :title="'Payment method'" :open="open">
+        <Dialog :title="'Payment method'" :open="open" @close="open = false">
             <div class="daisy-form-control">
                 <label class="daisy-label cursor-pointer">
                     <span class="daisy-label-text">Red pill</span>

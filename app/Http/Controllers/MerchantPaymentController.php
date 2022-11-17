@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Merchant;
 use App\Models\MerchantPayment;
+use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
-use Redirect;
+use Inertia\Inertia;
 
 class MerchantPaymentController extends Controller
 {
@@ -17,7 +18,8 @@ class MerchantPaymentController extends Controller
      */
     public function index()
     {
-        //
+        $merchantPayments = MerchantPayment::with(['payment'])->where('merchant_id', request()->user()->merchant->id)->get();
+        return Inertia::render('MerchantPayments', ['merchant_payments' => $merchantPayments, 'payments' => Payment::all()]);
     }
 
     /**
@@ -96,8 +98,9 @@ class MerchantPaymentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(MerchantPayment $merchantPayment)
     {
-        //
+        $merchantPayment->delete();
+        return Redirect::back()->with('message', 'Deleted');
     }
 }

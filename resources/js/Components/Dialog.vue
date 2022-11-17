@@ -10,6 +10,8 @@ const props = defineProps({
         default: false,
     },
 });
+
+defineEmits(["close"]);
 </script>
 
 <template>
@@ -17,8 +19,9 @@ const props = defineProps({
         <div
             class="daisy-modal daisy-modal-bottom sm:daisy-modal-middle"
             :class="{ 'daisy-modal-open': open }"
+            @click="$emit('close')"
         >
-            <div class="daisy-modal-box">
+            <div class="daisy-modal-box" @click.stop="">
                 <h3 class="font-bold text-lg">
                     {{ title }}
                 </h3>

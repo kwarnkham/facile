@@ -82,9 +82,11 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
     });
 });
 
-Route::controller(MerchantPaymentController::class)->prefix('/user-payments')->group(function () {
+Route::controller(MerchantPaymentController::class)->prefix('/merchant-payments')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
-        Route::post('', 'store')->name('user_payments.store');
+        Route::post('', 'store')->name('merchant_payments.store');
+        Route::get('', 'index')->name('merchant_payments.index');
+        Route::delete('{merchantPayment}', 'destroy')->name('merchant_payments.destroy');
     });
 });
 
