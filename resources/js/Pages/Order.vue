@@ -1,5 +1,15 @@
 <script setup>
-import { Head } from "@inertiajs/inertia-vue3";
+import Collapse from "@/Components/Collapse.vue";
+import {
+    CalendarIcon,
+    InformationCircleIcon,
+    MapPinIcon,
+    PhoneIcon,
+    UserIcon,
+} from "@heroicons/vue/24/solid";
+import { Inertia } from "@inertiajs/inertia";
+import { Head, useForm } from "@inertiajs/inertia-vue3";
+import { ref } from "vue";
 
 const props = defineProps({
     order: {
@@ -7,35 +17,65 @@ const props = defineProps({
         required: true,
     },
 });
+
+const isExpanded = ref(true);
+const completeOrderForm = useForm();
+const completeOrder = () => {
+    completeOrderForm.post(route("orders.complete", { order: props.order.id }));
+};
 </script>
 <template>
     <div class="h-full overflow-y-auto p-1 flex flex-col">
         <Head title="Order" />
-        <div>
-            <div>Name : {{ order.customer }}</div>
-            <div>Phone : {{ order.phone }}</div>
-            <div v-if="order.address">Address : {{ order.address }}</div>
-            <div>
-                {{
-                    new Date(order.created_at)
-                        .toLocaleString("en-GB", {
-                            hour12: true,
-                        })
-                        .toUpperCase()
-                }}
+        <Collapse v-model:checked="isExpanded" title="Order Information">
+            <div class="text-xs">
+                <div class="flex flex-row justify-between">
+                    <div class="flex items-center">
+                        <UserIcon class="h-4 w-4 mr-2" />
+                        {{ order.customer }}
+                    </div>
+                    <div class="flex items-center">
+                        <PhoneIcon class="h-4 w-4 mr-2" />
+                        {{ order.phone }}
+                    </div>
+                </div>
+
+                <div v-if="order.address" class="flex items-center">
+                    <MapPinIcon class="h-4 w-4 mr-2" /> : {{ order.address }}
+                </div>
+                <div v-if="order.note" class="flex items-center">
+                    <InformationCircleIcon class="h-4 w-4 mr-2" />:
+                    {{ order.note }}
+                </div>
+
+                <div class="flex justify-between">
+                    <div class="flex items-center">
+                        <CalendarIcon class="h-4 w-4 mr-2" />
+                        {{
+                            new Date(order.created_at)
+                                .toLocaleString("en-GB", {
+                                    hour12: true,
+                                })
+                                .toUpperCase()
+                        }}
+                    </div>
+
+                    <div
+                        class="daisy-tooltip daisy-tooltip-left daisy-tooltip-info"
+                        :data-tip="
+                            new Date(order.updated_at)
+                                .toLocaleString('en-GB', {
+                                    hour12: true,
+                                })
+                                .toUpperCase()
+                        "
+                    >
+                        <div>Status: {{ order.status }}</div>
+                    </div>
+                </div>
             </div>
-            <div>
-                Status: {{ order.status }}
-                {{
-                    new Date(order.updated_at)
-                        .toLocaleString("en-GB", {
-                            hour12: true,
-                        })
-                        .toUpperCase()
-                }}
-            </div>
-            <div v-if="order.note">Note: {{ order.note }}</div>
-        </div>
+        </Collapse>
+
         <table class="daisy-table daisy-table-compact w-full daisy-table-zebra">
             <thead class="sticky top-0">
                 <tr>
@@ -126,6 +166,22 @@ const props = defineProps({
                 </tr>
             </tbody>
         </table>
+        <div class="flex justify-evenly mt-2">
+            <form @submit.prevent="completeOrder">
+                <button
+                    type="submit"
+                    class="daisy-btn-sm daisy-btn-primary rounded-md"
+                    @click="completeOrder"
+                    :disabled="completeOrderForm.processing"
+                >
+                    Complete
+                </button>
+            </form>
+
+            <button class="daisy-btn-sm daisy-btn-warning rounded-md">
+                Cancel
+            </button>
+        </div>
     </div>
 </template>
 

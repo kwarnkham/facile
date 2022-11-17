@@ -16,6 +16,63 @@ use Tests\TestCase;
 
 class OrderTest extends TestCase
 {
+
+    public function makeOrder($featureDiscountPercentage = 0, $orderDiscountRatio = 0, $depositRatio = 0)
+    {
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $stock = rand(1, 10);
+        for ($i = 0; $i < rand(1, 10); $i++) {
+            $feature = Feature::factory()->make(['stock' => $stock]);
+            $this->actingAs($this->merchant)->post(route('features.store'), [
+                ...['item_id' => $item->id],
+                ...$feature->toArray(),
+                ...['purchase_price' => floor($feature->price * 0.9)]
+            ]);
+        }
+        if ($featureDiscountPercentage > 0) {
+            $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();
+            $features->each(fn ($v) => $this->actingAs($this->merchant)->post(route('features.discount', [
+                'feature' => $v->id
+            ]), [
+                'discount_id' => Discount::factory()->create(['merchant_id' => $this->merchant->merchant->id, 'percentage' => $featureDiscountPercentage])->id
+            ]));
+        }
+
+
+        $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();
+        $feats = $features->map(fn ($feature) => [
+            'id' => $feature->id,
+            'quantity' => $stock
+        ])->toArray();
+
+
+        $remaining = floor((float)($features->reduce(fn ($carry, $feat) => ($feat->price - $feat->totalDiscount()) * collect($feats)->first(fn ($v) => $v['id'] == $feat->id)['quantity'] + $carry)));
+
+
+        $data = [
+            ...['features' => $feats]
+        ];
+        if ($depositRatio > 0) {
+            $data = [
+                ...$data,
+                ...['deposit' => floor($remaining / $depositRatio)]
+            ];
+        }
+        if ($orderDiscountRatio > 0) {
+            $data = [
+                ...$data,
+                'discount' => floor($remaining / $orderDiscountRatio)
+            ];
+        }
+
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...$data,
+            ...Order::factory()->make()->toArray()
+        ]);
+
+        return $remaining;
+    }
     public function test_create_an_order()
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
@@ -524,84 +581,25 @@ class OrderTest extends TestCase
 
     public function test_create_order_with_deposit()
     {
-        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
-        $stock = rand(1, 10);
-        $feature = Feature::factory()->make(['stock' => $stock]);
-        $this->actingAs($this->merchant)->post(route('features.store'), [
-            ...['item_id' => $item->id],
-            ...$feature->toArray(),
-            ...['purchase_price' => floor($feature->price * 0.9)]
-        ]);
-        $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();
-        $deposit = (float)($features->reduce(fn ($carry, $feat) => $feat->price - $feat->totalDiscount() + $carry)) / 50;
-        $this->actingAs($this->merchant)->post(route('orders.store'), [
-            ...[
-                'features' => $features->map(fn ($feature) => [
-                    'id' => $feature->id,
-                    'quantity' => $stock
-                ])->toArray(), 'deposit' => $deposit
-            ],
-            ...Order::factory()->make()->toArray()
-        ]);
-
-        $this->assertDatabaseCount('orders', 1);
-        $this->assertEquals(Order::first()->deposit, $deposit);
+        $remaining = $this->makeOrder(depositRatio: 4);
+        $this->assertEquals(Order::first()->deposit, floor($remaining / 4));
     }
 
     public function test_order_deposit_is_valid()
     {
-        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
-        $stock = rand(1, 10);
-        for ($i = 0; $i < rand(1, 10); $i++) {
-            $feature = Feature::factory()->make(['stock' => $stock]);
-            $this->actingAs($this->merchant)->post(route('features.store'), [
-                ...['item_id' => $item->id],
-                ...$feature->toArray(),
-                ...['purchase_price' => floor($feature->price * 0.9)]
-            ]);
-        }
-        $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();
-
-        $features->each(fn ($v) => $this->actingAs($this->merchant)->post(route('features.discount', [
-            'feature' => $v->id
-        ]), [
-            'discount_id' => Discount::factory()->create(['merchant_id' => $this->merchant->merchant->id, 'percentage' => 10])->id
-        ]));
-
-        $feats = $features->map(fn ($feature) => [
-            'id' => $feature->id,
-            'quantity' => $stock
-        ])->toArray();
-        $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();
-
-        $remaining = floor((float)($features->reduce(fn ($carry, $feat) => ($feat->price - $feat->totalDiscount()) * collect($feats)->first(fn ($v) => $v['id'] == $feat->id)['quantity'] + $carry)));
-
-        $this->actingAs($this->merchant)->post(route('orders.store'), [
-            ...[
-                'features' => $feats, 'deposit' => $remaining + 1
-            ],
-            ...Order::factory()->make()->toArray()
-        ]);
-
+        $this->makeOrder(depositRatio: 0.9);
         $this->assertDatabaseCount('orders', 0);
 
-        $this->actingAs($this->merchant)->post(route('orders.store'), [
-            ...[
-                'features' => $feats, 'deposit' => $remaining / 2, 'discount' => $remaining - floor($remaining / 2) + 1
-            ],
-            ...Order::factory()->make()->toArray()
-        ]);
-
+        $this->makeOrder(depositRatio: 11 - 1, orderDiscountRatio: 1.1);
         $this->assertDatabaseCount('orders', 0);
 
-        $this->actingAs($this->merchant)->post(route('orders.store'), [
-            ...[
-                'features' => $feats, 'deposit' => $remaining / 2, 'discount' => $remaining - floor($remaining / 2)
-            ],
-            ...Order::factory()->make()->toArray()
-        ]);
-
+        $remaining = $this->makeOrder(depositRatio: 11, orderDiscountRatio: 1.1);
         $this->assertDatabaseCount('orders', 1);
-        $this->assertEquals(Order::first()->status, 3);
+
+        $this->assertEquals(Order::first()->amount, $remaining);
+    }
+
+    public function test_complete_the_order()
+    {
     }
 }
