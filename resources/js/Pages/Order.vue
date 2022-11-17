@@ -16,11 +16,13 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    payments: {
+    merchant_payments: {
         type: Array,
         required: true,
     },
 });
+
+const selectedPayment = ref();
 
 const isExpanded = ref(true);
 const completeOrderForm = useForm();
@@ -50,10 +52,10 @@ const payOrder = () => {
                 </div>
 
                 <div v-if="order.address" class="flex items-center">
-                    <MapPinIcon class="h-4 w-4 mr-2" /> : {{ order.address }}
+                    <MapPinIcon class="h-4 w-4 mr-2" /> {{ order.address }}
                 </div>
                 <div v-if="order.note" class="flex items-center">
-                    <InformationCircleIcon class="h-4 w-4 mr-2" />:
+                    <InformationCircleIcon class="h-4 w-4 mr-2" />
                     {{ order.note }}
                 </div>
 
@@ -201,14 +203,21 @@ const payOrder = () => {
             </button>
         </div>
         <Dialog :title="'Payment method'" :open="open" @close="open = false">
-            <div class="daisy-form-control">
+            <div
+                class="daisy-form-control"
+                v-for="merchantPayment in merchant_payments"
+                :key="merchantPayment.id"
+            >
                 <label class="daisy-label cursor-pointer">
-                    <span class="daisy-label-text">Red pill</span>
+                    <span class="daisy-label-text">
+                        {{ merchantPayment.payment.name }} -
+                        {{ merchantPayment.number }}
+                    </span>
                     <input
                         type="radio"
-                        name="radio-10"
-                        class="daisy-radio checked:bg-red-500"
-                        checked
+                        class="daisy-radio checked:bg-primary"
+                        v-model="selectedPayment"
+                        :value="merchantPayment.id"
                     />
                 </label>
             </div>

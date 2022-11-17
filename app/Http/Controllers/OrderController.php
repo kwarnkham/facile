@@ -161,7 +161,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        return Inertia::render('Order', ['order' => $order->load(['features']), 'payments' => Payment::whereRelation('merchants', 'merchant_id', '=', $order->merchant->id)->get()]);
+        return Inertia::render('Order', ['order' => $order->load(['features']), 'merchant_payments' => MerchantPayment::with(['payment'])->where('merchant_id', $order->merchant->id)->get()]);
     }
 
     /**
