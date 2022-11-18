@@ -19,7 +19,6 @@ class MerchantPayment extends Pivot
      * @var string
      */
     protected $table = 'merchant_payments';
-    protected $with = ['payment'];
 
     public function orders()
     {

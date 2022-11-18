@@ -68,6 +68,30 @@ class OrderTest extends TestCase
 
         return $remaining;
     }
+
+    public function test_order_use_wholesale_price_when_quantity_is_met()
+    {
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $feature = Feature::factory()->make(['stock' => 100]);
+        $this->actingAs($this->merchant)->post(route('features.store'), [
+            ...['item_id' => $item->id],
+            ...$feature->toArray(),
+            ...['purchase_price' => floor($feature->price * 0.9)]
+        ]);
+        $wholesaleQty = 10;
+        $item->wholesales()->create(['quantity' => $wholesaleQty, 'price' => $feature->price * 0.9]);
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            'features' => [
+                [
+                    'id' => Feature::first()->id,
+                    'quantity' => $wholesaleQty
+                ]
+            ],
+            ...Order::factory()->make()->toArray()
+        ]);
+        $order = Order::first();
+        $this->assertEquals($order->amount, floor($feature->price * 0.9 * $wholesaleQty));
+    }
     public function test_create_an_order()
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
@@ -307,7 +331,7 @@ class OrderTest extends TestCase
 
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
-            'amount' => $remaining - (float)$order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
+            'amount' => $remaining - (float)$order->merchantPayments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
         ]);
         $this->assertDatabaseCount('order_payment', 3);
         $this->assertEquals($order->fresh()->status,  3);
@@ -374,7 +398,7 @@ class OrderTest extends TestCase
 
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
-            'amount' => $order->amount - (float)$order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
+            'amount' => $order->amount - (float)$order->merchantPayments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
         ]);
 
         $this->assertDatabaseCount('order_payment', 3);
@@ -515,14 +539,6 @@ class OrderTest extends TestCase
         ]);
         $this->assertDatabaseCount('order_payment', 1);
         $this->assertEquals($order->fresh()->status,  3);
-        $this->assertEquals($order->fresh()->payments->first()->pivot->note,  $note);
+        $this->assertEquals($order->fresh()->merchantPayments->first()->pivot->note,  $note);
     }
-
-    // public function test_complete_the_order()
-    // {
-    //     $this->makeOrder();
-    //     $order = Order::first();
-    //     $this->actingAs($this->merchant)->post(route('orders.complete', ['order' => $order->id]));
-    //     $this->assertEquals($order->fresh()->status, 3);
-    // }
 }

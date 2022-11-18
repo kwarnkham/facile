@@ -30,7 +30,10 @@ const remaining = computed(
     () =>
         props.order.amount -
         props.order.discount -
-        props.order.payments.reduce((carry, e) => carry + e.pivot.amount, 0)
+        props.order.merchant_payments.reduce(
+            (carry, e) => carry + e.pivot.amount,
+            0
+        )
 );
 const canMakePayment = computed(() => paymentForm.amount <= remaining.value);
 const paymentForm = useForm({
@@ -52,6 +55,7 @@ const submitPayment = () => {
         .post(route("orders.pay", { order: props.order.id }), {
             onSuccess() {
                 showPaymentForm.value = false;
+                paymentForm.amount = remaining.value;
             },
         });
 };
@@ -116,7 +120,7 @@ const isPaymentInfoExpanded = ref(false);
             title="Payment Information"
         >
             <div
-                v-for="orderPayment in order.payments"
+                v-for="orderPayment in order.merchant_payments"
                 :key="orderPayment.id"
                 class="flex justify-evenly"
             >
@@ -214,7 +218,7 @@ const isPaymentInfoExpanded = ref(false);
                     <td colspan="4" class="text-right">Paid</td>
                     <td class="text-right">
                         {{
-                            order.payments
+                            order.merchant_payments
                                 .reduce((carry, e) => carry + e.pivot.amount, 0)
                                 .toLocaleString()
                         }}

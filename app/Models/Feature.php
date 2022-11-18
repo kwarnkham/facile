@@ -11,8 +11,6 @@ class Feature extends Model
 {
     use HasFactory, Spaceable;
 
-    // protected $with = ['discounts'];
-
     public function item()
     {
         return $this->belongsTo(Item::class);
