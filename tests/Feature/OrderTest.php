@@ -92,14 +92,15 @@ class OrderTest extends TestCase
         $order = Order::first();
         $this->assertEquals($order->amount, floor($feature->price * 0.9 * $wholesaleQty));
     }
-    public function test_create_an_order()
+
+    public function test_make_an_order()
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $stock = rand(2, 14);
         $count = rand(1, 4);
         $features = Feature::factory($count)->create(['item_id' => $item->id, 'stock' => $stock])->map(
             fn ($feature) =>
-            ['id' => $feature->id, 'quantity' => $stock]
+            ['id' => $feature->id, 'quantity' => floor($stock / 2)]
         )->toArray();
         $this->actingAs($this->merchant)->post(route('orders.store'), [
             ...['features' => $features],
@@ -110,6 +111,11 @@ class OrderTest extends TestCase
         $this->assertDatabaseCount('feature_order', $count);
         $amount = (float)Feature::where('item_id', $item->id)->get()->reduce(fn ($carry, $feature) => $carry + $feature->price * collect($features)->first(fn ($v) => $v['id'] == $feature->id)['quantity'], 0);
         $this->assertEquals(Order::first()->amount, $amount);
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...['features' => $features],
+        ]);
+        $this->assertDatabaseCount('orders', 2);
     }
 
     public function test_cancel_an_order()
