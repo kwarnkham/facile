@@ -14,14 +14,12 @@ const form = useForm({
     note: "",
     features: JSON.parse(localStorage.getItem("cartItems")),
     discount: JSON.parse(localStorage.getItem("cartDiscount")) ?? "",
-    deposit: JSON.parse(localStorage.getItem("cartDeposit")) ?? "",
 });
 const submit = () => {
     form.transform((data) => pickBy(data)).post(route("orders.store"), {
         replace: true,
         onSuccess() {
             localStorage.removeItem("cartItems");
-            localStorage.removeItem("cartDeposit");
             store.cart.clear();
         },
     });

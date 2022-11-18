@@ -5,7 +5,6 @@ export const store = reactive({
     cart: {
         items: JSON.parse(localStorage.getItem('cartItems')) ?? [],
         discount: 0,
-        deposit: 0,
         add (feature, quantity = 1) {
             feature = JSON.parse(JSON.stringify(feature))
             feature.quantity = Number(quantity);

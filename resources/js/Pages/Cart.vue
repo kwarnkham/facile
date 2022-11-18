@@ -17,7 +17,6 @@ const editCartFeature = (feature) => {
 };
 const checkout = () => {
     localStorage.setItem("cartDiscount", JSON.stringify(discount.value));
-    localStorage.setItem("cartDeposit", JSON.stringify(deposit.value));
     Inertia.visit(route("routes.checkout"));
 };
 const cartTotal = computed(() =>
@@ -25,7 +24,6 @@ const cartTotal = computed(() =>
 );
 
 const discount = ref(JSON.parse(localStorage.getItem("cartDiscount")) ?? "");
-const deposit = ref(JSON.parse(localStorage.getItem("cartDeposit")) ?? "");
 
 const removeFromCart = () => {
     store.cart.remove(
@@ -116,23 +114,10 @@ const clearCart = () => {
                         />
                     </td>
                 </tr>
-                <tr class="font-bold">
-                    <th class="underline"></th>
-                    <td colspan="2"></td>
-                    <td class="text-right">Deposit</td>
-
-                    <td class="text-right">
-                        <input
-                            type="number"
-                            v-model.number="deposit"
-                            class="w-16 text-right"
-                        />
-                    </td>
-                </tr>
                 <tr
                     class="font-bold"
                     :class="{
-                        'text-error': cartTotal - deposit - discount < 0,
+                        'text-error': cartTotal - discount < 0,
                     }"
                 >
                     <th class="underline"></th>
@@ -140,15 +125,13 @@ const clearCart = () => {
                     <td class="text-right">Amount</td>
 
                     <td class="text-right">
-                        {{ (cartTotal - deposit - discount).toLocaleString() }}
+                        {{ (cartTotal - discount).toLocaleString() }}
                     </td>
                 </tr>
             </tbody>
         </table>
         <div class="flex-1 flex items-end justify-end">
-            <Button
-                @click="checkout"
-                :disabled="cartTotal - deposit - discount < 0"
+            <Button @click="checkout" :disabled="cartTotal - discount < 0"
                 >Checkout</Button
             >
         </div>

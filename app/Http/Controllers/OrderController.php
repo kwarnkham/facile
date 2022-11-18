@@ -35,7 +35,7 @@ class OrderController extends Controller
     public function pay(Order $order)
     {
         if ($order->status == 3) return Redirect::back()->with('message', 'Order cannot be paid anymore');
-        $paidAmount = $order->paidAmount() + $order->discount + $order->deposit + $order->getFeatureDiscounts();
+        $paidAmount = $order->paidAmount() + $order->discount + $order->getFeatureDiscounts();
         $remaining = floor($order->amount - $paidAmount);
         $attributes = request()->validate([
             'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
@@ -120,9 +120,9 @@ class OrderController extends Controller
         $featuresDiscount = floor((float)collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['discount'] * $feature['quantity'], 0));
 
         $remaining = $amount -
-            floor($attributes['discount'] ?? 0) - floor($attributes['deposit'] ?? 0) - $featuresDiscount;
+            floor($attributes['discount'] ?? 0) - $featuresDiscount;
 
-        if ($remaining < 0) return Redirect::back()->with('message', 'Total discount and deposit is greater than the amount');
+        if ($remaining < 0) return Redirect::back()->with('message', 'Total discount is greater than the amount');
 
         $createdOrder = DB::transaction(function () use ($attributes, $request, $amount, $remaining) {
             $order = Order::create(
