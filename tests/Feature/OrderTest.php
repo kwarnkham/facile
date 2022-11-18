@@ -285,37 +285,26 @@ class OrderTest extends TestCase
 
     public function test_pay_order_using_payment()
     {
-        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
-        $stock = rand(1, 10);
-        $features = Feature::factory(rand(1, 10))->create(['item_id' => $item->id, 'stock' => $stock])->map(
-            fn ($feature) =>
-            ['id' => $feature->id, 'quantity' => $stock]
-        )->toArray();
-
-        $this->actingAs($this->merchant)->post(route('orders.store'), [
-            ...['features' => $features],
-            ...Order::factory()->make()->toArray()
-        ]);
-
-        $this->assertDatabaseCount('orders', 1);
+        $remaining = $this->makeOrder();
         $order = Order::first();
 
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
-            'amount' => floor($order->amount / 2)
+            'amount' => floor($remaining / 2)
         ]);
         $this->assertDatabaseCount('order_payment', 1);
         $this->assertEquals($order->fresh()->status,  2);
 
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
-            'amount' => floor($order->amount / 4)
+            'amount' => floor($remaining / 4)
         ]);
         $this->assertDatabaseCount('order_payment', 2);
         $this->assertEquals($order->fresh()->status,  2);
 
         $user = User::factory()->hasAttached(Role::where('name', 'merchant')->first())->has(Merchant::factory())->create();
         $user->merchant->payments()->attach(Payment::factory()->create());
+
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $user->merchant->payments()->first()->pivot->id,
             'amount' => '1000'
@@ -323,7 +312,7 @@ class OrderTest extends TestCase
 
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
-            'amount' => $order->amount - (float)$order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
+            'amount' => $remaining - (float)$order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
         ]);
         $this->assertDatabaseCount('order_payment', 3);
         $this->assertEquals($order->fresh()->status,  3);
@@ -597,6 +586,21 @@ class OrderTest extends TestCase
         $this->assertDatabaseCount('orders', 1);
 
         $this->assertEquals(Order::first()->amount, $remaining);
+    }
+
+    public function test_pay_order_with_note()
+    {
+        $remaining = $this->makeOrder();
+        $order = Order::first();
+        $note = 'payment note';
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
+            'amount' => $remaining,
+            'note' => $note
+        ]);
+        $this->assertDatabaseCount('order_payment', 1);
+        $this->assertEquals($order->fresh()->status,  3);
+        $this->assertEquals($order->fresh()->payments->first()->pivot->note,  $note);
     }
 
     // public function test_complete_the_order()

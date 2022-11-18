@@ -48,7 +48,8 @@ class OrderController extends Controller
                         $fail("The $attribute $value is greater than the remaining order amount $remaining.");
                     }
                 }
-            ]
+            ],
+            'note' => ['sometimes', 'required', 'string']
         ]);
 
         DB::transaction(function () use ($order, $attributes, $paidAmount) {
@@ -56,7 +57,8 @@ class OrderController extends Controller
                 $attributes['payment_id'],
                 [
                     'amount' => $attributes['amount'],
-                    'number' => MerchantPayment::find($attributes['payment_id'])->number
+                    'number' => MerchantPayment::find($attributes['payment_id'])->number,
+                    'note' => $attributes['note'] ?? null
                 ]
             );
             if ((strval($attributes['amount']) + strval($paidAmount)) < strval($order->amount)) $order->status = 2;
@@ -161,7 +163,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        return Inertia::render('Order', ['order' => $order->load(['features']), 'merchant_payments' => MerchantPayment::with(['payment'])->where('merchant_id', $order->merchant->id)->get()]);
+        return Inertia::render('Order', ['order' => $order->load(['features', 'payments']), 'merchant_payments' => MerchantPayment::with(['payment'])->where('merchant_id', $order->merchant->id)->get()]);
     }
 
     /**

@@ -1,6 +1,9 @@
 <script setup>
 import Collapse from "@/Components/Collapse.vue";
 import Dialog from "@/Components/Dialog.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import TextInput from "@/Components/TextInput.vue";
 import {
     CalendarIcon,
     InformationCircleIcon,
@@ -9,7 +12,8 @@ import {
     UserIcon,
 } from "@heroicons/vue/24/solid";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
-import { ref } from "vue";
+import pickBy from "lodash/pickBy";
+import { computed, ref } from "vue";
 
 const props = defineProps({
     order: {
@@ -22,23 +26,44 @@ const props = defineProps({
     },
 });
 
-const selectedPayment = ref();
+const remaining = computed(
+    () =>
+        props.order.amount -
+        props.order.discount -
+        props.order.payments.reduce((carry, e) => carry + e.pivot.amount, 0)
+);
+const canMakePayment = computed(() => paymentForm.amount <= remaining.value);
+const paymentForm = useForm({
+    amount: remaining.value,
+    note: "",
+    payment_id: props.merchant_payments[0].id,
+});
 
-const isExpanded = ref(true);
+const isOrderInfoExpanded = ref(true);
 const completeOrderForm = useForm();
-const payOrderForm = useForm();
 const completeOrder = () => {
     completeOrderForm.post(route("orders.complete", { order: props.order.id }));
 };
-const open = ref(false);
-const payOrder = () => {
-    open.value = true;
+const showPaymentForm = ref(false);
+const submitPayment = () => {
+    if (!canMakePayment.value) return;
+    paymentForm
+        .transform((data) => pickBy(data))
+        .post(route("orders.pay", { order: props.order.id }), {
+            onSuccess() {
+                showPaymentForm.value = false;
+            },
+        });
 };
+const isPaymentInfoExpanded = ref(false);
 </script>
 <template>
     <div class="h-full overflow-y-auto p-1 flex flex-col">
         <Head title="Order" />
-        <Collapse v-model:checked="isExpanded" title="Order Information">
+        <Collapse
+            v-model:checked="isOrderInfoExpanded"
+            title="Order Information"
+        >
             <div class="text-xs">
                 <div class="flex flex-row justify-between">
                     <div class="flex items-center">
@@ -86,12 +111,39 @@ const payOrder = () => {
                 </div>
             </div>
         </Collapse>
+        <Collapse
+            v-model:checked="isPaymentInfoExpanded"
+            title="Payment Information"
+        >
+            <div
+                v-for="orderPayment in order.payments"
+                :key="orderPayment.id"
+                class="flex justify-evenly"
+            >
+                <p class="text-sm">
+                    <strong>{{ orderPayment.pivot.amount }}</strong> is paid to
+                    <span class="font-semibold">
+                        {{ orderPayment.payment.name }} -
+                        {{ orderPayment.pivot.number }}
+                    </span>
+                    on
+                    {{
+                        new Date(orderPayment.created_at)
+                            .toLocaleString("en-GB", { hour12: true })
+                            .toUpperCase()
+                    }}
+                </p>
+                <div v-if="orderPayment.pivot.note">
+                    Note : {{ orderPayment.pivot.note }}
+                </div>
+            </div>
+        </Collapse>
 
         <table class="daisy-table daisy-table-compact w-full daisy-table-zebra">
             <thead class="sticky top-0">
                 <tr>
                     <th></th>
-                    <th>Name</th>
+                    <th>Description</th>
                     <th class="text-right">Price</th>
                     <th class="text-right">Qty</th>
                     <th class="text-right">Amount</th>
@@ -157,52 +209,48 @@ const payOrder = () => {
                         {{ order.discount.toLocaleString() }}
                     </td>
                 </tr>
+
                 <tr class="font-bold">
-                    <td colspan="4" class="text-right">Deposit</td>
-                    <td class="text-right">
-                        {{ order.deposit.toLocaleString() }}
-                    </td>
-                </tr>
-                <tr class="font-bold">
-                    <td colspan="4" class="text-right">Amount</td>
+                    <td colspan="4" class="text-right">Paid</td>
                     <td class="text-right">
                         {{
-                            (
-                                order.amount -
-                                order.deposit -
-                                order.discount
-                            ).toLocaleString()
+                            order.payments
+                                .reduce((carry, e) => carry + e.pivot.amount, 0)
+                                .toLocaleString()
                         }}
+                    </td>
+                </tr>
+                <tr class="font-bold" v-if="order.status != 3">
+                    <td colspan="4" class="text-right">Amount</td>
+                    <td class="text-right">
+                        {{ remaining.toLocaleString() }}
                     </td>
                 </tr>
             </tbody>
         </table>
-        <div class="flex justify-evenly mt-2">
+
+        <div class="flex justify-evenly mt-2" v-if="order.status != 3">
             <form @submit.prevent="completeOrder">
-                <button
+                <PrimaryButton
                     type="submit"
-                    class="daisy-btn-sm daisy-btn-primary rounded-md"
                     @click="completeOrder"
                     :disabled="completeOrderForm.processing"
                 >
                     Complete
-                </button>
+                </PrimaryButton>
             </form>
 
-            <button
-                type="submit"
-                class="daisy-btn-sm daisy-btn-primary rounded-md"
-                @click="payOrder"
-                :disabled="payOrderForm.processing"
-            >
-                Pay
-            </button>
+            <PrimaryButton @click="showPaymentForm = true"> Pay </PrimaryButton>
 
             <button class="daisy-btn-sm daisy-btn-warning rounded-md">
                 Cancel
             </button>
         </div>
-        <Dialog :title="'Payment method'" :open="open" @close="open = false">
+        <Dialog
+            :title="'Payment method'"
+            :open="showPaymentForm"
+            @close="showPaymentForm = false"
+        >
             <div
                 class="daisy-form-control"
                 v-for="merchantPayment in merchant_payments"
@@ -216,10 +264,44 @@ const payOrder = () => {
                     <input
                         type="radio"
                         class="daisy-radio checked:bg-primary"
-                        v-model="selectedPayment"
+                        v-model="paymentForm.payment_id"
                         :value="merchantPayment.id"
                     />
                 </label>
+            </div>
+            <div class="daisy-divider"></div>
+            <div>
+                <InputLabel for="paymentAmount" value="Amount" />
+                <TextInput
+                    id="paymentAmount"
+                    type="number"
+                    class="w-full"
+                    v-model="paymentForm.amount"
+                    required
+                    :class="{
+                        'daisy-input-error': !canMakePayment,
+                    }"
+                    placeholder="Amount"
+                />
+            </div>
+            <div>
+                <InputLabel for="note" value="Note" />
+                <TextInput
+                    id="note"
+                    type="text"
+                    class="w-full"
+                    v-model="paymentForm.note"
+                    placeholder="Note"
+                />
+            </div>
+            <div class="text-right pt-2">
+                <button
+                    class="daisy-btn daisy-btn-success daisy-btn-sm capitalize"
+                    :disabled="!canMakePayment"
+                    @click="submitPayment"
+                >
+                    Make Payment
+                </button>
             </div>
         </Dialog>
     </div>
