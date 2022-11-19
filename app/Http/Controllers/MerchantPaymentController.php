@@ -100,7 +100,14 @@ class MerchantPaymentController extends Controller
      */
     public function destroy(MerchantPayment $merchantPayment)
     {
-        $merchantPayment->delete();
-        return Redirect::back()->with('message', 'Deleted');
+        // $merchantPayment->delete();
+        // return Redirect::back()->with('message', 'Deleted');
+    }
+
+    public function disable(MerchantPayment $merchantPayment)
+    {
+        $merchantPayment->status = 2;
+        $merchantPayment->save();
+        return Redirect::back()->with('message', 'Success');
     }
 }

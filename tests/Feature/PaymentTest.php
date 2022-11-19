@@ -25,17 +25,15 @@ class PaymentTest extends TestCase
         ])->assertSessionHasErrors(['number']);
     }
 
-    public function test_merchant_delete_a_payment()
+    public function test_merchant_disable_a_payment()
     {
         $this->actingAs($this->merchant)->post(route('merchant_payments.store'), [
             'number' => '123',
             'payment_id' => $this->payment->id
         ]);
         $payment = $this->merchant->merchant->payments()->first()->pivot;
-        $existed = MerchantPayment::count();
-        $this->actingAs($this->merchant)->delete(route('merchant_payments.destroy', ['merchantPayment' => $payment->id]))->assertSessionHas('message', 'Deleted');
+        $this->actingAs($this->merchant)->post(route('merchant_payments.disable', ['merchantPayment' => $payment->id]));
 
-        $this->assertDatabaseMissing('merchant_payments', $payment->toArray());
-        $this->assertDatabaseCount('merchant_payments', $existed - 1);
+        $this->assertEquals($payment->fresh()->status, 2);
     }
 }
