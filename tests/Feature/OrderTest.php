@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
 use App\Enums\ResponseStatus;
+use App\Models\Credit;
 use App\Models\Discount;
 use App\Models\Feature;
 use App\Models\Item;
@@ -107,6 +108,8 @@ class OrderTest extends TestCase
         $this->assertEquals($order->fresh()->status, 2);
         $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]));;
         $this->assertEquals(Feature::first()->stock, 0);
+        $this->assertDatabaseCount('credits', 1);
+        $this->assertEquals(Credit::first()->amount, floor($remaining / 2));
     }
 
     public function test_pay_order_with_picture()

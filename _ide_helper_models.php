@@ -12,6 +12,18 @@
 
 namespace App\Models{
 /**
+ * App\Models\Credit
+ *
+ * @method static \Database\Factories\CreditFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit query()
+ */
+	class Credit extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\Discount
  *
  * @property int $id
@@ -56,6 +68,8 @@ namespace App\Models{
  * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
  * @property-read int|null $pictures_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Purchase[] $purchases
+ * @property-read int|null $purchases_count
  * @method static \Database\Factories\FeatureFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Feature filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Feature newModelQuery()
@@ -79,7 +93,6 @@ namespace App\Models{
  *
  * @property int $id
  * @property string $name
- * @property float $price
  * @property string $description
  * @property int $status
  * @property int $merchant_id
@@ -104,7 +117,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereMerchantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Item wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Item whereUpdatedAt($value)
  */
@@ -159,6 +171,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
+ * @property-read \App\Models\Payment $payment
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment query()
@@ -192,8 +205,8 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
  * @property-read int|null $features_count
  * @property-read \App\Models\Merchant $merchant
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MerchantPayment[] $payments
- * @property-read int|null $payments_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MerchantPayment[] $merchantPayments
+ * @property-read int|null $merchant_payments_count
  * @method static \Database\Factories\OrderFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Order newQuery()
@@ -267,10 +280,25 @@ namespace App\Models{
 /**
  * App\Models\Purchase
  *
+ * @property int $id
+ * @property int $purchasable_id
+ * @property string $purchasable_type
+ * @property float $price
+ * @property int $quantity
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $purchasable
  * @method static \Database\Factories\PurchaseFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase wherePurchasableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase wherePurchasableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereUpdatedAt($value)
  */
 	class Purchase extends \Eloquent {}
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\OrderStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Models\Credit;
 use App\Models\Feature;
 use App\Models\Order;
 use App\Models\MerchantPayment;
@@ -80,13 +81,23 @@ class OrderController extends Controller
 
     public function cancel(Order $order)
     {
-        if (in_array($order->status, [OrderStatus::PENDING->value])) {
-            $order->update(['status' => OrderStatus::CANCELED->value]);
-            $order->features->each(function ($feature) {
-                if ($feature->type != 2) {
-                    $feature->stock += $feature->pivot->quantity;
-                    $feature->save();
-                }
+        if (in_array($order->status, [OrderStatus::PENDING->value, OrderStatus::PARTIALLY_PAID->value])) {
+            DB::transaction(function () use ($order) {
+                $order->update(['status' => OrderStatus::CANCELED->value]);
+                $order->features->each(function ($feature) {
+                    if ($feature->type != 2) {
+                        $feature->stock += $feature->pivot->quantity;
+                        $feature->save();
+                    }
+                });
+
+                $order->merchantPayments->each(function ($merchantPayment) {
+                    Credit::create([
+                        'order_payment_id' => $merchantPayment->id,
+                        'amount' => $merchantPayment->pivot->amount,
+                        'number' => $merchantPayment->pivot->number,
+                    ]);
+                });
             });
         }
         return Redirect::back();
