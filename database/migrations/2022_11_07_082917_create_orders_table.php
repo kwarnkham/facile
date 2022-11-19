@@ -17,11 +17,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('merchant_id')->constrained();
             $table->double('amount');
-            $table->double('deposit')->default(0);
             $table->double('discount')->default(0);
             $table->tinyInteger('status')->default(1);
-            $table->string('customer');
-            $table->string('phone');
+            $table->string('customer')->nullable();
+            $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->string('note')->nullable();
             $table->timestamps();

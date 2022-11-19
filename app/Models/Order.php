@@ -15,7 +15,7 @@ class Order extends Model
         return $this->belongsToMany(Feature::class)->withPivot(['quantity', 'price', 'discount'])->withTimestamps();
     }
 
-    public function payments()
+    public function merchantPayments()
     {
         return $this->belongsToMany(MerchantPayment::class, 'order_payment', 'order_id', 'merchant_payment_id')->withPivot('amount', 'number', 'note', 'picture')->withTimestamps();
     }
@@ -29,7 +29,7 @@ class Order extends Model
 
     public function paidAmount()
     {
-        return (float)$this->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
+        return (float)$this->merchantPayments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
     }
 
     public function merchant()

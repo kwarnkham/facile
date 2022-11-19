@@ -8,11 +8,9 @@ use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Feature;
 use App\Models\Order;
 use App\Models\MerchantPayment;
-use App\Models\Payment;
 use App\Models\Picture;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -37,7 +35,7 @@ class OrderController extends Controller
     public function pay(Order $order)
     {
         if ($order->status == 3) return Redirect::back()->with('message', 'Order cannot be paid anymore');
-        $paidAmount = $order->paidAmount() + $order->discount + $order->deposit + $order->getFeatureDiscounts();
+        $paidAmount = $order->paidAmount() + $order->discount + $order->getFeatureDiscounts();
         $remaining = floor($order->amount - $paidAmount);
         $attributes = request()->validate([
             'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
@@ -58,7 +56,7 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $picture = array_key_exists('picture', $attributes) ? Picture::savePictureInDisk($attributes['picture'], 'payments') : null;
-            $order->payments()->attach(
+            $order->merchantPayments()->attach(
                 $attributes['payment_id'],
                 [
                     'amount' => $attributes['amount'],
@@ -72,7 +70,8 @@ class OrderController extends Controller
             $order->save();
         } catch (\Throwable $th) {
             DB::rollBack();
-            Picture::deletePictureFromDisk($picture, 'payments');
+            if ($picture)
+                Picture::deletePictureFromDisk($picture, 'payments');
             throw $th;
         }
         DB::commit();
@@ -114,11 +113,12 @@ class OrderController extends Controller
             $feature = Feature::find($val['id']);
             if ($feature->stock < $val['quantity']) return Redirect::back()->with('message', $feature->name . ' is out of stock');
         }
-        $features = Feature::whereIn('id', array_map(fn ($v) => $v['id'], $attributes['features']))->with(['discounts'])->get();
+        $features = Feature::whereIn('id', array_map(fn ($v) => $v['id'], $attributes['features']))->with(['discounts', 'item.wholesales'])->get();
         $attributes['features'] = collect($attributes['features'])->map(function ($feature) use ($features) {
             $features->each(function ($val) use (&$feature) {
                 if ($val->id == $feature['id']) {
-                    $feature['price'] = $val->price;
+                    $wholesalePrice = $val->item->wholesales->first(fn ($v) => $v->quantity <= $feature['quantity'])->price ?? null;
+                    $feature['price'] = $wholesalePrice ?? $val->price;
                     $feature['discount'] = $val->totalDiscount();
                 }
             });
@@ -129,9 +129,9 @@ class OrderController extends Controller
         $featuresDiscount = floor((float)collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['discount'] * $feature['quantity'], 0));
 
         $remaining = $amount -
-            floor($attributes['discount'] ?? 0) - floor($attributes['deposit'] ?? 0) - $featuresDiscount;
+            floor($attributes['discount'] ?? 0) - $featuresDiscount;
 
-        if ($remaining < 0) return Redirect::back()->with('message', 'Total discount and deposit is greater than the amount');
+        if ($remaining < 0) return Redirect::back()->with('message', 'Total discount is greater than the amount');
 
         $createdOrder = DB::transaction(function () use ($attributes, $request, $amount, $remaining) {
             $order = Order::create(
@@ -172,7 +172,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        return Inertia::render('Order', ['order' => $order->load(['features', 'payments']), 'merchant_payments' => MerchantPayment::with(['payment'])->where('merchant_id', $order->merchant->id)->get()]);
+        return Inertia::render('Order', ['order' => $order->load(['features', 'merchantPayments.payment']), 'merchant_payments' => MerchantPayment::with(['payment'])->where('merchant_id', $order->merchant->id)->get()]);
     }
 
     /**

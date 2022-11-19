@@ -59,7 +59,7 @@ const form = useForm({
                 required
                 v-model="form.payment_id"
             >
-                <option disabled selected>Select payment</option>
+                <option disabled selected>Select Payment</option>
                 <option
                     v-for="payment in payments"
                     :key="payment.id"

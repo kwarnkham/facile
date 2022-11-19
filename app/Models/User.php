@@ -14,8 +14,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $with = ['merchant'];
-
     public function scopeRole(Builder $query, $roleName)
     {
         $query->whereHas('roles', function (Builder $query) use ($roleName) {

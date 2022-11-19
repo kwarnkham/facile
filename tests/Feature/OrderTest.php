@@ -20,7 +20,7 @@ use Tests\TestCase;
 class OrderTest extends TestCase
 {
 
-    public function makeOrder($featureDiscountPercentage = 0, $orderDiscountRatio = 0, $depositRatio = 0)
+    public function makeOrder($featureDiscountPercentage = 0, $orderDiscountRatio = 0)
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $stock = rand(1, 10);
@@ -55,12 +55,7 @@ class OrderTest extends TestCase
         $data = [
             ...['features' => $feats]
         ];
-        if ($depositRatio > 0) {
-            $data = [
-                ...$data,
-                ...['deposit' => floor($remaining / $depositRatio)]
-            ];
-        }
+
         if ($orderDiscountRatio > 0) {
             $data = [
                 ...$data,
@@ -87,7 +82,7 @@ class OrderTest extends TestCase
             'picture' => UploadedFile::fake()->image('screenshot.jpg')
         ]);
 
-        $picture = $order->payments->first()->pivot->picture;
+        $picture = $order->merchantPayments->first()->pivot->picture;
         $this->assertTrue(Storage::exists(Picture::picturePath($picture, 'payments')));
         $this->assertTrue(Picture::deletePictureFromDisk($picture, 'payments'));
 
@@ -105,7 +100,7 @@ class OrderTest extends TestCase
         $count = rand(1, 4);
         $features = Feature::factory($count)->create(['item_id' => $item->id, 'stock' => $stock])->map(
             fn ($feature) =>
-            ['id' => $feature->id, 'quantity' => $stock]
+            ['id' => $feature->id, 'quantity' => floor($stock / 2)]
         )->toArray();
         $this->actingAs($this->merchant)->post(route('orders.store'), [
             ...['features' => $features],
@@ -116,6 +111,11 @@ class OrderTest extends TestCase
         $this->assertDatabaseCount('feature_order', $count);
         $amount = (float)Feature::where('item_id', $item->id)->get()->reduce(fn ($carry, $feature) => $carry + $feature->price * collect($features)->first(fn ($v) => $v['id'] == $feature->id)['quantity'], 0);
         $this->assertEquals(Order::first()->amount, $amount);
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...['features' => $features],
+        ]);
+        $this->assertDatabaseCount('orders', 2);
     }
 
     public function test_cancel_an_order()
@@ -337,7 +337,7 @@ class OrderTest extends TestCase
 
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
-            'amount' => $remaining - (float)$order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
+            'amount' => $remaining - (float)$order->merchantPayments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
         ]);
         $this->assertDatabaseCount('order_payment', 3);
         $this->assertEquals($order->fresh()->status,  3);
@@ -404,7 +404,7 @@ class OrderTest extends TestCase
 
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
-            'amount' => $order->amount - (float)$order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
+            'amount' => $order->amount - (float)$order->merchantPayments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
         ]);
 
         $this->assertDatabaseCount('order_payment', 3);
@@ -500,66 +500,6 @@ class OrderTest extends TestCase
         }
     }
 
-    public function test_pay_discount_order_that_has_discount_features_and_deposit()
-    {
-        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
-        $stock = rand(1, 10);
-        $features = Feature::factory(rand(1, 10))->create(['item_id' => $item->id, 'price' => rand(1, 100) * 10, 'stock' => $stock])->map(
-            fn ($feature) =>
-            ['id' => $feature->id, 'quantity' => $stock]
-        )->toArray();
-        $percentage = rand(1, 100) / 100;
-        $discount = Discount::factory()->create(['percentage' => $percentage * 100, 'merchant_id' => $this->merchant->merchant->id]);
-
-
-        Feature::where('item_id', $item->id)->get()->each(fn ($feature) => $this->actingAs($this->merchant)->post(route('features.discount', ['feature' => $feature->id]), [
-            'discount_id' => $discount->id
-        ])->assertSessionMissing('errror'));
-
-        $orderDiscount = floor((float)(Feature::with(['discounts'])->get()->reduce(fn ($carry, $v) => ($v->price - $v->totalDiscount()) * collect($features)->first(fn ($f) => $f['id'] == $v->id)['quantity'] + $carry, 0)) / 10);
-
-        $deposit = floor($orderDiscount / 1);
-
-        if ($orderDiscount <= 0) return;
-
-
-        $this->actingAs($this->merchant)->post(route('orders.store'), [
-            ...['features' => $features, 'discount' => $orderDiscount, 'deposit' => $deposit],
-            ...Order::factory()->make()->toArray()
-        ]);
-
-        $this->assertDatabaseCount('orders', 1);
-
-        $order = Order::first();
-        if ($order->status != 3) {
-            $remaining = $order->amount - $order->discount - $order->deposit - $order->getFeatureDiscounts();
-            $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
-                'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
-                'amount' => floor($remaining / 2)
-            ]);
-
-            $this->assertDatabaseCount('order_payment', 1);
-            $this->assertEquals($order->fresh()->status, 2);
-
-            $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
-                'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
-                'amount' => floor($remaining / 4)
-            ]);
-
-            $this->assertDatabaseCount('order_payment', 2);
-            $this->assertEquals($order->fresh()->status, 2);
-
-            $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
-                'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
-                'amount' => $remaining - floor($remaining / 2) - floor($remaining / 4)
-            ]);
-
-            $this->assertDatabaseCount('order_payment', 3);
-            $this->assertEquals($order->fresh()->status, 3);
-        }
-    }
-
-
     public function test_all_discount_cannot_be_greater_than_order_amount()
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
@@ -593,26 +533,6 @@ class OrderTest extends TestCase
         $this->assertEquals(Order::first()->status, 3);
     }
 
-    public function test_create_order_with_deposit()
-    {
-        $remaining = $this->makeOrder(depositRatio: 4);
-        $this->assertEquals(Order::first()->deposit, floor($remaining / 4));
-    }
-
-    public function test_order_deposit_is_valid()
-    {
-        $this->makeOrder(depositRatio: 0.9);
-        $this->assertDatabaseCount('orders', 0);
-
-        $this->makeOrder(depositRatio: 11 - 1, orderDiscountRatio: 1.1);
-        $this->assertDatabaseCount('orders', 0);
-
-        $remaining = $this->makeOrder(depositRatio: 11, orderDiscountRatio: 1.1);
-        $this->assertDatabaseCount('orders', 1);
-
-        $this->assertEquals(Order::first()->amount, $remaining);
-    }
-
     public function test_pay_order_with_note()
     {
         $remaining = $this->makeOrder();
@@ -625,14 +545,6 @@ class OrderTest extends TestCase
         ]);
         $this->assertDatabaseCount('order_payment', 1);
         $this->assertEquals($order->fresh()->status,  3);
-        $this->assertEquals($order->fresh()->payments->first()->pivot->note,  $note);
+        $this->assertEquals($order->fresh()->merchantPayments->first()->pivot->note,  $note);
     }
-
-    // public function test_complete_the_order()
-    // {
-    //     $this->makeOrder();
-    //     $order = Order::first();
-    //     $this->actingAs($this->merchant)->post(route('orders.complete', ['order' => $order->id]));
-    //     $this->assertEquals($order->fresh()->status, 3);
-    // }
 }
