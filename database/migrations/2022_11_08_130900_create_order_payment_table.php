@@ -20,6 +20,7 @@ return new class extends Migration
             $table->double('amount');
             $table->string('number')->nullable();
             $table->string('note')->nullable();
+            $table->string('picture')->nullable();
             $table->timestamps();
         });
     }

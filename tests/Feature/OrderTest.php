@@ -10,8 +10,11 @@ use App\Models\Item;
 use App\Models\Merchant;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Picture;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
@@ -73,6 +76,28 @@ class OrderTest extends TestCase
 
         return $remaining;
     }
+
+    public function test_pay_order_with_picture()
+    {
+        $amount = $this->makeOrder();
+        $order = Order::first();
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
+            'amount' => floor($amount / 5),
+            'picture' => UploadedFile::fake()->image('screenshot.jpg')
+        ]);
+
+        $picture = $order->payments->first()->pivot->picture;
+        $this->assertTrue(Storage::exists(Picture::picturePath($picture, 'payments')));
+        $this->assertTrue(Picture::deletePictureFromDisk($picture, 'payments'));
+
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments()->first()->pivot->id,
+            'amount' => floor($amount / 5),
+            'picture' => 'picture.jpg'
+        ])->assertSessionHasErrors(['picture']);
+    }
+
     public function test_create_an_order()
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);

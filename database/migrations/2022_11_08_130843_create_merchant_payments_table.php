@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('merchant_id')->constrained();
             $table->foreignId('payment_id')->constrained();
             $table->string('number')->nullable();
+            $table->string('qr')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->unique(['merchant_id', 'payment_id', 'number']);
             $table->timestamps();

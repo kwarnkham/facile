@@ -9,8 +9,10 @@ use App\Models\Feature;
 use App\Models\Order;
 use App\Models\MerchantPayment;
 use App\Models\Payment;
+use App\Models\Picture;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -49,24 +51,31 @@ class OrderController extends Controller
                     }
                 }
             ],
-            'note' => ['sometimes', 'required', 'string']
+            'note' => ['sometimes', 'required', 'string'],
+            'picture' => ['sometimes', 'required', 'image']
         ]);
 
-        DB::transaction(function () use ($order, $attributes, $paidAmount) {
+        DB::beginTransaction();
+        try {
+            $picture = array_key_exists('picture', $attributes) ? Picture::savePictureInDisk($attributes['picture'], 'payments') : null;
             $order->payments()->attach(
                 $attributes['payment_id'],
                 [
                     'amount' => $attributes['amount'],
                     'number' => MerchantPayment::find($attributes['payment_id'])->number,
-                    'note' => $attributes['note'] ?? null
+                    'note' => $attributes['note'] ?? null,
+                    'picture' => $picture
                 ]
             );
             if ((strval($attributes['amount']) + strval($paidAmount)) < strval($order->amount)) $order->status = 2;
             else if ((strval($attributes['amount']) + strval($paidAmount)) == strval($order->amount)) $order->status = 3;
             $order->save();
-        });
-
-
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Picture::deletePictureFromDisk($picture, 'payments');
+            throw $th;
+        }
+        DB::commit();
         return Redirect::back()->with('message', 'Success');
     }
 
