@@ -72,6 +72,43 @@ class OrderTest extends TestCase
         return $remaining;
     }
 
+    public function test_make_an_order_for_unstocked_item()
+    {
+        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $feature = Feature::factory()->make(['stock' => 50, 'type' => 2]);
+        $this->actingAs($this->merchant)->post(route('features.store'), [
+            ...['item_id' => $item->id],
+            ...$feature->toArray(),
+            ...['purchase_price' => floor($feature->price * 0.9)]
+        ]);
+
+        $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();
+
+        $feats = $features->map(fn ($feature) => [
+            'id' => $feature->id,
+            'quantity' => 50
+        ])->toArray();
+
+
+        $remaining = floor((float)($features->reduce(fn ($carry, $feat) => ($feat->price - $feat->totalDiscount()) * collect($feats)->first(fn ($v) => $v['id'] == $feat->id)['quantity'] + $carry)));
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...['features' => $feats],
+            ...Order::factory()->make()->toArray()
+        ]);
+        $this->assertDatabaseCount('orders', 1);
+        $order = Order::first();
+        $order->features->each(fn ($v) => $this->assertEquals($v->type, 2));
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments->first()->pivot->id,
+            'amount' => floor($remaining / 2)
+        ]);
+        $this->assertDatabaseCount('order_payment', 1);
+        $this->assertEquals($order->fresh()->status, 2);
+        $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]));;
+        $this->assertEquals(Feature::first()->stock, 0);
+    }
+
     public function test_pay_order_with_picture()
     {
         $amount = $this->makeOrder();

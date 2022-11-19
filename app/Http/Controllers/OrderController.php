@@ -83,8 +83,10 @@ class OrderController extends Controller
         if (in_array($order->status, [OrderStatus::PENDING->value])) {
             $order->update(['status' => OrderStatus::CANCELED->value]);
             $order->features->each(function ($feature) {
-                $feature->stock += $feature->pivot->quantity;
-                $feature->save();
+                if ($feature->type != 2) {
+                    $feature->stock += $feature->pivot->quantity;
+                    $feature->save();
+                }
             });
         }
         return Redirect::back();

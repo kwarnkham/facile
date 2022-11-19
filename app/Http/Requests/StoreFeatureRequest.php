@@ -30,7 +30,8 @@ class StoreFeatureRequest extends FormRequest
             'stock' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],
             'note' => ['sometimes', 'required', 'string'],
-            'purchase_price' => ['required', 'numeric']
+            'purchase_price' => ['required', 'numeric'],
+            'type' => ['sometimes', 'required', 'in:1,2']
         ];
     }
 }

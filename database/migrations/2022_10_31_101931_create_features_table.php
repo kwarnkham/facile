@@ -20,6 +20,7 @@ return new class extends Migration
             $table->double('price');
             $table->string('note')->nullable();
             $table->foreignId('item_id')->constrained();
+            $table->tinyInteger('type')->default(1);
             $table->unique(['item_id', 'name']);
             $table->timestamps();
         });
