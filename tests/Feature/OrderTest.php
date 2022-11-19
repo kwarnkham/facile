@@ -112,6 +112,22 @@ class OrderTest extends TestCase
         $this->assertEquals(Credit::first()->amount, floor($remaining / 2));
     }
 
+    public function test_cannot_cancel_a_completed_order_after_24_hours()
+    {
+        $remaining = $this->makeOrder();
+        $order = Order::first();
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments->first()->id,
+            'amount' => $remaining
+        ]);
+
+        $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
+
+        $this->travelTo($order->updated_at->addHours(24));
+        $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]));
+        $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
+    }
+
     public function test_pay_order_with_picture()
     {
         $amount = $this->makeOrder();
