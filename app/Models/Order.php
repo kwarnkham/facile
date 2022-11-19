@@ -17,7 +17,7 @@ class Order extends Model
 
     public function merchantPayments()
     {
-        return $this->belongsToMany(MerchantPayment::class, 'order_payment', 'order_id', 'merchant_payment_id')->withPivot('amount', 'number', 'note', 'picture')->withTimestamps();
+        return $this->belongsToMany(MerchantPayment::class, 'order_payment', 'order_id', 'merchant_payment_id')->withPivot('amount', 'number', 'note', 'picture', 'id')->withTimestamps();
     }
 
     public function getFeatureDiscounts()

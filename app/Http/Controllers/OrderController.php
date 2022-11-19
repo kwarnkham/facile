@@ -93,7 +93,7 @@ class OrderController extends Controller
 
                 $order->merchantPayments->each(function ($merchantPayment) {
                     Credit::create([
-                        'order_payment_id' => $merchantPayment->id,
+                        'order_payment_id' => $merchantPayment->pivot->id,
                         'amount' => $merchantPayment->pivot->amount,
                         'number' => $merchantPayment->pivot->number,
                     ]);

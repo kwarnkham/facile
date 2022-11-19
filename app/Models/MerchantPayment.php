@@ -22,7 +22,7 @@ class MerchantPayment extends Pivot
 
     public function orders()
     {
-        return $this->belongsToMany(Order::class, 'order_payment', 'order_id', 'merchant_payment_id')->withPivot('amount', 'number', 'note', 'picture')->withTimestamps();
+        return $this->belongsToMany(Order::class, 'order_payment', 'order_id', 'merchant_payment_id')->withPivot('amount', 'number', 'note', 'picture', 'id')->withTimestamps();
     }
 
     public function payment()
