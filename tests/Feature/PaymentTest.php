@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\MerchantPayment;
+use App\Models\Payment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -12,16 +12,17 @@ class PaymentTest extends TestCase
     public function test_merchant_add_a_payment()
     {
         $existed = $this->merchant->merchant->payments()->count();
+        $payment = Payment::factory()->create();
         $this->actingAs($this->merchant)->post(route('merchant_payments.store'), [
             'number' => '123',
-            'payment_id' => $this->payment->id
+            'payment_id' => $payment->id
         ]);
 
         $this->assertDatabaseCount('merchant_payments', $existed + 1);
 
         $this->actingAs($this->merchant)->post(route('merchant_payments.store'), [
             'number' => '123',
-            'payment_id' => $this->payment->id
+            'payment_id' => $payment->id
         ])->assertSessionHasErrors(['number']);
     }
 
@@ -29,7 +30,7 @@ class PaymentTest extends TestCase
     {
         $this->actingAs($this->merchant)->post(route('merchant_payments.store'), [
             'number' => '123',
-            'payment_id' => $this->payment->id
+            'payment_id' => Payment::factory()->create()->id
         ]);
         $payment = $this->merchant->merchant->payments()->first()->pivot;
         $this->actingAs($this->merchant)->post(route('merchant_payments.toggle', ['merchantPayment' => $payment->id]));

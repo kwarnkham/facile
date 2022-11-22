@@ -3,6 +3,7 @@
 namespace Tests;
 
 use App\Models\Merchant;
+use App\Models\MerchantPayment;
 use App\Models\Payment;
 use App\Models\Role;
 use App\Models\Tag;
@@ -32,8 +33,8 @@ abstract class TestCase extends BaseTestCase
 
         $this->merchant = User::factory()->has(Role::factory()->state(['name' => 'merchant']))->has(Merchant::factory())->create();
         $this->user = User::factory()->create();
-        $this->payment = Payment::factory()->create();
         $this->tag = Tag::factory()->create();
-        $this->merchant->merchant->payments()->attach($this->payment);
+        $this->merchant->merchant->payments()->attach(Payment::factory()->create()->id);
+        $this->payment = MerchantPayment::where('merchant_id', $this->merchant->merchant->id)->first();
     }
 }
