@@ -8,12 +8,26 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 trait HasQR
 {
-    public function fileName()
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::deleted(function ($feature) {
+            $name =  $feature->qrFileName();
+            $file = static::qrDir() . '/' . $name;
+            if (Storage::exists($file)) Storage::delete($file);
+        });
+    }
+
+    public function qrFileName()
     {
         return $this->id . '.svg';
     }
 
-    public static function qrDir()
+    public static function modelName()
     {
         $string = static::class;
         return strtolower(substr($string, strrpos($string, '\\') + 1));
@@ -21,24 +35,29 @@ trait HasQR
 
     public function generateQR()
     {
-        $name =  $this->fileName();
-        $path = static::qrPath() . '/' . $name;
+        $name =  $this->qrFileName();
+        $path = static::qrDir() . '/' . $name;
         if (Storage::exists($path)) return;
-        QrCode::generate(route(static::qrDir() . 's.show', [static::qrDir() => $this->id]), Storage::path($name));
+        QrCode::generate(route(static::modelName() . 's.show', [static::modelName() => $this->id]), Storage::path($name));
         if (Storage::exists($name)) Storage::move($name, $path);
         return Storage::exists($path);
     }
 
-    public static function qrPath()
+    public static function qrDir()
     {
-        return config('app')['name'] . '/qr/' . static::qrDir() . '/' . config('app')['env'];
+        return config('app')['name'] . '/qr/' . static::modelName() . '/' . config('app')['env'];
     }
 
     public function qr()
     {
         $this->generateQR();
-        $name =  $this->fileName();
-        $path = static::qrPath() . '/' . $name;
-        return Storage::exists($path) ? Storage::url($path) : null;
+        $name =  $this->qrFileName();
+        $file = static::qrDir() . '/' . $name;
+        return Storage::exists($file) ? Storage::url($file) : null;
+    }
+
+    public function qrFilePath()
+    {
+        return static::qrDir() . '/' . $this->qrFileName();
     }
 }

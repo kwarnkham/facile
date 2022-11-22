@@ -7,6 +7,7 @@ use App\Models\Discount;
 use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Purchase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ItemFeatureTest extends TestCase
@@ -76,5 +77,15 @@ class ItemFeatureTest extends TestCase
         $this->assertDatabaseCount('purchases', 1);
         $this->assertEquals(Purchase::first()->purchasable_id, Feature::first()->id);
         $this->assertEquals(Purchase::first()->purchasable_type, Feature::class);
+    }
+
+    public function test_feature_qr_is_deleted_after_model_is_deleted()
+    {
+        $feature = Feature::factory()->for(Item::factory()->state(['merchant_id' => $this->merchant->merchant->id]))->create();
+        $feature->qr();
+        $file = $feature->qrFilePath();
+        $this->assertTrue(Storage::exists($file));
+        $feature->fresh()->delete();
+        $this->assertFalse(Storage::exists($file));
     }
 }
