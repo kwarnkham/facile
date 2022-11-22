@@ -11,11 +11,12 @@ trait Spaceable
 
     public static function saveFile(File|UploadedFile $file)
     {
-        return basename(Storage::putFile(config('app')['name'] . '/' . static::dir() . '/' . config('app')['env'], $file, 'public'));
+        return basename(Storage::putFile(config('app')['name'] . '/picture/' . static::spaceDir() . '/' . config('app')['env'], $file, 'public'));
     }
 
-    private static function dir()
+    public static function spaceDir()
     {
-        return strtolower(substr(static::class, strrpos(static::class, '\\') + 1));
+        $string = static::class;
+        return strtolower(substr($string, strrpos($string, '\\') + 1));
     }
 }

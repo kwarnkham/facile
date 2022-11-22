@@ -14,10 +14,24 @@ namespace App\Models{
 /**
  * App\Models\Credit
  *
+ * @property int $id
+ * @property int $order_payment_id
+ * @property float $amount
+ * @property string|null $note
+ * @property string|null $number
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Database\Factories\CreditFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Credit newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Credit newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Credit query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereOrderPaymentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Credit whereUpdatedAt($value)
  */
 	class Credit extends \Eloquent {}
 }
@@ -59,6 +73,7 @@ namespace App\Models{
  * @property float $price
  * @property string|null $note
  * @property int $item_id
+ * @property int $type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Discount[] $discounts
@@ -82,6 +97,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Feature whereNote($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Feature wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Feature whereStock($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Feature whereUpdatedAt($value)
  */
 	class Feature extends \Eloquent {}
@@ -166,6 +182,7 @@ namespace App\Models{
  * @property int $merchant_id
  * @property int $payment_id
  * @property string|null $number
+ * @property string|null $qr
  * @property int $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -180,6 +197,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereMerchantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment wherePaymentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereQr($value)
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|MerchantPayment whereUpdatedAt($value)
  */
@@ -193,11 +211,10 @@ namespace App\Models{
  * @property int $id
  * @property int $merchant_id
  * @property float $amount
- * @property float $deposit
  * @property float $discount
  * @property int $status
- * @property string $customer
- * @property string $phone
+ * @property string|null $customer
+ * @property string|null $phone
  * @property string|null $address
  * @property string|null $note
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -215,7 +232,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereCustomer($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Order whereDeposit($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereDiscount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereMerchantId($value)

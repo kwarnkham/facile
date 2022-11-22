@@ -43,7 +43,7 @@ class Picture extends Model
     private function path()
     {
         return config('app')['name']
-            . '/' . strtolower(substr($this->pictureable_type, strrpos($this->pictureable_type, '\\') + 1)) . '/' . config('app')['env'] . '/' . $this->getRawOriginal('name');
+            . '/picture/' . strtolower(substr($this->pictureable_type, strrpos($this->pictureable_type, '\\') + 1)) . '/' . config('app')['env'] . '/' . $this->getRawOriginal('name');
     }
 
     public function exists()
