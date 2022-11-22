@@ -2,9 +2,9 @@
 import Button from "@/Components/Button.vue";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
+import ModalPicture from "@/Components/ModalPicture.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { store } from "@/store";
-import { XMarkIcon } from "@heroicons/vue/24/solid";
 import { computed, inject, onMounted, ref } from "vue";
 
 const props = defineProps({
@@ -13,13 +13,11 @@ const props = defineProps({
         required: true,
     },
 });
-const modalImage = ref({});
+const modalImage = ref("");
 const showPicture = (picture) => {
-    modalImage.value = picture;
-    open.value = true;
+    modalImage.value = picture.name;
 };
 
-const open = ref(false);
 const quantity = ref(
     (store.cart.items.find((e) => e.id == props.feature.id)?.quantity ?? 0) <
         props.feature.stock
@@ -106,18 +104,10 @@ onMounted(() => {
             </Button>
         </div>
         <Teleport to="body">
-            <div class="daisy-modal" :class="{ 'daisy-modal-open': open }">
-                <div
-                    class="daisy-modal-box w-screen max-w-screen h-screen max-h-screen rounded-none flex justify-center items-center p-0 overflow-y-auto"
-                >
-                    <img :src="modalImage.name" :alt="modalImage.name" />
-                </div>
-            </div>
-            <XMarkIcon
-                style="z-index: 999"
-                class="opacity-0 fixed w-6 h-6 bg-white rounded-md top-2 right-2 transition-opacity duration-75"
-                @click="open = false"
-                :class="{ 'opacity-100 delay-100': open }"
+            <ModalPicture
+                :open="!!modalImage"
+                :src="modalImage"
+                @closed="modalImage = ''"
             />
         </Teleport>
     </div>

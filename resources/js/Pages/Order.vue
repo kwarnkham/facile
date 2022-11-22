@@ -2,6 +2,8 @@
 import Collapse from "@/Components/Collapse.vue";
 import Dialog from "@/Components/Dialog.vue";
 import InputLabel from "@/Components/InputLabel.vue";
+import ModalPicture from "@/Components/ModalPicture.vue";
+import PicturePicker from "@/Components/PicturePicker.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import {
@@ -9,6 +11,7 @@ import {
     InformationCircleIcon,
     MapPinIcon,
     PhoneIcon,
+    PhotoIcon,
     UserIcon,
 } from "@heroicons/vue/24/solid";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
@@ -35,11 +38,16 @@ const remaining = computed(
             0
         )
 );
+const modalPicture = ref("");
+const showPicture = (picture) => {
+    modalPicture.value = picture;
+};
 const canMakePayment = computed(() => paymentForm.amount <= remaining.value);
 const paymentForm = useForm({
     amount: remaining.value,
     note: "",
-    payment_id: props.merchant_payments[0].id,
+    payment_id: props.merchant_payments[0]?.id,
+    picture: null,
 });
 
 const isOrderInfoExpanded = ref(true);
@@ -122,21 +130,32 @@ const isPaymentInfoExpanded = ref(false);
             <div
                 v-for="orderPayment in order.merchant_payments"
                 :key="orderPayment.id"
-                class="flex justify-evenly"
+                class="text-sm w-ful"
             >
-                <p class="text-sm">
-                    <strong>{{ orderPayment.pivot.amount }}</strong> is paid to
-                    <span class="font-semibold">
-                        {{ orderPayment.payment.name }} -
-                        {{ orderPayment.pivot.number }}
-                    </span>
-                    on
+                <div class="flex justify-between">
+                    <div>
+                        <strong>{{ orderPayment.pivot.amount }}</strong> MMK is
+                        paid to
+                        <span class="font-semibold">
+                            {{ orderPayment.payment.name }} -
+                            {{ orderPayment.pivot.number }}
+                        </span>
+                    </div>
+                    <PhotoIcon
+                        class="w-4 h-4"
+                        @click="showPicture(orderPayment.pivot.picture)"
+                        v-if="orderPayment.pivot.picture"
+                    />
+                </div>
+
+                <div>
                     {{
                         new Date(orderPayment.created_at)
                             .toLocaleString("en-GB", { hour12: true })
                             .toUpperCase()
                     }}
-                </p>
+                </div>
+
                 <div v-if="orderPayment.pivot.note">
                     Note : {{ orderPayment.pivot.note }}
                 </div>
@@ -298,6 +317,13 @@ const isPaymentInfoExpanded = ref(false);
                     placeholder="Note"
                 />
             </div>
+            <div>
+                <PicturePicker
+                    :label="'screenshot'"
+                    class="mt-2"
+                    v-model="paymentForm.picture"
+                />
+            </div>
             <div class="text-right pt-2">
                 <button
                     class="daisy-btn daisy-btn-success daisy-btn-sm capitalize"
@@ -308,6 +334,13 @@ const isPaymentInfoExpanded = ref(false);
                 </button>
             </div>
         </Dialog>
+        <Teleport to="body">
+            <ModalPicture
+                :open="!!modalPicture"
+                :src="modalPicture"
+                @closed="modalPicture = ''"
+            />
+        </Teleport>
     </div>
 </template>
 

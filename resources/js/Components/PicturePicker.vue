@@ -2,6 +2,7 @@
 import { useForm } from "@inertiajs/inertia-vue3";
 import { inject, ref } from "vue";
 import imageCompression from "browser-image-compression";
+import pickBy from "lodash/pickBy";
 
 const props = defineProps({
     label: {
@@ -18,23 +19,25 @@ const props = defineProps({
     },
     type: {
         type: String,
-        required: true,
+        required: false,
     },
     pictureable: {
         type: Object,
-        required: true,
+        required: false,
     },
 });
+
+const emit = defineEmits(["update:modelValue"]);
 
 const fileInput = ref(null);
 const form = useForm({
     pictures: [],
     type: props.type,
-    type_id: props.pictureable.id,
+    type_id: props.pictureable?.id,
 });
 const submit = () => {
     if (form.pictures.length <= 0) return;
-    form.post(route("pictures.store"), {
+    form.transform((data) => pickBy(data)).post(route("pictures.store"), {
         onSuccess: () => {
             form.pictures = [];
             fileInput.value.value = "";
@@ -78,6 +81,7 @@ const setPictures = (event) => {
         .then((pictures) => {
             // console.log(pictures);
             form.pictures = pictures;
+            emit("update:modelValue", props.multiple ? pictures : pictures[0]);
         })
         .finally(() => {
             isChoosing.value = false;
@@ -97,14 +101,6 @@ const isChoosing = ref(false);
 
 <template>
     <form @submit.prevent="submit" class="space-x-2">
-        <input
-            type="file"
-            :multiple="multiple"
-            :accept="accept"
-            @input="setPictures"
-            class="hidden"
-            ref="fileInput"
-        />
         <button
             class="daisy-btn daisy-btn-sm capitalize"
             type="button"
@@ -117,7 +113,7 @@ const isChoosing = ref(false);
         <button
             class="daisy-btn daisy-btn-sm capitalize"
             type="submit"
-            v-if="form.pictures.length"
+            v-if="form.pictures.length && type"
         >
             Upload
         </button>
@@ -143,5 +139,13 @@ const isChoosing = ref(false);
         >
             {{ form.progress.percentage }}%
         </progress>
+        <input
+            type="file"
+            :multiple="multiple"
+            :accept="accept"
+            @input="setPictures"
+            class="hidden"
+            ref="fileInput"
+        />
     </form>
 </template>
