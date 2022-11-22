@@ -128,6 +128,33 @@ class OrderTest extends TestCase
         $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
     }
 
+    public function test_complete_an_order()
+    {
+        $remaining = $this->makeOrder();
+        $order = Order::first();
+
+        $this->actingAs($this->merchant)->post(route('orders.complete', ['order' => $order->id]));
+        $this->assertEquals($order->fresh()->status, OrderStatus::PENDING->value);
+
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments->first()->id,
+            'amount' => floor($remaining / 2)
+        ]);
+        $this->assertEquals($order->fresh()->status, OrderStatus::PARTIALLY_PAID->value);
+
+        $this->actingAs($this->merchant)->post(route('orders.complete', ['order' => $order->id]));
+        $this->assertEquals($order->fresh()->status, OrderStatus::PARTIALLY_PAID->value);
+
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->merchant->merchant->payments->first()->id,
+            'amount' => $remaining - floor($remaining / 2)
+        ]);
+        $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
+
+        $this->actingAs($this->merchant)->post(route('orders.complete', ['order' => $order->id]));
+        $this->assertEquals($order->fresh()->status, OrderStatus::COMPLETED->value);
+    }
+
     public function test_pay_order_with_picture()
     {
         $amount = $this->makeOrder();
@@ -176,20 +203,11 @@ class OrderTest extends TestCase
 
     public function test_cancel_an_order()
     {
-        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
-        $stock = rand(2, 14);
-        $count = rand(1, 4);
-        $features = Feature::factory($count)->create(['item_id' => $item->id, 'stock' => $stock])->map(
-            fn ($feature) =>
-            ['id' => $feature->id, 'quantity' => $stock]
-        )->toArray();
-        $this->actingAs($this->merchant)->post(route('orders.store'), [
-            ...['features' => $features],
-            ...Order::factory()->make()->toArray()
-        ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value);
-
-        $this->assertDatabaseCount('orders', 1);
+        $remaining = $this->makeOrder();
         $order = Order::first();
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), ['amount' => $remaining, 'payment_id' => $order->merchant->payments->first()->id]);
+        $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
+
         $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]));
         $this->assertEquals(OrderStatus::CANCELED->value, $order->fresh()->status);
     }

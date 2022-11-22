@@ -104,9 +104,9 @@ class MerchantPaymentController extends Controller
         // return Redirect::back()->with('message', 'Deleted');
     }
 
-    public function disable(MerchantPayment $merchantPayment)
+    public function toggle(MerchantPayment $merchantPayment)
     {
-        $merchantPayment->status = 2;
+        $merchantPayment->status = $merchantPayment->status == 1 ? 2 : 1;
         $merchantPayment->save();
         return Redirect::back()->with('message', 'Success');
     }

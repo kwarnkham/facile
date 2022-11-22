@@ -37,7 +37,6 @@ const submit = () => {
                     type="text"
                     class="w-full"
                     v-model="form.customer"
-                    required
                     autofocus
                     :class="{ 'daisy-input-error': form.errors.customer }"
                 />
@@ -51,7 +50,6 @@ const submit = () => {
                     type="phone"
                     class="w-full"
                     v-model="form.phone"
-                    required
                     :class="{ 'daisy-input-error': form.errors.phone }"
                 />
                 <InputError :message="form.errors.phone" />

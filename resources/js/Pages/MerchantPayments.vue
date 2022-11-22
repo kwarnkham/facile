@@ -2,9 +2,10 @@
 import InputError from "@/Components/InputError.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
-import { XCircleIcon } from "@heroicons/vue/24/solid";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/solid";
 import { Inertia } from "@inertiajs/inertia";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
+import { ref } from "vue";
 
 const props = defineProps({
     merchant_payments: {
@@ -25,13 +26,22 @@ const submit = () => {
     });
 };
 
-const deletePayment = (merchantPayment) => {
-    Inertia.delete(
-        route("merchant_payments.destroy", {
+const togglePayment = (merchantPayment) => {
+    toggling.value = true;
+    Inertia.visit(
+        route("merchant_payments.toggle", {
             merchantPayment: merchantPayment.id,
-        })
+        }),
+        {
+            method: "post",
+            preserveState: true,
+            onFinish: () => {
+                toggling.value = false;
+            },
+        }
     );
 };
+const toggling = ref(false);
 const form = useForm({
     number: "",
     payment_id: props.payments[0]?.id,
@@ -46,10 +56,19 @@ const form = useForm({
             :key="merchnatPayment.id"
             class="flex items-center"
         >
-            {{ merchnatPayment.payment.name }} : {{ merchnatPayment.number }}
-            <XCircleIcon
-                class="w-5 h-5 inline-block"
-                @click="deletePayment(merchnatPayment)"
+            <span class="inline-block mr-1"
+                >{{ merchnatPayment.payment.name }} :
+                {{ merchnatPayment.number }}</span
+            >
+            <EyeIcon
+                v-if="merchnatPayment.status == 1 && !toggling"
+                class="w-5 h-5 inline-block text-success"
+                @click="togglePayment(merchnatPayment)"
+            />
+            <EyeSlashIcon
+                v-else-if="merchnatPayment.status == 2 && !toggling"
+                class="w-5 h-5 inline-block text-error"
+                @click="togglePayment(merchnatPayment)"
             />
         </div>
         <form @submit.prevent="submit" class="p-4 flex flex-col space-y-2">

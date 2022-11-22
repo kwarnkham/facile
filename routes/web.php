@@ -86,7 +86,7 @@ Route::controller(MerchantPaymentController::class)->prefix('/merchant-payments'
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('merchant_payments.store');
         Route::get('', 'index')->name('merchant_payments.index');
-        Route::post('{merchantPayment}', 'disable')->name('merchant_payments.disable');
+        Route::post('{merchantPayment}', 'toggle')->name('merchant_payments.toggle');
     });
 });
 

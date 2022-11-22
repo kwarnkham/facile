@@ -8,6 +8,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import {
     CalendarIcon,
+    ExclamationTriangleIcon,
     InformationCircleIcon,
     MapPinIcon,
     PhoneIcon,
@@ -51,10 +52,12 @@ const paymentForm = useForm({
 });
 
 const isOrderInfoExpanded = ref(true);
-const completeOrderForm = useForm();
-const completeOrder = () => {
-    completeOrderForm.post(route("orders.complete", { order: props.order.id }));
-};
+const passedHours = computed(() => {
+    return (
+        Math.abs(Date.now() - new Date(props.order.updated_at).getTime()) /
+        3600000
+    );
+});
 const showPaymentForm = ref(false);
 const submitPayment = () => {
     if (!canMakePayment.value) return;
@@ -78,11 +81,11 @@ const isPaymentInfoExpanded = ref(false);
         >
             <div class="text-xs">
                 <div class="flex flex-row justify-between">
-                    <div class="flex items-center">
+                    <div class="flex items-center" v-if="order.customer">
                         <UserIcon class="h-4 w-4 mr-2" />
                         {{ order.customer }}
                     </div>
-                    <div class="flex items-center">
+                    <div class="flex items-center" v-if="order.phone">
                         <PhoneIcon class="h-4 w-4 mr-2" />
                         {{ order.phone }}
                     </div>
@@ -124,6 +127,7 @@ const isPaymentInfoExpanded = ref(false);
             </div>
         </Collapse>
         <Collapse
+            v-if="order.merchant_payments.length"
             v-model:checked="isPaymentInfoExpanded"
             title="Payment Information"
         >
@@ -251,23 +255,56 @@ const isPaymentInfoExpanded = ref(false);
                 </tr>
             </tbody>
         </table>
+        <div class="text-xs flex items-center" v-if="!merchant_payments.length">
+            <ExclamationTriangleIcon class="w-4 h-4 text-info" />
+            You have no payment method or payment is not enabled.
+        </div>
+        <div
+            class="flex justify-evenly mt-2"
+            v-if="order.status != 4 && order.status != 5"
+        >
+            <PrimaryButton
+                @click="showPaymentForm = true"
+                v-if="merchant_payments.length && order.status != 3"
+            >
+                Pay
+            </PrimaryButton>
 
-        <div class="flex justify-evenly mt-2" v-if="order.status != 3">
-            <form @submit.prevent="completeOrder">
-                <PrimaryButton
-                    type="submit"
-                    @click="completeOrder"
-                    :disabled="completeOrderForm.processing"
-                >
-                    Complete
-                </PrimaryButton>
-            </form>
+            <PrimaryButton
+                @click="$inertia.visit(route('merchant_payments.index'))"
+                v-else-if="!merchant_payments.length && order.status != 3"
+            >
+                Manage Payments
+            </PrimaryButton>
 
-            <PrimaryButton @click="showPaymentForm = true"> Pay </PrimaryButton>
-
-            <button class="daisy-btn-sm daisy-btn-warning rounded-md">
+            <button
+                class="daisy-btn-sm daisy-btn-warning daisy-btn capitalize"
+                :disabled="order.status == 3 && passedHours >= 24"
+                @click="
+                    $inertia.post(route('orders.cancel', { order: order.id }))
+                "
+            >
                 Cancel
             </button>
+            <button
+                class="daisy-btn-sm daisy-btn-success daisy-btn capitalize"
+                :disabled="order.status != 3"
+                @click="
+                    $inertia.post(route('orders.complete', { order: order.id }))
+                "
+            >
+                Complete
+            </button>
+        </div>
+        <div v-if="order.status == 4" class="text-sm text-center text-warning">
+            This order has been canceled on
+            {{
+                new Date(order.updated_at)
+                    .toLocaleString("en-GB", {
+                        hour12: true,
+                    })
+                    .toUpperCase()
+            }}
         </div>
         <Dialog
             :title="'Payment method'"

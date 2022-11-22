@@ -7,6 +7,7 @@ import { InertiaProgress } from '@inertiajs/progress';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
 import Layout from "@/Layouts/Layout.vue"
+import { Inertia } from '@inertiajs/inertia';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
@@ -28,3 +29,15 @@ createInertiaApp({
 });
 
 InertiaProgress.init({ color: '#4B5563' });
+
+// window.addEventListener('popstate', (event) => {
+//     event.stopImmediatePropagation();
+
+//     Inertia.reload({
+//         preserveState: false,
+//         preserveScroll: false,
+//         replace: true,
+//         onSuccess: (page) => Inertia.setPage(page),
+//         onError: () => window.location.href = event.state.url,
+//     });
+// });

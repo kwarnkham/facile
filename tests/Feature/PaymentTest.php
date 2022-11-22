@@ -25,15 +25,19 @@ class PaymentTest extends TestCase
         ])->assertSessionHasErrors(['number']);
     }
 
-    public function test_merchant_disable_a_payment()
+    public function test_merchant_toggle_a_payment()
     {
         $this->actingAs($this->merchant)->post(route('merchant_payments.store'), [
             'number' => '123',
             'payment_id' => $this->payment->id
         ]);
         $payment = $this->merchant->merchant->payments()->first()->pivot;
-        $this->actingAs($this->merchant)->post(route('merchant_payments.disable', ['merchantPayment' => $payment->id]));
+        $this->actingAs($this->merchant)->post(route('merchant_payments.toggle', ['merchantPayment' => $payment->id]));
 
         $this->assertEquals($payment->fresh()->status, 2);
+
+        $this->actingAs($this->merchant)->post(route('merchant_payments.toggle', ['merchantPayment' => $payment->id]));
+
+        $this->assertEquals($payment->fresh()->status, 1);
     }
 }

@@ -82,7 +82,7 @@ class OrderController extends Controller
     public function cancel(Order $order)
     {
         if (in_array($order->status, [OrderStatus::PENDING->value, OrderStatus::PARTIALLY_PAID->value, OrderStatus::PAID->value])) {
-            if ($order->status == OrderStatus::PAID->value && now()->diffInHours($order->updated_at) >= 24) return Redirect::back()->with('message', 'Cannot cancel a completed order after 24 hours');
+            if ($order->status == OrderStatus::PAID->value && now()->diffInHours($order->updated_at) >= 24) return Redirect::back()->with('message', 'Cannot cancel a paid order after 24 hours');
             DB::transaction(function () use ($order) {
                 $order->update(['status' => OrderStatus::CANCELED->value]);
                 $order->features->each(function ($feature) {
@@ -99,6 +99,16 @@ class OrderController extends Controller
                         'number' => $merchantPayment->pivot->number,
                     ]);
                 });
+            });
+        }
+        return Redirect::back()->with('message', 'Success');
+    }
+
+    public function complete(Order $order)
+    {
+        if (in_array($order->status, [OrderStatus::PAID->value])) {
+            DB::transaction(function () use ($order) {
+                $order->update(['status' => OrderStatus::COMPLETED->value]);
             });
         }
         return Redirect::back()->with('message', 'Success');
@@ -190,7 +200,10 @@ class OrderController extends Controller
         $order->merchantPayments->each(function (&$value) {
             if ($value->pivot->picture) $value->pivot->picture = $value->picture;
         });
-        return Inertia::render('Order', ['order' => $order, 'merchant_payments' => MerchantPayment::with(['payment'])->where('merchant_id', $order->merchant->id)->get()]);
+        return Inertia::render('Order', ['order' => $order, 'merchant_payments' => MerchantPayment::with(['payment'])->where([
+            'merchant_id' => $order->merchant->id,
+            'status' => 1,
+        ])->get()]);
     }
 
     /**
