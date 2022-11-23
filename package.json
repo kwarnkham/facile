@@ -21,6 +21,7 @@
     "dependencies": {
         "@heroicons/vue": "^2.0.12",
         "browser-image-compression": "^2.0.0",
-        "daisyui": "^2.31.0"
+        "daisyui": "^2.31.0",
+        "dom-to-image": "^2.6.0"
     }
 }
