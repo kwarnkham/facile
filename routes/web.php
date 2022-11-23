@@ -6,6 +6,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MerchantPaymentController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PictureController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
@@ -79,6 +80,7 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
         Route::put('{feature}', 'update')->name('features.update');
         Route::get('{feature}', 'show')->name('features.show');
         Route::post('{feature}/discount', 'discount')->name('features.discount');
+        Route::post('{feature}/restock', 'restock')->name('features.restock');
     });
 });
 
@@ -108,6 +110,12 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
         Route::post('{order}/pay', 'pay')->name('orders.pay');
         Route::post('{order}/complete', 'complete')->name('orders.complete');
         Route::post('{order}/cancel', 'cancel')->name('orders.cancel');
+    });
+});
+
+Route::controller(PurchaseController::class)->prefix('/purchases')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+        Route::post('', 'store')->name('purchases.store');
     });
 });
 

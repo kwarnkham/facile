@@ -65,6 +65,18 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * App\Models\Expense
+ *
+ * @method static \Database\Factories\ExpenseFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense query()
+ */
+	class Expense extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\Feature
  *
  * @property int $id

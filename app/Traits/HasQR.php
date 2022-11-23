@@ -15,8 +15,8 @@ trait HasQR
      */
     protected static function booted()
     {
-        static::deleted(function ($feature) {
-            $name =  $feature->qrFileName();
+        static::deleted(function ($model) {
+            $name =  $model->qrFileName();
             $file = static::qrDir() . '/' . $name;
             if (Storage::exists($file)) Storage::delete($file);
         });

@@ -27,7 +27,6 @@ class UpdateFeatureRequest extends FormRequest
         return [
             'item_id' => ['required'],
             'name' => ['required', 'string', Rule::unique('features', 'name')->where('item_id', $this->item_id)->ignore($this->feature->id)],
-            'stock' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],
             'note' => ['sometimes', 'required', 'string']
         ];

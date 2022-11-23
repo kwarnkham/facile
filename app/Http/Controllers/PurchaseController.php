@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Purchase;
+use Illuminate\Support\Facades\Redirect;
 
 class PurchaseController extends Controller
 {
@@ -36,7 +37,15 @@ class PurchaseController extends Controller
      */
     public function store(StorePurchaseRequest $request)
     {
-        //
+        $attributes = $request->validated();
+        $model = 'App\\Models\\' . ucfirst(strtolower($attributes['type']));
+
+        $attributes['purchasable_id'] = $attributes['type_id'];
+        $attributes['purchasable_type'] = $model;
+
+        Purchase::create(collect($attributes)->except(['type_id', 'type'])->toArray());
+
+        return Redirect::back()->with('message', 'Success');
     }
 
     /**

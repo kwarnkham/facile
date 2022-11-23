@@ -114,6 +114,20 @@ class FeatureController extends Controller
         return Redirect::route('features.edit', ['feature' => $feature->id])->with('message', 'Success');
     }
 
+    public function restock(Feature $feature)
+    {
+        $attributes = request()->validate([
+            'price' => ['required', 'numeric', 'gt:0'],
+            'quantity' => ['required', 'numeric', 'gt:0']
+        ]);
+
+        return Redirect::back()->with('message', DB::transaction(function () use ($feature, $attributes) {
+            $feature->purchases()->create($attributes);
+            $feature->stock += $attributes['quantity'];
+            return $feature->save();
+        }) ? 'Success' : 'Failed');
+    }
+
     /**
      * Remove the specified resource from storage.
      *
