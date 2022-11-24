@@ -67,6 +67,8 @@ namespace App\Models{
 /**
  * App\Models\Expense
  *
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Purchase[] $purchases
+ * @property-read int|null $purchases_count
  * @method static \Database\Factories\ExpenseFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Expense newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Expense newQuery()

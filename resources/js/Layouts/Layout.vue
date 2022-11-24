@@ -22,6 +22,14 @@ provide("message", {
     message,
     updateMessage,
 });
+let printCharacteristic = ref(null);
+const setPrintCharacteristic = (characteristic) => {
+    printCharacteristic.value = characteristic;
+};
+provide("printCharacteristic", {
+    printCharacteristic,
+    setPrintCharacteristic,
+});
 watch(
     () => usePage().props.value.flash,
     (flash) => {
