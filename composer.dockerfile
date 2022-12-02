@@ -1,0 +1,6 @@
+FROM composer:2.4
+
+ENV COMPOSERUSER=facile
+ENV COMPOSERGROUP=facile
+
+RUN adduser -g ${COMPOSERGROUP} -s /bin/sh -D ${COMPOSERUSER}

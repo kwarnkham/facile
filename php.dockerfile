@@ -11,7 +11,14 @@ RUN sed -i "s/group = www-data/group = ${PHPGROUP}/g" /usr/local/etc/php-fpm.d/w
 RUN mkdir -p /var/www/html/public
 
 RUN docker-php-ext-install pdo pdo_mysql opcache
-
 ADD opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
+RUN apk upgrade --update
+RUN apk add --no-cache freetype libpng libjpeg-turbo freetype-dev libpng-dev libjpeg-turbo-dev
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-install gd
+RUN docker-php-ext-enable gd
+RUN apk del --no-cache freetype-dev libpng-dev libjpeg-turbo-dev
+RUN rm -rf /tmp/*
 
 CMD ["php-fpm", "-y", "/usr/local/etc/php-fpm.conf", "-R"]

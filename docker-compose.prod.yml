@@ -15,7 +15,6 @@ services:
     depends_on:
       - mysql
       - php
-
   mysql:
     image: mysql:8.0
     container_name: facile-mysql
@@ -29,7 +28,6 @@ services:
       MYSQL_USER: ${DB_USERNAME}
     volumes:
       - ./mysql:/var/lib/mysql
-
   php:
     build:
       context: .
@@ -38,3 +36,26 @@ services:
     restart: unless-stopped
     volumes:
       - ./:/var/www/html
+  composer:
+    build:
+      context: .
+      dockerfile: composer.dockerfile
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+  npm:
+    image: node:18-alpine
+    volumes:
+      - ./:/var/www/html
+    entrypoint: ["npm"]
+    working_dir: /var/www/html
+  artisan:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - mysql
+    entrypoint: ["php", "/var/www/html/artisan"]

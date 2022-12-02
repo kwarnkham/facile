@@ -2,8 +2,15 @@ receipts printing
 Todo
 
 # view
+
 manage order => consider feature discounts
 discount in order/cart
 wholesale price in cart
 purchase
 
+docker-compose -f docker-compose.prod.yml run --rm composer install --ignore-platform-reqs
+docker-compose -f docker-compose.prod.yml run --rm artisan migrate
+docker-compose -f docker-compose.prod.yml run --rm npm install
+
+docker-compose -f docker-compose.prod.yml up --build
+docker-compose -f docker-compose.prod.yml build --no-cache
