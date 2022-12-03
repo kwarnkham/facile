@@ -17,4 +17,19 @@ docker-compose -f docker-compose.prod.yml run --rm npm run build
 
 # Update
 
-1. `docker-compose -f docker-compose.prod.yml restart`
+## Javascript
+
+```
+docker-compose -f docker-compose.prod.yml run --rm npm install
+docker-compose -f docker-compose.prod.yml run --rm npm run build
+```
+
+## PHP
+
+```
+docker-compose -f docker-compose.prod.yml run --rm composer install --optimize-autoloader --no-dev --ignore-platform-reqs
+docker-compose -f docker-compose.prod.yml run --rm artisan migrate --force
+docker-compose -f docker-compose.prod.yml run --rm artisan optimize
+docker-compose -f docker-compose.prod.yml run --rm artisan view:cache
+docker-compose -f docker-compose.prod.yml restart
+```
