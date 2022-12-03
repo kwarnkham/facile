@@ -33,3 +33,9 @@ docker-compose -f docker-compose.prod.yml run --rm artisan optimize
 docker-compose -f docker-compose.prod.yml run --rm artisan view:cache
 docker-compose -f docker-compose.prod.yml restart
 ```
+
+# Domain used in
+
+1. env file
+2. DO space
+3. default.conf

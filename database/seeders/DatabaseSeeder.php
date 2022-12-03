@@ -24,14 +24,14 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'admin',
                 'email' => '911@gmail.com',
-                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+                'password' => '$2y$10$XVaseaCA.MTLMDMPeC0lVuuRvZNRagUlB3E2kfXJk/slvshzPbyL2',
                 'created_at' => $now,
                 'updated_at' => $now
             ],
             [
-                'name' => 'mechnat',
-                'email' => '123@gmail.com',
-                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+                'name' => 'merchant',
+                'email' => 'merchant@gmail.com',
+                'password' => '$2y$10$XVaseaCA.MTLMDMPeC0lVuuRvZNRagUlB3E2kfXJk/slvshzPbyL2',
                 'created_at' => $now,
                 'updated_at' => $now
             ],
