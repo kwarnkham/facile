@@ -15,7 +15,6 @@ services:
     depends_on:
       - mysql
       - php
-      - assets
   mysql:
     image: mysql:8.0
     container_name: facile-mysql
@@ -59,40 +58,5 @@ services:
     working_dir: /var/www/html
     depends_on:
       - mysql
+      - php
     entrypoint: ["php", "/var/www/html/artisan"]
-  vendor:
-    build:
-      context: .
-      dockerfile: composer.dockerfile
-    volumes:
-      - ./:/var/www/html
-    command:
-      [
-        "composer",
-        "install",
-        "--optimize-autoloader",
-        "--no-dev",
-        "--ignore-platform-reqs",
-      ]
-    working_dir: /var/www/html
-  boot:
-    build:
-      context: .
-      dockerfile: php.dockerfile
-    volumes:
-      - ./:/var/www/html
-    working_dir: /var/www/html
-    depends_on:
-      - mysql
-    command:
-      [
-        "/bin/sh",
-        "-c",
-        "php artisan optimize && php artisan view:cache && php artisan migrate --force",
-      ]
-  assets:
-    image: node:18-alpine
-    volumes:
-      - ./:/var/www/html
-    command: ["/bin/sh", "-c", "npm install && npm run build"]
-    working_dir: /var/www/html
