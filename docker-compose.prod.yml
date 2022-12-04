@@ -12,7 +12,6 @@ services:
       - 444:443
     volumes:
       - ./public:/var/www/html/public
-      - ./:/var/www/html
     depends_on:
       - mysql
       - php
