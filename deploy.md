@@ -7,14 +7,14 @@ git clone https://github.com/kwarnkham/facile.git
 cd facile
 ```
 
-1. fill up env
+2. fill up env
 
 ```
 cp .env.example ./.env
 nano .env
 ```
 
-2. install docker
+3. install docker
 
 ```
 sudo apt update
@@ -47,6 +47,10 @@ sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate:fresh --
 
 # Update
 
+```
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan down
+```
+
 ## Javascript
 
 ```
@@ -58,6 +62,7 @@ sudo docker-compose -f docker-compose.prod.yml run --rm npm run build
 
 ```
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate --force
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan up
 ```
 
 # Domain used in
@@ -74,5 +79,4 @@ watch -n 5 free -m
 df -h
 docker rmi $(docker images -f "dangling=true" -q)
 deluser --remove-home newuser
-docker-compose exec nginx id facile
 ```
