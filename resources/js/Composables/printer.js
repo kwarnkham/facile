@@ -4,7 +4,7 @@ import { inject } from "vue";
 export default function usePrinter (width = 360, height = 26) {
     const { printCharacteristic, setPrintCharacteristic } = inject('printCharacteristic')
     const generateImageData = async (node) => {
-        const dataUrl = await domtoimage.toPng(node)
+        const dataUrl = await domtoimage.toPng(node, { cacheBust: true })
 
         const printTarget = new Image();
         printTarget.src = dataUrl;
