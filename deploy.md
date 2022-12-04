@@ -1,6 +1,13 @@
 # Fresh
 
 1. fill up env
+
+```
+cp .env.example ./env
+nano .env
+
+```
+
 2. install docker
 
 ```
@@ -15,6 +22,15 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
 ```
+
+3. add user for docker
+
+```
+adduser newuser
+usermod -aG sudo newuser
+```
+
+4. build and deploy
 
 ```
 docker-compose -f docker-compose.prod.yml build
