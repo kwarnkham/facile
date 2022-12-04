@@ -93,5 +93,5 @@ services:
       [
         "/bin/sh",
         "-c",
-        "php artisan migrate --force && php artisan optimize && php artisan view:cache",
+        "php artisan optimize && php artisan view:cache && php artisan migrate --force",
       ]
