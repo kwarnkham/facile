@@ -57,11 +57,7 @@ sudo docker-compose -f docker-compose.prod.yml run --rm npm run build
 ## PHP
 
 ```
-sudo docker-compose -f docker-compose.prod.yml run --rm composer install --optimize-autoloader --no-dev --ignore-platform-reqs
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate --force
-sudo docker-compose -f docker-compose.prod.yml run --rm artisan optimize
-sudo docker-compose -f docker-compose.prod.yml run --rm artisan view:cache
-sudo docker-compose -f docker-compose.prod.yml restart
 ```
 
 # Domain used in
