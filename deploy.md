@@ -3,7 +3,7 @@
 1. fill up env
 
 ```
-cp .env.example ./env
+cp .env.example ./.env
 nano .env
 
 ```
@@ -34,14 +34,17 @@ usermod -aG sudo newuser
 
 ```
 docker-compose -f docker-compose.prod.yml build
-docker-compose -f docker-compose.prod.yml up
 docker-compose -f docker-compose.prod.yml run --rm composer install --optimize-autoloader --no-dev --ignore-platform-reqs
+docker-compose -f docker-compose.prod.yml run --rm npm install
 docker-compose -f docker-compose.prod.yml run --rm artisan key:generate --force
-docker-compose -f docker-compose.prod.yml run --rm artisan migrate:fresh --seed --force
+docker-compose -f docker-compose.prod.yml run --rm npm run build
 docker-compose -f docker-compose.prod.yml run --rm artisan optimize
 docker-compose -f docker-compose.prod.yml run --rm artisan view:cache
-docker-compose -f docker-compose.prod.yml run --rm npm install
-docker-compose -f docker-compose.prod.yml run --rm npm run build
+docker-compose -f docker-compose.prod.yml up
+docker-compose -f docker-compose.prod.yml run --rm artisan migrate:fresh --seed --force
+chown -R facile:facile storage
+chown -R facile:facile bootstrap/cache
+
 ```
 
 # Update
