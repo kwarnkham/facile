@@ -1,11 +1,17 @@
 # Fresh
 
+1. clone the repo
+
+```
+git clone https://github.com/kwarnkham/facile.git
+cd facile
+```
+
 1. fill up env
 
 ```
 cp .env.example ./.env
 nano .env
-
 ```
 
 2. install docker
@@ -23,28 +29,20 @@ sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
 ```
 
-3. add user for docker
-
-```
-adduser newuser
-usermod -aG sudo newuser
-```
-
 4. build and deploy
 
 ```
-docker-compose -f docker-compose.prod.yml build
-docker-compose -f docker-compose.prod.yml run --rm composer install --optimize-autoloader --no-dev --ignore-platform-reqs
-docker-compose -f docker-compose.prod.yml run --rm npm install
-docker-compose -f docker-compose.prod.yml run --rm artisan key:generate --force
-docker-compose -f docker-compose.prod.yml run --rm npm run build
-docker-compose -f docker-compose.prod.yml run --rm artisan optimize
-docker-compose -f docker-compose.prod.yml run --rm artisan view:cache
-docker-compose -f docker-compose.prod.yml up
-docker-compose -f docker-compose.prod.yml run --rm artisan migrate:fresh --seed --force
-chown -R facile:facile storage
-chown -R facile:facile bootstrap/cache
-
+sudo docker-compose -f docker-compose.prod.yml build
+sudo docker-compose -f docker-compose.prod.yml run --rm composer install --optimize-autoloader --no-dev --ignore-platform-reqs
+sudo docker-compose -f docker-compose.prod.yml run --rm npm install
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan key:generate --force
+sudo docker-compose -f docker-compose.prod.yml run --rm npm run build
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan optimize
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan view:cache
+sudo docker-compose -f docker-compose.prod.yml up
+sudo docker-compose -f docker-compose.prod.yml exec nginx id facile
+sudo chmod -R 755 storage bootstrap/cache
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate:fresh --seed --force
 ```
 
 # Update
@@ -52,18 +50,18 @@ chown -R facile:facile bootstrap/cache
 ## Javascript
 
 ```
-docker-compose -f docker-compose.prod.yml run --rm npm install
-docker-compose -f docker-compose.prod.yml run --rm npm run build
+sudo docker-compose -f docker-compose.prod.yml run --rm npm install
+sudo docker-compose -f docker-compose.prod.yml run --rm npm run build
 ```
 
 ## PHP
 
 ```
-docker-compose -f docker-compose.prod.yml run --rm composer install --optimize-autoloader --no-dev --ignore-platform-reqs
-docker-compose -f docker-compose.prod.yml run --rm artisan migrate --force
-docker-compose -f docker-compose.prod.yml run --rm artisan optimize
-docker-compose -f docker-compose.prod.yml run --rm artisan view:cache
-docker-compose -f docker-compose.prod.yml restart
+sudo docker-compose -f docker-compose.prod.yml run --rm composer install --optimize-autoloader --no-dev --ignore-platform-reqs
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate --force
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan optimize
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan view:cache
+sudo docker-compose -f docker-compose.prod.yml restart
 ```
 
 # Domain used in
@@ -78,4 +76,7 @@ docker-compose -f docker-compose.prod.yml restart
 ```
 watch -n 5 free -m
 df -h
+docker rmi $(docker images -f "dangling=true" -q)
+deluser --remove-home newuser
+docker-compose exec nginx id facile
 ```
