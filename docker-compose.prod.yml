@@ -20,7 +20,7 @@ services:
     container_name: facile-mysql
     restart: unless-stopped
     ports:
-      - 3306:3306
+      - ${DB_PORT}:3306
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}

@@ -37,5 +37,6 @@ docker-compose -f docker-compose.prod.yml restart
 # Domain used in
 
 1. env file
-2. DO space
+2. DO space cdn
 3. default.conf
+4. DO space config
