@@ -4,6 +4,8 @@ ENV NGINXUSER=facile
 ENV NGINXGROUP=facile
 
 RUN mkdir -p /var/www/html/public
+RUN mkdir -p /var/www/html/storage
+RUN mkdir -p /var/www/html/bootstrap/cache
 
 ADD default.conf /etc/nginx/conf.d/default.conf
 
