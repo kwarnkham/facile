@@ -10,3 +10,6 @@ ADD default.conf /etc/nginx/conf.d/default.conf
 RUN sed -i "s/user www-data/user ${NGINXUSER}/g" /etc/nginx/nginx.conf
 
 RUN adduser -g ${NGINXGROUP} -s /bin/sh -D ${NGINXUSER}
+
+RUN chown -R www-data.www-data /var/www/html/facile/storage
+RUN chown -R www-data.www-data /var/www/html/facile/bootstrap/cache
