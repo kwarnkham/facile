@@ -1,7 +1,7 @@
 FROM php:8-fpm-alpine
 
-ENV PHPGROUP=facile
-ENV PHPUSER=facile
+ENV PHPGROUP=moon
+ENV PHPUSER=moon
 
 RUN adduser -g ${PHPGROUP} -s /bin/sh -D ${PHPUSER}
 

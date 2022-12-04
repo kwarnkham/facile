@@ -1,7 +1,7 @@
 FROM nginx:1.22.1-alpine
 
-ENV NGINXUSER=www-data
-ENV NGINXGROUP=www-data
+ENV NGINXUSER=moon
+ENV NGINXGROUP=moon
 
 RUN mkdir -p /var/www/html/public
 RUN mkdir -p /var/www/html/storage
