@@ -36,8 +36,8 @@ class OrderController extends Controller
     public function pay(Order $order)
     {
         if ($order->status == 3) return Redirect::back()->with('message', 'Order cannot be paid anymore');
-        $paidAmount = $order->paidAmount() + $order->discount + $order->getFeatureDiscounts();
-        $remaining = floor($order->amount - $paidAmount);
+        $totalPaid = $order->paidAmount() + $order->discount;
+        $remaining = floor($order->amount - $totalPaid);
         $attributes = request()->validate([
             'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
             'amount' => [
@@ -66,8 +66,11 @@ class OrderController extends Controller
                     'picture' => $picture
                 ]
             );
-            if ((strval($attributes['amount']) + strval($paidAmount)) < strval($order->amount)) $order->status = 2;
-            else if ((strval($attributes['amount']) + strval($paidAmount)) == strval($order->amount)) $order->status = 3;
+            if (
+                $attributes['amount'] + $totalPaid < $order->amount
+            ) $order->status = 2;
+            else if ($attributes['amount'] + $totalPaid == $order->amount)
+                $order->status = 3;
             $order->save();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -147,14 +150,10 @@ class OrderController extends Controller
             return $feature;
         });
         $amount = floor((float) collect($attributes['features'])->reduce(
-            fn ($carry, $feature) => $carry + $feature['price'] - ($feature['discount'] ?? 0) * $feature['quantity']
-        ));
-        $featuresDiscount = floor((float)collect($attributes['features'])->reduce(
-            fn ($carry, $feature) => $carry + ($feature['discount'] ?? 0) * $feature['quantity'],
-            0
+            fn ($carry, $feature) => $carry + ($feature['price'] - ($feature['discount'] ?? 0)) * $feature['quantity']
         ));
         $remaining = $amount -
-            floor($attributes['discount'] ?? 0) - $featuresDiscount;
+            floor($attributes['discount'] ?? 0);
         if ($remaining < 0) return Redirect::back()->with('message', 'Total discount is greater than the amount');
 
         $createdOrder = DB::transaction(function () use ($attributes, $request, $amount, $remaining) {

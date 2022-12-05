@@ -352,32 +352,34 @@ class OrderTest extends TestCase
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $stock = rand(2, 14);
-        $features = Feature::factory(rand(1, 10))->create(['item_id' => $item->id, 'stock' => $stock])->map(
+        $price = rand(10, 1000);
+        $featureDiscount = 0.1;
+        $features = Feature::factory(rand(1, 10))->create([
+            'item_id' => $item->id,
+            'stock' => $stock,
+            'price' => $price
+        ])->map(
             fn ($feature) =>
-            ['id' => $feature->id, 'quantity' => $stock]
+            ['id' => $feature->id, 'quantity' => $stock, 'discount' => $price * $featureDiscount]
         )->toArray();
 
-        $amount = (float)Feature::where('item_id', $item->id)->get()->reduce(fn ($carry, $feature) => $carry + ($feature->price * collect($features)->first(fn ($v) => $v['id'] == $feature->id)['quantity']), 0);
+        $amount = (float)Feature::where('item_id', $item->id)->get()->reduce(
+            fn ($carry, $feature) =>
+            $carry + (($feature->price - ($feature->price * $featureDiscount)) * collect($features)->first(fn ($v) => $v['id'] == $feature->id)['quantity']),
+            0
+        );
 
         $this->actingAs($this->merchant)->post(route('orders.store'), [
             ...[
                 'features' => $features,
-                'discount' => $amount / 10
+                'discount' => $amount * 0.1
             ],
             ...Order::factory()->make()->toArray()
         ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value);
         $order = Order::first();
-        $this->assertEquals(round($order->amount - $order->getFeatureDiscounts(), 2), round($amount, 2));
-        $this->assertEquals(
-            round($order->getFeatureDiscounts(), 2),
-            round(
-                (float)($order->features()->get()->reduce(
-                    fn ($carry, $val) => $carry + $val->pivot->quantity * $val->pivot->discount,
-                    0
-                )),
-                2
-            )
-        );
+
+        $this->assertEquals(floor($amount), $order->amount);
+        $this->assertEquals($amount * 0.1, $order->discount);
     }
 
     public function test_order_feature_id_is_distinct()
@@ -549,13 +551,7 @@ class OrderTest extends TestCase
             $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
                 'payment_id' => $this->payment->id,
                 'amount' => $order->amount
-            ])->assertSessionHasErrors(['amount']);
-
-            $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
-                'payment_id' => $this->payment->id,
-                'amount' => $order->amount - $order->getFeatureDiscounts()
             ]);
-
             $this->assertDatabaseCount('order_payment', 1);
             $this->assertEquals($order->fresh()->status, 3);
         }
@@ -570,14 +566,14 @@ class OrderTest extends TestCase
         if ($order->status != 3) {
             $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
                 'payment_id' => $this->payment->id,
-                'amount' => floor(($order->amount - $order->getFeatureDiscounts()) / 2)
+                'amount' => floor($order->amount  / 2)
             ]);
 
             $this->assertEquals($order->fresh()->status, 2);
 
             $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
                 'payment_id' => $this->payment->id,
-                'amount' => $order->amount - $order->getFeatureDiscounts() - floor(($order->amount - $order->getFeatureDiscounts()) / 2)
+                'amount' => $order->amount - floor($order->amount / 2)
             ]);
 
             $this->assertDatabaseCount('order_payment', 3);
@@ -595,7 +591,7 @@ class OrderTest extends TestCase
             [
                 'id' => $feature->id,
                 'quantity' => $stock,
-                'discount' => floor($feature->price * $discount)
+                'discount' => $feature->price * $discount
             ]
         )->toArray();
 

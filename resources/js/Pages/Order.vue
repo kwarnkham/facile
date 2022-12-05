@@ -180,6 +180,7 @@ const isPaymentInfoExpanded = ref(false);
                 <tr
                     v-for="(feature, index) in order.features"
                     :key="feature.id"
+                    class="border-b-2 border-b-primary"
                 >
                     <th>{{ index + 1 }}</th>
                     <td>{{ feature.name }}</td>
@@ -236,8 +237,13 @@ const isPaymentInfoExpanded = ref(false);
                         {{ order.discount.toLocaleString() }}
                     </td>
                 </tr>
-
-                <tr class="font-bold">
+                <tr class="font-bold" v-if="order.status != 3">
+                    <td colspan="4" class="text-right">Amount</td>
+                    <td class="text-right">
+                        {{ (order.amount - order.discount).toLocaleString() }}
+                    </td>
+                </tr>
+                <tr class="border-b-2 border-b-primary font-bold">
                     <td colspan="4" class="text-right">Paid</td>
                     <td class="text-right">
                         {{
@@ -247,10 +253,19 @@ const isPaymentInfoExpanded = ref(false);
                         }}
                     </td>
                 </tr>
-                <tr class="font-bold" v-if="order.status != 3">
-                    <td colspan="4" class="text-right">Amount</td>
+                <tr class="font-bold">
+                    <td colspan="4" class="text-right">Remaining</td>
                     <td class="text-right">
-                        {{ remaining.toLocaleString() }}
+                        {{
+                            (
+                                order.amount -
+                                order.discount -
+                                order.merchant_payments.reduce(
+                                    (carry, e) => carry + e.pivot.amount,
+                                    0
+                                )
+                            ).toLocaleString()
+                        }}
                     </td>
                 </tr>
             </tbody>
