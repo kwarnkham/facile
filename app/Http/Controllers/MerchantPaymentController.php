@@ -43,8 +43,7 @@ class MerchantPaymentController extends Controller
         $attributes = $request->validate([
             'payment_id' => ['required', 'exists:payments,id'],
             'number' => [
-                'required',
-                'numeric',
+                Rule::requiredIf($request->payment_id != 1),
                 Rule::unique('merchant_payments', 'number')->where(fn ($query) => $query->where([
                     'payment_id' => $request->payment_id,
                     'merchant_id' => $request->user()->merchant->id

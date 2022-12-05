@@ -94,7 +94,7 @@ const form = useForm({
                     placeholder="Number"
                     class="mt-1 block w-full"
                     v-model="form.number"
-                    required
+                    :required="form.payment_id != 1"
                     :class="{ 'daisy-input-error': form.errors.number }"
                 />
                 <InputError :message="form.errors.number" />

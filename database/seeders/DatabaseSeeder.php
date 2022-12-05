@@ -62,6 +62,11 @@ class DatabaseSeeder extends Seeder
         ]);
         DB::table('payments')->insert([
             [
+                'name' => 'Cash',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
                 'name' => 'KBZPay',
                 'created_at' => $now,
                 'updated_at' => $now
