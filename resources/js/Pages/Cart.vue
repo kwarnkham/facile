@@ -156,7 +156,11 @@ const clearCart = () => {
                 </tbody>
             </table>
             <div class="flex-1 flex items-end justify-end">
-                <Button @click="checkout" :disabled="cartTotal - discount < 0"
+                <Button
+                    @click="checkout"
+                    :disabled="
+                        cartTotal - discount < 0 || isNaN(Number(discount))
+                    "
                     >Checkout</Button
                 >
             </div>

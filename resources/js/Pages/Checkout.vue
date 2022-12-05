@@ -20,6 +20,7 @@ const submit = () => {
         replace: true,
         onSuccess() {
             localStorage.removeItem("cartItems");
+            localStorage.removeItem("cartDiscount");
             store.cart.clear();
         },
     });

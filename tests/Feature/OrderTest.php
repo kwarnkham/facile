@@ -379,7 +379,7 @@ class OrderTest extends TestCase
         $order = Order::first();
 
         $this->assertEquals(floor($amount), $order->amount);
-        $this->assertEquals($amount * 0.1, $order->discount);
+        $this->assertEquals(floor($amount * 0.1), floor($order->discount));
     }
 
     public function test_order_feature_id_is_distinct()
