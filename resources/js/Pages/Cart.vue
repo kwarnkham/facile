@@ -8,11 +8,16 @@ import { Inertia } from "@inertiajs/inertia";
 import { Head } from "@inertiajs/inertia-vue3";
 import { computed, ref } from "vue";
 
-const open = ref(false);
+const openQuantityEdit = ref(false);
+const openPriceEdit = ref(false);
 
-const cartFeatureInEdit = ref({ quantity: 0 });
-const editCartFeature = (feature) => {
-    open.value = true;
+const cartFeatureInEdit = ref({ quantity: 0, discount: "" });
+const editCartFeatureQuantity = (feature) => {
+    openQuantityEdit.value = true;
+    cartFeatureInEdit.value = JSON.parse(JSON.stringify(feature));
+};
+const editCartFeaturePrice = (feature) => {
+    openPriceEdit.value = true;
     cartFeatureInEdit.value = JSON.parse(JSON.stringify(feature));
 };
 const checkout = () => {
@@ -20,7 +25,10 @@ const checkout = () => {
     Inertia.visit(route("routes.checkout"));
 };
 const cartTotal = computed(() =>
-    store.cart.items.reduce((carry, e) => e.quantity * e.price + carry, 0)
+    store.cart.items.reduce(
+        (carry, e) => e.quantity * (e.price - (e.discount ?? 0)) + carry,
+        0
+    )
 );
 
 const discount = ref(JSON.parse(localStorage.getItem("cartDiscount")) ?? "");
@@ -31,12 +39,13 @@ const removeFromCart = () => {
         store.cart.items.find((e) => e.id == cartFeatureInEdit.value.id)
             .quantity
     );
-    open.value = false;
+    openQuantityEdit.value = false;
 };
 
 const updateCartFeature = () => {
     store.cart.update(cartFeatureInEdit.value);
-    open.value = false;
+    openQuantityEdit.value = false;
+    openPriceEdit.value = false;
 };
 
 const clearCart = () => {
@@ -72,12 +81,22 @@ const clearCart = () => {
                     >
                         <th>{{ index + 1 }}</th>
                         <td>{{ feature.name }}</td>
-                        <td class="text-right">
-                            {{ feature.price?.toLocaleString() }}
+                        <td
+                            class="text-right"
+                            :class="{
+                                'text-indigo-500': feature.discount ?? 0 > 0,
+                            }"
+                            @click="editCartFeaturePrice(feature)"
+                        >
+                            {{
+                                (
+                                    feature.price - (feature.discount ?? 0)
+                                )?.toLocaleString()
+                            }}
                         </td>
                         <td
                             class="text-right underline text-info"
-                            @click="editCartFeature(feature)"
+                            @click="editCartFeatureQuantity(feature)"
                         >
                             {{ feature.quantity }}
                         </td>
@@ -85,7 +104,8 @@ const clearCart = () => {
                         <td class="text-right">
                             {{
                                 (
-                                    feature.quantity * feature.price
+                                    feature.quantity *
+                                    (feature.price - (feature.discount ?? 0))
                                 ).toLocaleString()
                             }}
                         </td>
@@ -113,7 +133,7 @@ const clearCart = () => {
 
                         <td class="text-right">
                             <input
-                                type="number"
+                                type="tel"
                                 v-model.number="discount"
                                 class="w-16 text-right"
                             />
@@ -149,14 +169,15 @@ const clearCart = () => {
             <div>
                 <Button
                     @click="$inertia.visit(route('index'), { replace: true })"
-                    >Home</Button
                 >
+                    Home
+                </Button>
             </div>
         </div>
         <Teleport to="body">
             <div
                 class="daisy-modal daisy-modal-bottom sm:daisy-modal-middle"
-                :class="{ 'daisy-modal-open': open }"
+                :class="{ 'daisy-modal-open': openQuantityEdit }"
             >
                 <div class="daisy-modal-box">
                     <h3 class="font-bold text-lg">
@@ -165,8 +186,9 @@ const clearCart = () => {
                     <div class="py-4">
                         <InputLabel for="quantity" value="Quantity" />
                         <TextInput
+                            :autofocus="openQuantityEdit"
                             id="quantity"
-                            type="number"
+                            type="tel"
                             class="w-full"
                             v-model.number="cartFeatureInEdit.quantity"
                             required
@@ -191,7 +213,10 @@ const clearCart = () => {
                         <Button @click="removeFromCart">Remove</Button>
                     </div>
                     <div class="daisy-modal-action items-center space-x-2">
-                        <XCircleIcon class="w-8 h-8" @click="open = false" />
+                        <XCircleIcon
+                            class="w-8 h-8"
+                            @click="openQuantityEdit = false"
+                        />
                         <Button
                             @click="updateCartFeature"
                             :disabled="
@@ -200,6 +225,55 @@ const clearCart = () => {
                                     cartFeatureInEdit.stock ||
                                 cartFeatureInEdit.quantity < 0 ||
                                 cartFeatureInEdit.quantity === ''
+                            "
+                            >Ok</Button
+                        >
+                    </div>
+                </div>
+            </div>
+        </Teleport>
+
+        <Teleport to="body">
+            <div
+                class="daisy-modal daisy-modal-bottom sm:daisy-modal-middle"
+                :class="{ 'daisy-modal-open': openPriceEdit }"
+            >
+                <div class="daisy-modal-box">
+                    <h3 class="font-bold text-lg">
+                        Apply discount for
+                        <span>{{ cartFeatureInEdit?.name }}</span>
+                    </h3>
+                    <div class="py-4">
+                        <InputLabel for="discount" value="Discount" />
+                        <TextInput
+                            :autofocus="openPriceEdit"
+                            id="discount"
+                            type="tel"
+                            class="w-full"
+                            v-model.number="cartFeatureInEdit.discount"
+                            required
+                        />
+                    </div>
+                    <div class="flex flex-row justify-evenly">
+                        <Button
+                            @click="cartFeatureInEdit.discount = ''"
+                            :disabled="!cartFeatureInEdit.discount"
+                        >
+                            Remove discount
+                        </Button>
+                    </div>
+                    <div class="daisy-modal-action items-center space-x-2">
+                        <XCircleIcon
+                            class="w-8 h-8"
+                            @click="openPriceEdit = false"
+                        />
+                        <Button
+                            @click="updateCartFeature"
+                            :disabled="
+                                cartFeatureInEdit.discount % 1 != 0 ||
+                                cartFeatureInEdit.discount >
+                                    cartFeatureInEdit.price ||
+                                cartFeatureInEdit.discount < 0
                             "
                             >Ok</Button
                         >

@@ -184,10 +184,10 @@ const isPaymentInfoExpanded = ref(false);
                     <th>{{ index + 1 }}</th>
                     <td>{{ feature.name }}</td>
                     <td class="text-right">
-                        {{ feature.pivot.price.toLocaleString() }}
                         <strong v-if="feature.pivot.discount">
-                            ({{ feature.pivot.discount }})
+                            (-{{ feature.pivot.discount.toLocaleString() }})
                         </strong>
+                        {{ feature.pivot.price.toLocaleString() }}
                     </td>
                     <td class="text-right">
                         {{ feature.pivot.quantity }}

@@ -147,7 +147,7 @@ class OrderController extends Controller
             return $feature;
         });
         $amount = floor((float) collect($attributes['features'])->reduce(
-            fn ($carry, $feature) => $carry + $feature['price'] * $feature['quantity']
+            fn ($carry, $feature) => $carry + $feature['price'] - ($feature['discount'] ?? 0) * $feature['quantity']
         ));
         $featuresDiscount = floor((float)collect($attributes['features'])->reduce(
             fn ($carry, $feature) => $carry + ($feature['discount'] ?? 0) * $feature['quantity'],
