@@ -88,14 +88,17 @@ class ItemFeatureTest extends TestCase
         $this->assertEquals($item->features()->first()->name, $data['name']);
         $this->actingAs($this->merchant)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
         $this->assertDatabaseCount('purchases', 1);
+        $this->assertEquals(Purchase::first()->price, $data['purchase_price']);
 
         $feature = Feature::first();
         $quantity = rand(1, 10);
+        $price = rand(1000, 10000);
         $this->actingAs($this->merchant)->post(route('features.restock', ['feature' => $feature->id]), [
-            'price' => rand(1000, 10000),
+            'price' => $price,
             'quantity' => $quantity
         ]);
         $this->assertEquals($feature->stock + $quantity, $feature->fresh()->stock);
         $this->assertDatabaseCount('purchases', 2);
+        $this->assertEquals(Purchase::orderBy('id', 'desc')->first()->price, $price);
     }
 }

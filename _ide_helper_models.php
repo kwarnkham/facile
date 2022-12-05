@@ -38,41 +38,24 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * App\Models\Discount
+ * App\Models\Expense
  *
  * @property int $id
  * @property string $name
- * @property float $percentage
  * @property int $merchant_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
- * @property-read int|null $features_count
- * @property-read \App\Models\Merchant|null $merchant
- * @method static \Database\Factories\DiscountFactory factory(...$parameters)
- * @method static \Illuminate\Database\Eloquent\Builder|Discount newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Discount newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Discount query()
- * @method static \Illuminate\Database\Eloquent\Builder|Discount whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Discount whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Discount whereMerchantId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Discount whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Discount wherePercentage($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Discount whereUpdatedAt($value)
- */
-	class Discount extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
- * App\Models\Expense
- *
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Purchase[] $purchases
  * @property-read int|null $purchases_count
  * @method static \Database\Factories\ExpenseFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Expense newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Expense newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Expense query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereMerchantId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereUpdatedAt($value)
  */
 	class Expense extends \Eloquent {}
 }
@@ -90,8 +73,6 @@ namespace App\Models{
  * @property int $type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Discount[] $discounts
- * @property-read int|null $discounts_count
  * @property-read \App\Models\Item $item
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
@@ -163,8 +144,6 @@ namespace App\Models{
  * @property string $address
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Discount[] $discounts
- * @property-read int|null $discounts_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Item[] $items
  * @property-read int|null $items_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
