@@ -9,7 +9,6 @@ use App\Models\Discount;
 use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Merchant;
-use App\Models\MerchantPayment;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Picture;
@@ -107,7 +106,7 @@ class OrderTest extends TestCase
         ]);
         $this->assertDatabaseCount('order_payment', 1);
         $this->assertEquals($order->fresh()->status, 2);
-        $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]));;
+        $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]));
         $this->assertEquals(Feature::first()->stock, 0);
         $this->assertDatabaseCount('credits', 1);
         $this->assertEquals(Credit::first()->amount, floor($remaining / 2));

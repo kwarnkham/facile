@@ -141,8 +141,7 @@ class OrderController extends Controller
         $attributes['features'] = collect($attributes['features'])->map(function ($feature) use ($features) {
             $features->each(function ($val) use (&$feature) {
                 if ($val->id == $feature['id']) {
-                    $wholesalePrice = $val->item->wholesales->first(fn ($v) => $v->quantity <= $feature['quantity'])->price ?? null;
-                    $feature['price'] = $wholesalePrice ?? $val->price;
+                    $feature['price'] = $val->price;
                     $feature['discount'] = $val->totalDiscount();
                 }
             });

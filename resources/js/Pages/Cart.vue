@@ -72,7 +72,7 @@ const clearCart = () => {
                     >
                         <th>{{ index + 1 }}</th>
                         <td>{{ feature.name }}</td>
-                        <td class="text-right text-indigo-500">
+                        <td class="text-right">
                             {{ feature.price?.toLocaleString() }}
                         </td>
                         <td
