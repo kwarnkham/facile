@@ -23,11 +23,6 @@ class Feature extends Model
         return $this->morphMany(Purchase::class, 'purchasable');
     }
 
-    public function discounts()
-    {
-        return $this->morphToMany(Discount::class, 'discountable');
-    }
-
     public function pictures()
     {
         return $this->morphMany(Picture::class, 'pictureable')->orderBy('id', 'desc');
@@ -51,15 +46,5 @@ class Feature extends Model
         );
 
         $query->when($filters['stocked'] ?? null, fn (Builder $query) => $query->where('stock', '>', 0));
-    }
-
-    public function totalDiscount()
-    {
-        return floor((float)$this->discounts->reduce(fn ($carry, $discount) => $discount->percentage + $carry, 0) / 100 * $this->price);
-    }
-
-    public function totalDiscountPercentage()
-    {
-        return (float)$this->discounts->reduce(fn ($carry, $discount) => $carry + $discount->percentage, 0);
     }
 }

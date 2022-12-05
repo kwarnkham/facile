@@ -137,23 +137,24 @@ class OrderController extends Controller
             $feature = Feature::find($val['id']);
             if ($feature->stock < $val['quantity']) return Redirect::back()->with('message', $feature->name . ' is out of stock');
         }
-        $features = Feature::whereIn('id', array_map(fn ($v) => $v['id'], $attributes['features']))->with(['discounts', 'item.wholesales'])->get();
+        $features = Feature::whereIn('id', array_map(fn ($v) => $v['id'], $attributes['features']))->with(['item.wholesales'])->get();
         $attributes['features'] = collect($attributes['features'])->map(function ($feature) use ($features) {
             $features->each(function ($val) use (&$feature) {
                 if ($val->id == $feature['id']) {
                     $feature['price'] = $val->price;
-                    $feature['discount'] = $val->totalDiscount();
                 }
             });
             return $feature;
         });
-        $amount = floor((float) collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['price'] * $feature['quantity']));
-
-        $featuresDiscount = floor((float)collect($attributes['features'])->reduce(fn ($carry, $feature) => $carry + $feature['discount'] * $feature['quantity'], 0));
-
+        $amount = floor((float) collect($attributes['features'])->reduce(
+            fn ($carry, $feature) => $carry + $feature['price'] * $feature['quantity']
+        ));
+        $featuresDiscount = floor((float)collect($attributes['features'])->reduce(
+            fn ($carry, $feature) => $carry + ($feature['discount'] ?? 0) * $feature['quantity'],
+            0
+        ));
         $remaining = $amount -
             floor($attributes['discount'] ?? 0) - $featuresDiscount;
-
         if ($remaining < 0) return Redirect::back()->with('message', 'Total discount is greater than the amount');
 
         $createdOrder = DB::transaction(function () use ($attributes, $request, $amount, $remaining) {
@@ -172,7 +173,7 @@ class OrderController extends Controller
                 collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => [
                     'quantity' => $feature['quantity'],
                     'price' => $feature['price'],
-                    'discount' => $feature['discount']
+                    'discount' => $feature['discount'] ?? 0
                 ]])->toArray()
             );
 

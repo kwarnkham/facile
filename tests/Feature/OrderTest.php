@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Enums\OrderStatus;
 use App\Enums\ResponseStatus;
 use App\Models\Credit;
-use App\Models\Discount;
 use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Merchant;
@@ -33,24 +32,28 @@ class OrderTest extends TestCase
                 ...['purchase_price' => floor($feature->price * 0.9)]
             ]);
         }
-        if ($featureDiscountPercentage > 0) {
-            $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();
-            $features->each(fn ($v) => $this->actingAs($this->merchant)->post(route('features.discount', [
-                'feature' => $v->id
-            ]), [
-                'discount_id' => Discount::factory()->create(['merchant_id' => $this->merchant->merchant->id, 'percentage' => $featureDiscountPercentage])->id
-            ]));
-        }
 
 
-        $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();
+        $features = Feature::where('item_id', $item->id)->get();
         $feats = $features->map(fn ($feature) => [
             'id' => $feature->id,
-            'quantity' => $stock
-        ])->toArray();
+            'quantity' => $stock,
+            'discount' => ($features->first(fn ($value) => $value->id == $feature->id)->price * $featureDiscountPercentage) / 100
+        ])->map(function ($feature) {
+            if ($feature['discount'] <= 0) return [
+                'id' => $feature['id'],
+                'quantity' => $feature['quantity']
+            ];
+            else return $feature;
+        })->toArray();
 
 
-        $remaining = floor((float)($features->reduce(fn ($carry, $feat) => ($feat->price - $feat->totalDiscount()) * collect($feats)->first(fn ($v) => $v['id'] == $feat->id)['quantity'] + $carry)));
+        $remaining = floor(
+            (float)$features->reduce(
+                fn ($carry, $feat) => $feat->price * collect($feats)->first(fn ($v) => $v['id'] == $feat->id)['quantity'] + $carry,
+                0
+            )
+        );
 
 
         $data = [
@@ -63,13 +66,13 @@ class OrderTest extends TestCase
                 'discount' => floor($remaining / $orderDiscountRatio)
             ];
         }
-
-
+        $existed = Order::count();
         $this->actingAs($this->merchant)->post(route('orders.store'), [
             ...$data,
             ...Order::factory()->make()->toArray()
         ]);
 
+        $this->assertDatabaseCount('orders', $existed + 1);
         return $remaining;
     }
 
@@ -83,7 +86,7 @@ class OrderTest extends TestCase
             ...['purchase_price' => floor($feature->price * 0.9)]
         ]);
 
-        $features = Feature::where('item_id', $item->id)->with(['discounts'])->get();
+        $features = Feature::where('item_id', $item->id)->get();
 
         $feats = $features->map(fn ($feature) => [
             'id' => $feature->id,
@@ -91,7 +94,12 @@ class OrderTest extends TestCase
         ])->toArray();
 
 
-        $remaining = floor((float)($features->reduce(fn ($carry, $feat) => ($feat->price - $feat->totalDiscount()) * collect($feats)->first(fn ($v) => $v['id'] == $feat->id)['quantity'] + $carry)));
+        $remaining = floor(
+            (float)$features->reduce(
+                fn ($carry, $feat) => $feat->price * collect($feats)->first(fn ($v) => $v['id'] == $feat->id)['quantity'] + $carry,
+                0
+            )
+        );
 
         $this->actingAs($this->merchant)->post(route('orders.store'), [
             ...['features' => $feats],
@@ -348,9 +356,8 @@ class OrderTest extends TestCase
             fn ($feature) =>
             ['id' => $feature->id, 'quantity' => $stock]
         )->toArray();
-        $discount = Discount::factory()->create(['merchant_id' => $this->merchant->id, 'percentage' => 10]);
-        Feature::where('item_id', $item->id)->each(fn ($feat) => $feat->discounts()->attach($discount->id));
-        $amount = (float)Feature::where('item_id', $item->id)->with(['discounts'])->get()->reduce(fn ($carry, $feature) => $carry + (($feature->price - $feature->totalDiscount()) * collect($features)->first(fn ($v) => $v['id'] == $feature->id)['quantity']), 0);
+
+        $amount = (float)Feature::where('item_id', $item->id)->get()->reduce(fn ($carry, $feature) => $carry + ($feature->price * collect($features)->first(fn ($v) => $v['id'] == $feature->id)['quantity']), 0);
 
         $this->actingAs($this->merchant)->post(route('orders.store'), [
             ...[
@@ -363,7 +370,13 @@ class OrderTest extends TestCase
         $this->assertEquals(round($order->amount - $order->getFeatureDiscounts(), 2), round($amount, 2));
         $this->assertEquals(
             round($order->getFeatureDiscounts(), 2),
-            round((float)($order->features()->with(['discounts'])->get()->reduce(fn ($carry, $val) => $carry + $val->totalDiscount() * $val->pivot->quantity, 0)), 2)
+            round(
+                (float)($order->features()->get()->reduce(
+                    fn ($carry, $val) => $carry + $val->pivot->quantity * $val->pivot->discount,
+                    0
+                )),
+                2
+            )
         );
     }
 
@@ -517,17 +530,15 @@ class OrderTest extends TestCase
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $stock = rand(2, 10);
+        $percentage = rand(1, 100) / 100;
         $features = Feature::factory(rand(1, 10))->create(['item_id' => $item->id, 'price' => rand(1, 100) * 10, 'stock' => $stock])->map(
             fn ($feature) =>
-            ['id' => $feature->id, 'quantity' => floor($stock / 2)]
+            [
+                'id' => $feature->id,
+                'quantity' => floor($stock / 2),
+                'discount' => $feature->price * ($percentage / 100)
+            ]
         )->toArray();
-        $percentage = rand(1, 100) / 100;
-        $discount = Discount::factory()->create(['percentage' => $percentage * 100, 'merchant_id' => $this->merchant->merchant->id]);
-
-        Feature::all()->each(fn ($feature) => $this->actingAs($this->merchant)->post(route('features.discount', ['feature' => $feature->id]), [
-            'discount_id' => $discount->id
-        ])->assertSessionMissing('errror'));
-
         $this->actingAs($this->merchant)->post(route('orders.store'), [
             ...['features' => $features],
             ...Order::factory()->make()->toArray()
@@ -578,28 +589,30 @@ class OrderTest extends TestCase
     {
         $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
         $stock = rand(1, 10);
+        $discount = 0.5;
         $features = Feature::factory(rand(1, 10))->create(['item_id' => $item->id, 'price' => rand(1, 100) * 10, 'stock' => $stock])->map(
             fn ($feature) =>
-            ['id' => $feature->id, 'quantity' => $stock]
+            [
+                'id' => $feature->id,
+                'quantity' => $stock,
+                'discount' => floor($feature->price * $discount)
+            ]
         )->toArray();
-        $percentage = 50;
-        $discount = Discount::factory()->create(['percentage' => $percentage * 100, 'merchant_id' => $this->merchant->merchant->id]);
 
-        Feature::where('item_id', $item->id)->get()->each(fn ($feature) => $this->actingAs($this->merchant)->post(route('features.discount', ['feature' => $feature->id]), [
-            'discount_id' => $discount->id
-        ])->assertSessionMissing('errror'));
-
-        $orderDiscount = (float)(Feature::with(['discounts'])->get()->reduce(fn ($carry, $v) => ($v->price - $v->totalDiscount()) * collect($features)->first(fn ($f) => $f['id'] == $v->id)['quantity'] + $carry, 0));
+        $halfDiscount = (float)(Feature::all()->reduce(
+            fn ($carry, $v) => $v->price * $discount * collect($features)->first(fn ($f) => $f['id'] == $v->id)['quantity'] + $carry,
+            0
+        ));
 
         $this->actingAs($this->merchant)->post(route('orders.store'), [
-            ...['features' => $features, 'discount' => $orderDiscount + 1],
+            ...['features' => $features, 'discount' => $halfDiscount + 1],
             ...Order::factory()->make()->toArray()
         ]);
 
         $this->assertDatabaseCount('orders', 0);
 
         $this->actingAs($this->merchant)->post(route('orders.store'), [
-            ...['features' => $features, 'discount' => $orderDiscount],
+            ...['features' => $features, 'discount' => $halfDiscount],
             ...Order::factory()->make()->toArray()
         ]);
 

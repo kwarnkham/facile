@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Enums\ResponseStatus;
-use App\Models\Discount;
 use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Purchase;
@@ -49,32 +48,6 @@ class ItemFeatureTest extends TestCase
 
         $this->assertDatabaseCount('features', 1);
         $this->assertEquals(Feature::first()->stock, $oldStock);
-    }
-
-    public function test_apply_a_discount()
-    {
-        $discount = Discount::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
-        $feature = Feature::factory()->for(Item::factory()->state(['merchant_id' => $this->merchant->merchant->id]))->create();
-        $this->actingAs($this->merchant)->post(route('features.discount', ['feature' => $feature->id]), [
-            'discount_id' => $discount->id
-        ]);
-
-        $this->assertDatabaseCount('discountables', 1);
-        $this->assertEquals($feature->fresh()->discounts->count(), 1);
-    }
-
-    public function test_total_discount_limit()
-    {
-        $discount = Discount::factory()->create(['merchant_id' => $this->merchant->merchant->id, 'percentage' => 60]);
-        $feature = Feature::factory()->for(Item::factory()->state(['merchant_id' => $this->merchant->merchant->id]))->create();
-        $this->actingAs($this->merchant)->post(route('features.discount', ['feature' => $feature->id]), [
-            'discount_id' => $discount->id
-        ]);
-
-        $discount = Discount::factory()->create(['merchant_id' => $this->merchant->merchant->id, 'percentage' => 60]);
-        $this->actingAs($this->merchant)->post(route('features.discount', ['feature' => $feature->id]), [
-            'discount_id' => $discount->id
-        ])->assertSessionHas('error');
     }
 
     public function test_purchase_is_created_with_feature()

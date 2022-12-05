@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFeatureRequest;
 use App\Http\Requests\UpdateFeatureRequest;
-use App\Models\Discount;
 use App\Models\Feature;
 use App\Models\Item;
 use Illuminate\Support\Facades\DB;
@@ -32,18 +31,6 @@ class FeatureController extends Controller
             'features' => $features,
             'filters' => $filters
         ]);
-    }
-
-    public function discount(Feature $feature)
-    {
-        request()->validate([
-            'discount_id' => ['required', 'exists:discounts,id']
-        ]);
-        if ($feature->totalDiscountPercentage() + Discount::find(request()->discount_id)->percentage > 100) {
-            return Redirect::back()->with('error', 'Discount is greater than 100%');
-        };
-        $feature->discounts()->attach(request()->discount_id);
-        return Redirect::back()->with('message', 'success');
     }
 
     /**

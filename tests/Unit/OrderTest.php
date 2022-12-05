@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use App\Models\Discount;
 use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Order;
@@ -14,12 +13,17 @@ class OrderTest extends TestCase
     {
 
         $data = ['merchant_id' => $this->merchant->merchant->id];
-        $features = Feature::factory()->for(Item::factory()->state($data))->has(Discount::factory(2)->state($data))->create();
+        $features = Feature::factory()->for(Item::factory()->state($data))->create();
 
-        $order = Order::factory()->create(['amount' => Feature::all()->reduce(fn ($carry, $v) => $carry + $v->price, 0), 'merchant_id' => $this->merchant->merchant->id]);
+        $order = Order::factory()->create([
+            'amount' => Feature::all()->reduce(fn ($carry, $v) => $carry + $v->price, 0), 'merchant_id' => $this->merchant->merchant->id,
+        ]);
 
-        $features->each(fn ($f) => $order->features()->attach($f->id, ['price' => $f->price, 'quantity' => rand(1, 10), 'discount' => $f->totalDiscount()]));
+        $features->each(fn ($f) => $order->features()->attach($f->id, ['price' => $f->price, 'quantity' => rand(1, 10), 'discount' => floor($f->price * 0.1)]));
 
-        $this->assertEquals($order->getFeatureDiscounts(), $order->features->reduce(fn ($carry, $val) => $carry + ($val->totalDiscount() * $val->pivot->quantity), 0));
+        $this->assertEquals(
+            $order->getFeatureDiscounts(),
+            $order->features->reduce(fn ($carry, $val) => $carry + ($val->pivot->discount * $val->pivot->quantity), 0)
+        );
     }
 }
