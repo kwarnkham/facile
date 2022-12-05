@@ -74,10 +74,17 @@ const isWholesalesExpanded = ref(false);
                 "
             >
                 <img
+                    v-if="feature.pictures.length"
                     :src="feature.pictures[0]?.name"
                     :alt="feature.name"
                     class="h-full w-auto"
                 />
+                <div
+                    v-else
+                    class="w-full h-full flex justify-center items-center"
+                >
+                    {{ feature.name }}
+                </div>
             </div>
         </div>
         <div

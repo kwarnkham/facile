@@ -28,7 +28,7 @@ createInertiaApp({
     },
 });
 
-InertiaProgress.init({ color: '#4B5563' });
+InertiaProgress.init({ color: '#4B5563', delay: 250, showSpinner: false, });
 
 // window.addEventListener('popstate', (event) => {
 //     event.stopImmediatePropagation();
