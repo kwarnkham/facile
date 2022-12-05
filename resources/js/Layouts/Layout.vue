@@ -93,14 +93,14 @@ const cartItems = computed(() => {
                 }"
                 >Login</Link
             >
-            <Link
+            <!-- <Link
                 :href="route('register')"
                 :class="{
                     'font-semibold underline pointer-events-none':
                         $page.props.ziggy.location == route('register'),
                 }"
                 >Register</Link
-            >
+            > -->
         </div>
         <div
             class="absolute bottom-10 right-4 rounded-md px-2 py-1 text-sm font-semibold shadow-md"
