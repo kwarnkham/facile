@@ -135,7 +135,7 @@ class OrderTest extends TestCase
             'amount' => $madeOrder['amount']
         ]);
 
-        $time = (clone $order->updated_at)->addHours(24);
+        $time = (clone $order->updated_at)->addHours(25);
         $this->travelTo($time);
         $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]))->assertSessionHas('message', 'Cannot cancel a paid order after 24 hours');
         $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
