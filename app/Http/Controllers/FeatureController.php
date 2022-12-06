@@ -90,7 +90,7 @@ class FeatureController extends Controller
      */
     public function edit(Feature $feature)
     {
-        return Inertia::render('EditFeature', ['feature' => $feature->load(['item', 'pictures']), 'edit' => request()->edit ?? 'info']);
+        return Inertia::render('EditFeature', ['feature' => $feature->load(['item', 'pictures', 'batches']), 'edit' => request()->edit ?? 'info']);
     }
 
     /**

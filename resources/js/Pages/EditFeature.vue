@@ -7,7 +7,7 @@ import InputLabel from "@/Components/InputLabel.vue";
 import PicturePicker from "@/Components/PicturePicker.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
-import { PlusIcon } from "@heroicons/vue/24/solid";
+import { InformationCircleIcon, PlusIcon } from "@heroicons/vue/24/solid";
 import { Inertia } from "@inertiajs/inertia";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 import pickBy from "lodash/pickBy";
@@ -67,6 +67,11 @@ const purchase = () => {
             preserveState: false,
         });
 };
+const showBatchesDialog = ref(false);
+
+const showBatches = () => {
+    showBatchesDialog.value = true;
+};
 </script>
 
 <template>
@@ -124,6 +129,10 @@ const purchase = () => {
                     <div class="flex flex-row items-center">
                         <InputLabel for="stock" value="Stock" />
                         <PlusIcon class="w-6 h-6" @click="showPurchaseForm" />
+                        <InformationCircleIcon
+                            class="w-6 h-6"
+                            @click="showBatches"
+                        />
                     </div>
                     <TextInput
                         id="stock"
@@ -244,6 +253,28 @@ const purchase = () => {
                     </Button>
                 </div>
             </form>
+        </Dialog>
+
+        <Dialog
+            :open="showBatchesDialog"
+            title="Batches"
+            @close="showBatchesDialog = false"
+        >
+            <div v-for="batch in feature.batches" :key="batch.id">
+                <div class="flex flex-row justify-between">
+                    <div>{{ batch.expired_on ?? "No expired date" }}</div>
+                    <div>{{ batch.stock }}</div>
+                </div>
+            </div>
+
+            <div class="text-right border-t border-t-primary border-dashed">
+                {{
+                    feature.batches.reduce(
+                        (carry, batch) => carry + batch.stock,
+                        0
+                    )
+                }}
+            </div>
         </Dialog>
     </div>
 </template>
