@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFeatureRequest;
 use App\Http\Requests\UpdateFeatureRequest;
+use App\Models\Batch;
 use App\Models\Feature;
 use App\Models\Item;
 use Illuminate\Support\Facades\DB;
@@ -57,9 +58,14 @@ class FeatureController extends Controller
         $attributes = $request->validated();
         DB::transaction(function () use ($attributes) {
             $feature = Feature::create(collect($attributes)->except('purchase_price')->toArray());
-            $feature->purchases()->create([
+            $purchase = $feature->purchases()->create([
                 'price' => $attributes['purchase_price'],
                 'quantity' => $attributes['stock']
+            ]);
+            $feature->batches()->create([
+                'purchase_id' => $purchase->id,
+                'expired_on' => $attributes['expired_on'] ?? null,
+                'stock' => $attributes['stock']
             ]);
         });
         return Redirect::route('features.index', ['item_id' => $attributes['item_id']]);
@@ -105,13 +111,20 @@ class FeatureController extends Controller
     {
         $attributes = request()->validate([
             'price' => ['required', 'numeric', 'gt:0'],
-            'quantity' => ['required', 'numeric', 'gt:0']
+            'quantity' => ['required', 'numeric', 'gt:0'],
+            'expired_on' => ['sometimes', 'required', 'date']
         ]);
 
         return Redirect::back()->with('message', DB::transaction(function () use ($feature, $attributes) {
-            $feature->purchases()->create($attributes);
+            $purchase = $feature->purchases()->create($attributes);
             $feature->stock += $attributes['quantity'];
-            return $feature->save();
+            $feature->save();
+            $feature->batches()->create([
+                'purchase_id' => $purchase->id,
+                'expired_on' => $attributes['expired_on'] ?? null,
+                'stock' => $attributes['quantity']
+            ]);
+            return true;
         }) ? 'Success' : 'Failed');
     }
 

@@ -12,7 +12,7 @@ class Order extends Model
 
     public function features()
     {
-        return $this->belongsToMany(Feature::class)->withPivot(['quantity', 'price', 'discount'])->withTimestamps();
+        return $this->belongsToMany(Feature::class)->withPivot(['quantity', 'price', 'discount', 'batch_id'])->withTimestamps();
     }
 
     public function merchantPayments()

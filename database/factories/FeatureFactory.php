@@ -18,7 +18,7 @@ class FeatureFactory extends Factory
     {
         return [
             'name' => fake()->unique()->name(),
-            'stock' => fake()->numberBetween(1, 10),
+            'stock' => fake()->numberBetween(10, 20),
             'price' => fake()->numberBetween(1000, 10000),
         ];
     }

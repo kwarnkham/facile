@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\OrderStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Models\Batch;
 use App\Models\Credit;
 use App\Models\Feature;
 use App\Models\Order;
@@ -92,6 +93,10 @@ class OrderController extends Controller
                     if ($feature->type != 2) {
                         $feature->stock += $feature->pivot->quantity;
                         $feature->save();
+
+                        $batch = Batch::find($feature->pivot->batch_id);
+                        $batch->stock += $feature->pivot->quantity;
+                        $batch->save();
                     }
                 });
 
@@ -145,6 +150,8 @@ class OrderController extends Controller
             $features->each(function ($val) use (&$feature) {
                 if ($val->id == $feature['id']) {
                     $feature['price'] = $val->price;
+                    $feature['batch'] = $val->batches()->where('stock', '>', 0)->orderBy('expired_on')->first();
+                    $feature['batch_id'] = $feature['batch']->id;
                 }
             });
             return $feature;
@@ -172,7 +179,8 @@ class OrderController extends Controller
                 collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => [
                     'quantity' => $feature['quantity'],
                     'price' => $feature['price'],
-                    'discount' => $feature['discount'] ?? 0
+                    'discount' => $feature['discount'] ?? 0,
+                    'batch_id' => $feature['batch_id']
                 ]])->toArray()
             );
 
@@ -180,6 +188,10 @@ class OrderController extends Controller
                 $feature = Feature::find($val['id']);
                 $feature->stock -= $val['quantity'];
                 $feature->save();
+
+                $batch = $val['batch'];
+                $batch->stock -= $val['quantity'];
+                $batch->save();
             }
             return $order;
         });

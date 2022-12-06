@@ -23,6 +23,11 @@ class Feature extends Model
         return $this->morphMany(Purchase::class, 'purchasable');
     }
 
+    public function batches()
+    {
+        return $this->hasMany(Batch::class);
+    }
+
     public function pictures()
     {
         return $this->morphMany(Picture::class, 'pictureable')->orderBy('id', 'desc');
@@ -30,7 +35,7 @@ class Feature extends Model
 
     public function orders()
     {
-        return $this->belongsToMany(Order::class)->withPivot(['quantity', 'price', 'discount'])->withTimestamps();
+        return $this->belongsToMany(Order::class)->withPivot(['quantity', 'price', 'discount', 'fetures'])->withTimestamps();
     }
 
     public function scopeFilter(Builder $query, $filters)

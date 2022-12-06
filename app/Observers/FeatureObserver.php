@@ -24,7 +24,6 @@ class FeatureObserver
      */
     public function updated(Feature $feature)
     {
-        //
     }
 
     /**
