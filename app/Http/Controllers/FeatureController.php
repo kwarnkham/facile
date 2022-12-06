@@ -57,7 +57,7 @@ class FeatureController extends Controller
     {
         $attributes = $request->validated();
         DB::transaction(function () use ($attributes) {
-            $feature = Feature::create(collect($attributes)->except('purchase_price')->toArray());
+            $feature = Feature::create(collect($attributes)->except('purchase_price', 'expired_on')->toArray());
             $purchase = $feature->purchases()->create([
                 'price' => $attributes['purchase_price'],
                 'quantity' => $attributes['stock']
@@ -116,7 +116,7 @@ class FeatureController extends Controller
         ]);
 
         return Redirect::back()->with('message', DB::transaction(function () use ($feature, $attributes) {
-            $purchase = $feature->purchases()->create($attributes);
+            $purchase = $feature->purchases()->create(collect($attributes)->except('expired_on')->toArray());
             $feature->stock += $attributes['quantity'];
             $feature->save();
             $feature->batches()->create([

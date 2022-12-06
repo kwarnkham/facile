@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\FeatureType;
 use App\Enums\OrderStatus;
 use App\Enums\ResponseStatus;
+use App\Models\Batch;
 use App\Models\Credit;
 use App\Models\Feature;
 use App\Models\Item;
@@ -179,6 +180,32 @@ class OrderTest extends TestCase
             'amount' => floor($madeOrder['amount'] / 5),
             'picture' => 'picture.jpg'
         ])->assertSessionHasErrors(['picture']);
+    }
+
+    public function test_batch_is_reduced_with_order_created()
+    {
+        $this->makeOrder(Feature::factory(2)->make());
+        $this->assertDatabaseCount('batches', 2);
+        Batch::all()->each(function ($batch) {
+            $this->assertEquals($batch->stock, 0);
+        });
+    }
+
+    public function test_batch_is_restocked_with_order_canceled()
+    {
+        $this->makeOrder(Feature::factory(2)->make());
+        $order = Order::first();
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->payment->id,
+            'amount' => $order->amount,
+        ]);
+
+        $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]));
+
+        $this->assertDatabaseCount('batches', 2);
+        Batch::all()->each(function ($batch) {
+            $this->assertEquals($batch->stock, Purchase::find($batch->purchase_id)->quantity);
+        });
     }
 
 
@@ -358,6 +385,78 @@ class OrderTest extends TestCase
 
         $this->assertDatabaseCount('order_payment', 1);
         $this->assertEquals($order->fresh()->status, 3);
+    }
+
+    public function test_batch_stock_is_reduced_from_expired_on_order()
+    {
+        $dataFeature = Feature::factory()->make([
+            'item_id' => Item::factory()->create(['merchant_id' => $this->merchant->merchant->id])->id
+        ])->toArray();
+        $this->actingAs($this->merchant)->post(route('features.store'), [
+            ...$dataFeature,
+            ...['purchase_price' => floor($dataFeature['price'] * 0.9), 'expired_on' => now()->addDays(10)]
+        ]);
+
+        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseCount('batches', 1);
+        $this->assertDatabaseCount('purchases', 1);
+
+        $feature = Feature::first();
+        $this->actingAs($this->merchant)->post(route('features.restock', ['feature' => $feature->id]), [
+            'price' => $feature->price,
+            'quantity' => 50,
+            'expired_on' => now()->addDays(5)
+        ]);
+
+        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseCount('batches', 2);
+        $this->assertDatabaseCount('purchases', 2);
+
+        $this->actingAs($this->merchant)->post(route('features.restock', ['feature' => $feature->id]), [
+            'price' => $feature->price,
+            'quantity' => 20,
+            'expired_on' => now()->addDays(20)
+        ]);
+
+        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseCount('batches', 3);
+        $this->assertDatabaseCount('purchases', 3);
+
+        $dataFeatures = Feature::all()->map(function ($feature) {
+            return [
+                'id' => $feature->id,
+                'quantity' => 50
+            ];
+        })->toArray();
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...Order::factory()->make()->toArray(),
+            ...['features' => $dataFeatures]
+        ]);
+        $this->assertDatabaseCount('orders', 1);
+
+        $this->assertEquals(Purchase::where('quantity', 50)->first()->id, Batch::where('stock', 0)->first()->purchase_id);
+
+        $this->actingAs($this->merchant)->post(route('features.restock', ['feature' => $feature->id]), [
+            'price' => $feature->price,
+            'quantity' => 10,
+            'expired_on' => now()->addDays(4)
+        ]);
+
+        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseCount('batches', 4);
+        $this->assertDatabaseCount('purchases', 4);
+        $order = Order::first();
+        $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->payment->id,
+            'amount' => $order->amount
+        ]);
+        $this->assertDatabaseCount('order_payment', 1);
+
+        $this->actingAs($this->merchant)->post(route('orders.cancel', ['order' => $order->id]));
+        $this->assertDatabaseCount('credits', 1);
+
+        $this->assertEquals(Purchase::where('quantity', 50)->first()->id, Batch::where('stock', 50)->first()->purchase_id);
     }
 
     public function test_pay_order_that_has_discount_features()

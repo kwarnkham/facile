@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\ResponseStatus;
+use App\Models\Batch;
 use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Purchase;
@@ -23,7 +24,11 @@ class ItemFeatureTest extends TestCase
         $this->assertEquals($item->features()->first()->name, $data['name']);
         $this->actingAs($this->merchant)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
         $this->assertDatabaseCount('purchases', 1);
+        $this->assertEquals($data['stock'], Purchase::first()->quantity);
+        $this->assertDatabaseCount('batches', 1);
+        $this->assertEquals($data['stock'], Batch::first()->stock);
     }
+
 
     public function test_update_feature_of_an_item()
     {
@@ -99,6 +104,9 @@ class ItemFeatureTest extends TestCase
         ]);
         $this->assertEquals($feature->stock + $quantity, $feature->fresh()->stock);
         $this->assertDatabaseCount('purchases', 2);
-        $this->assertEquals(Purchase::orderBy('id', 'desc')->first()->price, $price);
+        $purchase = Purchase::orderBy('id', 'desc')->first();
+        $this->assertEquals($purchase->price, $price);
+        $this->assertDatabaseCount('batches', 2);
+        $this->assertEquals(Batch::orderBy('id', 'desc')->first()->stock, $purchase->quantity);
     }
 }
