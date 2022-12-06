@@ -150,7 +150,7 @@ class OrderController extends Controller
             $features->each(function ($val) use (&$feature) {
                 if ($val->id == $feature['id']) {
                     $feature['price'] = $val->price;
-                    $feature['batch'] = $val->batches()->where('stock', '>', 0)->orderBy('expired_on')->first();
+                    $feature['batch'] = $val->batches()->where('stock', '>', 0)->first();
                     $feature['batch_id'] = $feature['batch']->id;
                 }
             });

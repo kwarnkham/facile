@@ -25,7 +25,7 @@ class Feature extends Model
 
     public function batches()
     {
-        return $this->hasMany(Batch::class);
+        return $this->hasMany(Batch::class)->orderBy('expired_on');
     }
 
     public function pictures()
