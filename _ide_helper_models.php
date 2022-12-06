@@ -12,6 +12,33 @@
 
 namespace App\Models{
 /**
+ * App\Models\Batch
+ *
+ * @property int $id
+ * @property int $feature_id
+ * @property int $purchase_id
+ * @property int $stock
+ * @property string|null $expired_on
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Feature $feature
+ * @method static \Database\Factories\BatchFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch whereExpiredOn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch whereFeatureId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch wherePurchaseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch whereStock($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch whereUpdatedAt($value)
+ */
+	class Batch extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\Credit
  *
  * @property int $id
@@ -73,6 +100,8 @@ namespace App\Models{
  * @property int $type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Batch[] $batches
+ * @property-read int|null $batches_count
  * @property-read \App\Models\Item $item
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count

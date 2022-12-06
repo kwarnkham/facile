@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\FeatureType;
 use App\Enums\OrderStatus;
+use App\Enums\PurchaseStatus;
 use App\Enums\ResponseStatus;
 use App\Models\Batch;
 use App\Models\Credit;
@@ -541,5 +542,46 @@ class OrderTest extends TestCase
         $this->assertDatabaseCount('order_payment', 1);
         $this->assertEquals($order->fresh()->status,  3);
         $this->assertEquals($order->fresh()->merchantPayments->first()->pivot->note,  $note);
+    }
+
+    public function test_purchase_can_be_canceled_only_if_no_non_canceled_order_associted()
+    {
+        $dataFeature = Feature::factory()->make(['item_id' => $this->item->id]);
+        $this->actingAs($this->merchant)->post(route('features.store'), [
+            ...$dataFeature->toArray(),
+            'purchase_price' => floor($dataFeature->price * 0.5),
+            'expired_on' => now()->addDays(10)
+        ]);
+
+        $this->assertDatabaseCount('features', 1);
+
+        $this->actingAs($this->merchant)->post(route('orders.store'), [
+            ...Order::factory()->make()->toArray(),
+            'features' => Feature::all()->map(fn ($feature) => [
+                'id' => $feature->id,
+                'quantity' => $feature->stock
+            ])->toArray()
+        ]);
+        $this->assertDatabaseCount('orders', 1);
+
+        $purchase = Purchase::first();
+        $this->actingAs($this->merchant)->post(route('purchases.cancel', [
+            'purchase' => $purchase->id
+        ]));
+
+        $this->assertEquals($purchase->fresh()->status, PurchaseStatus::NORMAL->value);
+        $order = Order::first();
+        $this->actingAs($this->merchant)->post(route('orders.cancel', [
+            'order' => $order->id
+        ]));
+        $this->assertEquals($order->fresh()->status, OrderStatus::CANCELED->value);
+
+        $this->actingAs($this->merchant)->post(route('purchases.cancel', [
+            'purchase' => $purchase->id
+        ]));
+
+        $this->assertEquals($purchase->fresh()->status, PurchaseStatus::CANCELED->value);
+        $this->assertEquals(Feature::first()->stock, 0);
+        $this->assertEquals(Batch::first()->stock, 0);
     }
 }

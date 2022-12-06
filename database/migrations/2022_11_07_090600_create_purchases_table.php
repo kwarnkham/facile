@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('purchasable_type');
             $table->double('price');
             $table->integer('quantity')->default(1);
+            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
     }

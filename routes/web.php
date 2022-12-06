@@ -109,6 +109,7 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
 Route::controller(PurchaseController::class)->prefix('/purchases')->group(function () {
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('purchases.store');
+        Route::post('{purchase}', 'cancel')->name('purchases.cancel');
     });
 });
 
