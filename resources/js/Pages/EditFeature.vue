@@ -1,10 +1,13 @@
 <script setup>
+import Button from "@/Components/Button.vue";
 import Collapse from "@/Components/Collapse.vue";
+import Dialog from "@/Components/Dialog.vue";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PicturePicker from "@/Components/PicturePicker.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
+import { PlusIcon } from "@heroicons/vue/24/solid";
 import { Inertia } from "@inertiajs/inertia";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 import pickBy from "lodash/pickBy";
@@ -37,6 +40,12 @@ const form = useForm({
     item_id: props.feature.item_id,
 });
 
+const purchaseForm = useForm({
+    price: "",
+    quantity: "",
+    expired_on: "",
+});
+
 const deletingPicture = ref(false);
 const deletePicture = (id) => {
     deletingPicture.value = true;
@@ -45,6 +54,18 @@ const deletePicture = (id) => {
             deletingPicture.value = false;
         },
     });
+};
+const showPurchaseDialog = ref(false);
+const showPurchaseForm = () => {
+    showPurchaseDialog.value = true;
+};
+
+const purchase = () => {
+    purchaseForm
+        .transform((data) => pickBy(data))
+        .post(route("features.restock", { feature: props.feature.id }), {
+            preserveState: false,
+        });
 };
 </script>
 
@@ -100,7 +121,10 @@ const deletePicture = (id) => {
                 </div>
 
                 <div>
-                    <InputLabel for="stock" value="Stock" />
+                    <div class="flex flex-row items-center">
+                        <InputLabel for="stock" value="Stock" />
+                        <PlusIcon class="w-6 h-6" @click="showPurchaseForm" />
+                    </div>
                     <TextInput
                         id="stock"
                         type="number"
@@ -108,6 +132,7 @@ const deletePicture = (id) => {
                         v-model="form.stock"
                         required
                         :class="{ 'daisy-input-error': form.errors.stock }"
+                        disabled
                     />
                     <InputError :message="form.errors.stock" />
                 </div>
@@ -173,5 +198,52 @@ const deletePicture = (id) => {
                 </figure>
             </div>
         </Collapse>
+
+        <Dialog
+            :open="showPurchaseDialog"
+            title="Purchase"
+            @close="showPurchaseDialog = false"
+        >
+            <form @submit.prevent="purchase">
+                <div>
+                    <InputLabel for="purchasePrice" value="Price" />
+                    <TextInput
+                        id="purchasePrice"
+                        type="tel"
+                        class="w-full"
+                        v-model.number="purchaseForm.price"
+                        required
+                        placeholder="Amount"
+                        :autofocus="showPurchaseDialog"
+                    />
+                </div>
+                <div>
+                    <InputLabel for="purchaseQuantity" value="Quantity" />
+                    <TextInput
+                        id="purchaseQuantity"
+                        type="tel"
+                        class="w-full"
+                        v-model.number="purchaseForm.quantity"
+                        required
+                        placeholder="Quantity"
+                    />
+                </div>
+                <div>
+                    <InputLabel for="expiredOn" value="Expire Date" />
+                    <TextInput
+                        id="expiredOn"
+                        type="date"
+                        class="w-full"
+                        v-model="purchaseForm.expired_on"
+                        placeholder="Expire Date"
+                    />
+                </div>
+                <div class="text-right pt-2">
+                    <Button :disabled="purchaseForm.processing" type="submit">
+                        Make Payment
+                    </Button>
+                </div>
+            </form>
+        </Dialog>
     </div>
 </template>

@@ -379,7 +379,7 @@ const isPaymentInfoExpanded = ref(false);
             <div class="text-right pt-2">
                 <button
                     class="daisy-btn daisy-btn-success daisy-btn-sm capitalize"
-                    :disabled="!canMakePayment"
+                    :disabled="!canMakePayment || paymentForm.processing"
                     @click="submitPayment"
                 >
                     Make Payment
