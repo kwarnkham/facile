@@ -1,9 +1,8 @@
 <script setup>
 import Button from "@/Components/Button.vue";
-import Dialog from "@/Components/Dialog.vue";
+import useConfirm from "@/Composables/confirm";
 import { Inertia } from "@inertiajs/inertia";
 import { Head } from "@inertiajs/inertia-vue3";
-import { ref } from "vue";
 
 const props = defineProps({
     purchases: {
@@ -11,17 +10,10 @@ const props = defineProps({
         required: true,
     },
 });
-const confirm = ref(false);
-const purchaseBeingCanceled = ref(null);
-const confirmCancelPurchase = (purchase) => {
-    confirm.value = true;
-    purchaseBeingCanceled.value = purchase;
-};
-const cancelPurchase = () => {
-    confirm.value = false;
-    Inertia.post(
-        route("purchases.cancel", { purchase: purchaseBeingCanceled.value.id })
-    );
+const { confirm } = useConfirm();
+
+const cancelPurchase = (purchase) => {
+    Inertia.post(route("purchases.cancel", { purchase: purchase.id }));
 };
 </script>
 
@@ -43,18 +35,16 @@ const cancelPurchase = () => {
             </div>
             <div class="text-right mb-1">
                 <Button
-                    @click="confirmCancelPurchase(purchase)"
+                    @click="
+                        confirm(() => {
+                            cancelPurchase(purchase);
+                        })
+                    "
                     :disabled="purchase.status == 2"
                 >
                     Cancel
                 </Button>
             </div>
         </div>
-        <Dialog title="Confirm cancel" :open="confirm">
-            <div class="flex flex-row justify-end space-x-2">
-                <Button @click="cancelPurchase"> Yes </Button>
-                <Button @click="confirm = false"> Cancel </Button>
-            </div>
-        </Dialog>
     </div>
 </template>

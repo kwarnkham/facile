@@ -4,6 +4,8 @@ import { HomeIcon, ArrowLeftIcon } from "@heroicons/vue/24/outline";
 import { usePage, Link } from "@inertiajs/inertia-vue3";
 import { ShoppingCartIcon } from "@heroicons/vue/24/solid";
 import { store } from "@/store";
+import Dialog from "@/Components/Dialog.vue";
+import Button from "@/Components/Button.vue";
 
 const message = ref("");
 const back = () => {
@@ -18,6 +20,23 @@ const flashMessage = (incoming) => {
 const updateMessage = (newValue) => {
     flashMessage(newValue);
 };
+const openConfirmDialog = ref(false);
+const confirmInvoke = ref(() => {});
+const updateConfirmInvoke = (payload) => {
+    confirmInvoke.value = payload;
+};
+const confirmInvokeAndClose = () => {
+    confirmInvoke.value();
+    openConfirmDialog.value = false;
+};
+const updateOpenConfirmDialog = (payload) => {
+    openConfirmDialog.value = payload;
+};
+
+provide("confirmDialog", {
+    updateOpenConfirmDialog,
+    updateConfirmInvoke,
+});
 provide("message", {
     message,
     updateMessage,
@@ -115,5 +134,11 @@ const cartItems = computed(() => {
         >
             {{ message }}
         </div>
+        <Dialog :open="openConfirmDialog" title="Confirm">
+            <div class="flex flex-row justify-end space-x-2">
+                <Button @click="openConfirmDialog = false">No</Button>
+                <Button @click="confirmInvokeAndClose">Yes</Button>
+            </div>
+        </Dialog>
     </div>
 </template>
