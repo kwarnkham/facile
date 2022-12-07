@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Expense;
+use Inertia\Inertia;
+use Redirect;
 
 class ExpenseController extends Controller
 {
@@ -25,7 +27,7 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Expenses', ['expenses' => Expense::all()]);
     }
 
     /**
@@ -36,7 +38,18 @@ class ExpenseController extends Controller
      */
     public function store(StoreExpenseRequest $request)
     {
-        //
+        $attributes = $request->validated();
+        $attributes['merchant_id'] = $request->user()->merchant->id;
+        Expense::create($attributes);
+    }
+
+    public function record(Expense $expense)
+    {
+        $attributes = request()->validate([
+            'price' => ['required', 'numeric']
+        ]);
+        $expense->purchases()->create($attributes);
+        return Redirect::back()->with('message', 'Success');
     }
 
     /**

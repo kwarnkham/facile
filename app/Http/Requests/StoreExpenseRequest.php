@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreExpenseRequest extends FormRequest
 {
@@ -13,7 +14,7 @@ class StoreExpenseRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return $this->user()->hasRole('merchant');
     }
 
     /**
@@ -24,7 +25,7 @@ class StoreExpenseRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => ['required', 'string', Rule::unique('expenses')->where('merchant_id', $this->user()->merchant->id)]
         ];
     }
 }

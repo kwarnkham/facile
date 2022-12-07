@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MerchantPaymentController;
@@ -110,6 +111,15 @@ Route::controller(PurchaseController::class)->prefix('/purchases')->group(functi
     Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
         Route::post('', 'store')->name('purchases.store');
         Route::post('{purchase}', 'cancel')->name('purchases.cancel');
+        Route::get('', 'index')->name('purchases.index');
+    });
+});
+
+Route::controller(ExpenseController::class)->prefix('/expenses')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+        Route::post('', 'store')->name('expenses.store');
+        Route::get('', 'create')->name('expenses.create');
+        Route::post('{expense}/record', 'record')->name('expenses.record');
     });
 });
 

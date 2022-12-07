@@ -11,6 +11,7 @@ use App\Models\Feature;
 use App\Models\Purchase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class PurchaseController extends Controller
 {
@@ -21,7 +22,7 @@ class PurchaseController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Purchases', ['purchases' => Purchase::all()]);
     }
 
     /**

@@ -11,6 +11,6 @@ class Expense extends Model
 
     public function purchases()
     {
-        return $this->hasMany(Purchase::class);
+        return $this->morphMany(Purchase::class, 'purchasable');
     }
 }

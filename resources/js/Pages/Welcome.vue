@@ -12,6 +12,12 @@ import { Head } from "@inertiajs/inertia-vue3";
         <button @click="$inertia.visit(route('merchant_payments.index'))">
             Payments
         </button>
+        <button @click="$inertia.visit(route('expenses.create'))">
+            Expenses
+        </button>
+        <button @click="$inertia.visit(route('purchases.index'))">
+            Purchases
+        </button>
         <button
             @click="$inertia.post(route('logout'))"
             v-if="$page.props.auth.user"
