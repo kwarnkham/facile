@@ -22,7 +22,9 @@ class PurchaseController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Purchases', ['purchases' => Purchase::all()]);
+        return Inertia::render('Purchases', [
+            'purchases' => Purchase::with(['purchasable'])->get()
+        ]);
     }
 
     /**
