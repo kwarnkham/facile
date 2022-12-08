@@ -35,6 +35,13 @@ class DatabaseSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now
             ],
+            [
+                'name' => 'merchant2',
+                'email' => 'merchant2@gmail.com',
+                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
 
         ]);
         DB::table('role_user')->insert([
@@ -50,10 +57,23 @@ class DatabaseSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now
             ],
+            [
+                'role_id' => 2,
+                'user_id' => 3,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
         ]);
         DB::table('merchants')->insert([
             [
                 'user_id' => 2,
+                'address' => 'merchant address',
+                'description' => 'merchant business description',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'user_id' => 3,
                 'address' => 'merchant address',
                 'description' => 'merchant business description',
                 'created_at' => $now,
