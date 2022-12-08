@@ -3,48 +3,30 @@ import Button from "@/Components/Button.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import Pagination from "@/Components/Pagination.vue";
 import TextInput from "@/Components/TextInput.vue";
-import { MagnifyingGlassCircleIcon, PlusIcon } from "@heroicons/vue/24/solid";
+import { MagnifyingGlassCircleIcon } from "@heroicons/vue/24/solid";
 import { Head } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
 
 const props = defineProps({
-    item: {
-        required: true,
-        type: Object,
-    },
     features: {
-        required: true,
         type: Object,
+        required: true,
     },
     filters: {
         type: Object,
-        default: () => ({}),
     },
 });
 
 const query = ref({
     search: props.filters.search ?? "",
     stocked: Boolean(props.filters.stocked) ?? false,
-    item_id: props.item.id,
+    merchant_id: props.filters.merchant_id,
 });
 </script>
 
 <template>
-    <div class="p-1 h-full flex flex-col">
-        <Head title="Features" />
-        <div
-            class="text-lg font-bold flex flex-row items-center justify-center space-x-1"
-        >
-            <div>Features of {{ item.name }}</div>
-            <PlusIcon
-                class="h-6 text-primary w-6"
-                @click="
-                    $inertia.visit(
-                        route('features.create', { item_id: item.id })
-                    )
-                "
-            />
-        </div>
+    <div class="px-1 py-2 h-full flex flex-col">
+        <Head title="All Features" />
         <div
             class="mb-2 flex flex-row flex-nowrap justify-between items-center space-x-2"
         >
@@ -119,7 +101,7 @@ const query = ref({
         <div class="mb-5 mt-1 text-center">
             <Pagination
                 :data="features"
-                :url="route('features.index')"
+                :url="route('features.all')"
                 :query="query"
             />
         </div>

@@ -6,23 +6,35 @@ import { Head } from "@inertiajs/inertia-vue3";
 <template>
     <head title="Welcome" />
     <div class="flex flex-col h-full p-2 space-y-2">
-        <button @click="$inertia.visit(route('items.create'))">Add item</button>
-        <button @click="$inertia.visit(route('items.index'))">Item List</button>
-        <button @click="$inertia.visit(route('orders.index'))">Orders</button>
-        <button @click="$inertia.visit(route('merchant_payments.index'))">
+        <Button @click="$inertia.visit(route('items.create'))">Add item</Button>
+        <Button @click="$inertia.visit(route('items.index'))">Item List</Button>
+        <Button @click="$inertia.visit(route('orders.index'))">Orders</Button>
+        <Button @click="$inertia.visit(route('merchant_payments.index'))">
             Payments
-        </button>
-        <button @click="$inertia.visit(route('expenses.create'))">
+        </Button>
+        <Button @click="$inertia.visit(route('expenses.create'))">
             Expenses
-        </button>
-        <button @click="$inertia.visit(route('purchases.index'))">
+        </Button>
+        <Button @click="$inertia.visit(route('purchases.index'))">
             Purchases
-        </button>
-        <button
+        </Button>
+        <Button
+            @click="
+                $inertia.visit(
+                    route('features.all', {
+                        merchant_id: $page.props.auth.user.merchant.id,
+                    })
+                )
+            "
+        >
+            All Features
+        </Button>
+
+        <Button
             @click="$inertia.post(route('logout'))"
             v-if="$page.props.auth.user"
         >
             Logout
-        </button>
+        </Button>
     </div>
 </template>

@@ -8,6 +8,7 @@ use App\Models\Batch;
 use App\Models\Feature;
 use App\Models\Item;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -29,6 +30,22 @@ class FeatureController extends Controller
         $features = Feature::with(['pictures'])->where('item_id', $attributes['item_id'])->filter($filters)->orderBy('id', 'desc')->paginate(request()->per_page ?? 20);
         return Inertia::render('Features', [
             'item' => Item::find($attributes['item_id']),
+            'features' => $features,
+            'filters' => $filters
+        ]);
+    }
+
+    public function all()
+    {
+        request()->validate([
+            'search' => ['sometimes', 'required', 'string'],
+            'stocked' => ['boolean'],
+            'merchant_id' => ['exists:merchants,id', 'required']
+        ]);
+
+        $filters = request()->only(['search', 'stocked', 'merchant_id']);
+        $features = Feature::with(['pictures'])->whereRelation('item', 'merchant_id', request()->merchant_id)->filter($filters)->orderBy('id', 'desc')->paginate(request()->per_page ?? 20);
+        return Inertia::render('AllFeatures', [
             'features' => $features,
             'filters' => $filters
         ]);
