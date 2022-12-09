@@ -23,8 +23,12 @@ class ExpenseTest extends TestCase
         );
         $this->assertDatabaseCount('expenses', 1);
 
-        $user = User::factory()->has(Merchant::factory())->create();
-        $user->roles()->attach(Role::where('name', 'merchant')->first());
+        $merchant = Merchant::factory()->create();
+        $user = User::factory()->create();
+        $user->merchants()->attach($merchant);
+        $user->active_merchant_id = $merchant->id;
+        $user->save();
+
         $this->actingAs(User::find($user->id))->post(
             route('expenses.store'),
             $dataExpense->toArray()

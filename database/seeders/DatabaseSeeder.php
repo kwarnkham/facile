@@ -18,8 +18,25 @@ class DatabaseSeeder extends Seeder
         $now = now();
         DB::table('roles')->insert([
             ['name' => 'admin', 'created_at' => $now, 'updated_at' => $now],
-            ['name' => 'merchant', 'created_at' => $now, 'updated_at' => $now],
         ]);
+
+        DB::table('merchants')->insert([
+            [
+                'name' => 'merchant name',
+                'address' => 'merchant address',
+                'description' => 'merchant business description',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'name' => 'merchant name',
+                'address' => 'merchant address',
+                'description' => 'merchant business description',
+                'created_at' => $now,
+                'updated_at' => $now
+            ]
+        ]);
+
         DB::table('users')->insert([
             [
                 'name' => 'admin',
@@ -32,6 +49,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'merchant',
                 'email' => 'merchant@gmail.com',
                 'password' => '$2y$10$XVaseaCA.MTLMDMPeC0lVuuRvZNRagUlB3E2kfXJk/slvshzPbyL2',
+                'active_merchant_id' => 1,
                 'created_at' => $now,
                 'updated_at' => $now
             ],
@@ -39,11 +57,30 @@ class DatabaseSeeder extends Seeder
                 'name' => 'merchant2',
                 'email' => 'merchant2@gmail.com',
                 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+                'active_merchant_id' => 2,
                 'created_at' => $now,
                 'updated_at' => $now
             ],
 
         ]);
+
+        DB::table('merchant_user')->insert([
+            [
+                'user_id' => 2,
+                'merchant_id' => 1,
+                'is_owner' => true,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'user_id' => 3,
+                'merchant_id' => 2,
+                'is_owner' => true,
+                'created_at' => $now,
+                'updated_at' => $now
+            ]
+        ]);
+
         DB::table('role_user')->insert([
             [
                 'role_id' => 1,
@@ -51,35 +88,9 @@ class DatabaseSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now
             ],
-            [
-                'role_id' => 2,
-                'user_id' => 2,
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
-            [
-                'role_id' => 2,
-                'user_id' => 3,
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
         ]);
-        DB::table('merchants')->insert([
-            [
-                'user_id' => 2,
-                'address' => 'merchant address',
-                'description' => 'merchant business description',
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
-            [
-                'user_id' => 3,
-                'address' => 'merchant address',
-                'description' => 'merchant business description',
-                'created_at' => $now,
-                'updated_at' => $now
-            ]
-        ]);
+
+
         DB::table('payments')->insert([
             [
                 'name' => 'Cash',

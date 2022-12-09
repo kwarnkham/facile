@@ -10,9 +10,11 @@ class Merchant extends Model
 {
     use HasFactory, Spaceable;
 
-    public function user()
+
+
+    public function users()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(User::class)->withPivot(['is_owner'])->withTimestamps();
     }
 
     public function orders()

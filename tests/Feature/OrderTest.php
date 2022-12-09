@@ -312,7 +312,11 @@ class OrderTest extends TestCase
         $this->assertDatabaseCount('order_payment', 2);
         $this->assertEquals($order->fresh()->status,  2);
 
-        $user = User::factory()->hasAttached(Role::where('name', 'merchant')->first())->has(Merchant::factory())->create();
+        $merchant = Merchant::factory()->create();
+        $user = User::factory()->create();
+        $user->merchants()->attach($merchant);
+        $user->active_merchant_id = $merchant->id;
+        $user->save();
         $user->merchant->payments()->attach(Payment::factory()->create());
 
         $this->actingAs($this->merchant)->post(route('orders.pay', ['order' => $order->id]), [

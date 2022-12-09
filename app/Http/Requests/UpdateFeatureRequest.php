@@ -14,7 +14,7 @@ class UpdateFeatureRequest extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()->hasRole('merchant') && $this->item_id == $this->feature->item_id;
+        return !is_null($this->user()->merchant) && $this->item_id == $this->feature->item_id;
     }
 
     /**

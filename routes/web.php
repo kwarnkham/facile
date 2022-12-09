@@ -41,7 +41,7 @@ Route::get('/dashboard', function () {
 
 
 Route::controller(ItemController::class)->prefix('/items')->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+    Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::post('', 'store')->name('items.store');
         Route::get('create', 'create')->name('items.create');
         Route::get('{item}/edit', 'edit')->name('items.edit');
@@ -52,14 +52,14 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
 });
 
 Route::controller(PictureController::class)->prefix('/pictures')->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+    Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::post('', 'store')->name('pictures.store');
         Route::delete('{picture}', 'destroy')->name('pictures.destroy');
     });
 });
 
 Route::controller(TagController::class)->prefix('/tags')->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+    Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::post('', 'store')->name('tags.store');
         Route::post('{tag}/attach', 'toggle')->name('tags.toggle');
     });
@@ -67,7 +67,7 @@ Route::controller(TagController::class)->prefix('/tags')->group(function () {
 
 
 Route::controller(FeatureController::class)->prefix('/features')->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+    Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::get('all', 'all')->name('features.all');
         Route::post('', 'store')->name('features.store');
         Route::get('create', 'create')->name('features.create');
@@ -80,7 +80,7 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
 });
 
 Route::controller(MerchantPaymentController::class)->prefix('/merchant-payments')->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+    Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::post('', 'store')->name('merchant_payments.store');
         Route::get('', 'index')->name('merchant_payments.index');
         Route::post('{merchantPayment}', 'toggle')->name('merchant_payments.toggle');
@@ -88,7 +88,7 @@ Route::controller(MerchantPaymentController::class)->prefix('/merchant-payments'
 });
 
 Route::controller(WholesaleController::class)->prefix('/wholesales')->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+    Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::post('', 'store')->name('wholesales.store');
         Route::get('create', 'create')->name('wholesales.create');
         Route::get('', 'index')->name('wholesales.index');
@@ -98,7 +98,7 @@ Route::controller(WholesaleController::class)->prefix('/wholesales')->group(func
 });
 
 Route::controller(OrderController::class)->prefix('/orders')->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+    Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::post('', 'store')->name('orders.store');
         Route::get('', 'index')->name('orders.index');
         Route::get('{order}', 'show')->name('orders.show');
@@ -109,7 +109,7 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
 });
 
 Route::controller(PurchaseController::class)->prefix('/purchases')->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+    Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::post('', 'store')->name('purchases.store');
         Route::post('{purchase}', 'cancel')->name('purchases.cancel');
         Route::get('', 'index')->name('purchases.index');
@@ -117,7 +117,7 @@ Route::controller(PurchaseController::class)->prefix('/purchases')->group(functi
 });
 
 Route::controller(ExpenseController::class)->prefix('/expenses')->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+    Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::post('', 'store')->name('expenses.store');
         Route::get('', 'create')->name('expenses.create');
         Route::post('{expense}/record', 'record')->name('expenses.record');
@@ -125,7 +125,7 @@ Route::controller(ExpenseController::class)->prefix('/expenses')->group(function
 });
 
 Route::controller(RouteController::class)->group(function () {
-    Route::middleware(['auth', 'verified', 'role:merchant'])->group(function () {
+    Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::get('cart', 'cart')->name('routes.cart');
         Route::get('checkout', 'checkout')->name('routes.checkout');
     });

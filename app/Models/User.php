@@ -43,9 +43,15 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class)->withTimestamps();
     }
 
+
+    public function merchants()
+    {
+        return $this->belongsToMany(Merchant::class)->withPivot(['is_owner'])->withTimestamps();
+    }
+
     public function merchant()
     {
-        return $this->hasOne(Merchant::class);
+        return $this->belongsTo(Merchant::class, 'active_merchant_id');
     }
 
     /**

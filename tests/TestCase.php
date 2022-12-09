@@ -5,7 +5,6 @@ namespace Tests;
 use App\Models\Merchant;
 use App\Models\MerchantPayment;
 use App\Models\Payment;
-use App\Models\Role;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,7 +30,9 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $this->merchant = User::factory()->has(Role::factory()->state(['name' => 'merchant']))->has(Merchant::factory())->create();
+        $this->merchant = User::factory()->has(Merchant::factory())->create();
+        $this->merchant->active_merchant_id = Merchant::first()->id;
+        $this->merchant->save();
         $this->user = User::factory()->create();
         $this->tag = Tag::factory()->create();
         $this->merchant->merchant->payments()->attach(Payment::factory()->create()->id);

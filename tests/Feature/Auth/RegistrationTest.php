@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\Role;
-use App\Models\User;
 use App\Providers\RouteServiceProvider;
 
 use Tests\TestCase;
@@ -30,27 +28,6 @@ class RegistrationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(RouteServiceProvider::HOME);
-    }
-
-    public function test_new_merchants_can_register()
-    {
-        $data = [
-            'name' => 'Test Merchnat',
-            'email' => 'merchant@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-            'role_id' => Role::where('name', 'merchant')->first()->id,
-            'description' => 'description',
-            'address' => 'address'
-        ];
-        $response = $this->post('/register', $data);
-
-        $this->assertAuthenticated();
-        $response->assertRedirect(RouteServiceProvider::HOME);
-        $user = User::where('email', $data['email'])->first();
-        $this->assertTrue($user->hasRole('merchant'));
-        $this->assertEquals($user->merchant->description, $data['description']);
-        $this->assertEquals($user->merchant->address, $data['address']);
     }
 
     public function test_cannot_register_with_invalid_role()

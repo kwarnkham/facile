@@ -14,20 +14,17 @@ class UserTest extends TestCase
     {
         $count = rand(3, 100);
         $per_page = (int)floor($count / 3);
-
-        Role::where('name', 'merchant')->first()->update(['name' => 'not merchant']);
-        $role = Role::factory()->create(['name' => 'merchant']);
-        $users = User::factory($count)->hasAttached($role)->create();
+        $existed = User::count();
+        $users = User::factory($count)->create();
         $this->get(route('users.index', [
-            'role' => 'merchant',
             'per_page' => $per_page
         ]))->assertInertia(
             fn (Assert $page) => $page->component('Users')
                 ->has('users.data', $per_page)
                 ->where('users.per_page', $per_page)
-                ->where('users.total', $count)
+                ->where('users.total', $count + $existed)
                 ->has(
-                    'users.data.0',
+                    'users.data.' . $existed,
                     fn (Assert $page) => $page
                         ->where('id', $users[0]->id)
                         ->etc()

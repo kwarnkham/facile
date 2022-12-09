@@ -53,14 +53,6 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        if ($request->exists('role_id')) {
-            $user->roles()->attach($request->role_id);
-            if ($request->role_id == Role::where('name', 'merchant')->first()->id) $user->merchant()->create([
-                'address' => $request->address,
-                'description' => $request->description
-            ]);
-        }
-
         event(new Registered($user));
 
         Auth::login($user);

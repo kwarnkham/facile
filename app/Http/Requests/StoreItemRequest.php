@@ -14,7 +14,7 @@ class StoreItemRequest extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()->hasRole('merchant');
+        return !is_null($this->user()->merchant);
     }
 
     /**

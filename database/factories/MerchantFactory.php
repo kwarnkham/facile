@@ -17,6 +17,7 @@ class MerchantFactory extends Factory
     public function definition()
     {
         return [
+            'name' => fake()->name(),
             'address' => fake()->address(),
             'description' => fake()->sentence()
         ];
