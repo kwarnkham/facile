@@ -1,5 +1,5 @@
 <script setup>
-import { computed, provide, ref, watch } from "vue";
+import { computed, onMounted, provide, ref, watch } from "vue";
 import { HomeIcon, ArrowLeftIcon } from "@heroicons/vue/24/outline";
 import { usePage, Link } from "@inertiajs/inertia-vue3";
 import { ShoppingCartIcon } from "@heroicons/vue/24/solid";
@@ -60,10 +60,21 @@ watch(
 const cartItems = computed(() => {
     return store.cart.items;
 });
+onMounted(() => {
+    const setHeight = () => {
+        const vh = window.innerHeight * 0.01;
+        document.querySelector(".layout").style.setProperty("--vh", `${vh}px`);
+    };
+    setHeight();
+    window.addEventListener("resize", setHeight);
+});
 </script>
 
 <template>
-    <div class="h-screen w-screen flex flex-col relative" data-theme="garden">
+    <div
+        class="h-screen w-screen flex flex-col relative layout"
+        data-theme="garden"
+    >
         <div class="flex-grow flex-shrink-0 basis-0 overflow-y-auto">
             <slot />
         </div>
@@ -142,3 +153,9 @@ const cartItems = computed(() => {
         </Dialog>
     </div>
 </template>
+
+<style scoped>
+.layout {
+    height: calc(var(--vh, 1vh) * 100);
+}
+</style>
