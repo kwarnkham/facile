@@ -19,6 +19,7 @@ const form = useForm({
     stock: "1",
     note: "",
     item_id: props.item.id,
+    expired_on: null,
 });
 const submit = () => {
     form.transform((data) => pickBy(data)).post(route("features.store"));
@@ -87,6 +88,19 @@ const submit = () => {
                     :class="{ 'daisy-input-error': form.errors.stock }"
                 />
                 <InputError :message="form.errors.stock" />
+            </div>
+
+            <div>
+                <InputLabel for="expireDate" value="Expire Date" />
+                <TextInput
+                    id="expireDate"
+                    type="date"
+                    class="w-full"
+                    v-model="form.expired_on"
+                    required
+                    :class="{ 'daisy-input-error': form.errors.expired_on }"
+                />
+                <InputError :message="form.errors.expired_on" />
             </div>
 
             <div>
