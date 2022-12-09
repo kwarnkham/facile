@@ -349,9 +349,9 @@ const isPaymentInfoExpanded = ref(false);
                 <InputLabel for="paymentAmount" value="Amount" />
                 <TextInput
                     id="paymentAmount"
-                    type="number"
+                    type="tel"
                     class="w-full"
-                    v-model="paymentForm.amount"
+                    v-model.number="paymentForm.amount"
                     required
                     :class="{
                         'daisy-input-error': !canMakePayment,

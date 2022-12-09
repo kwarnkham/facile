@@ -233,9 +233,9 @@ const submitWholesale = () => {
                     <InputLabel for="quantity" value="Quantity" />
                     <TextInput
                         id="quantity"
-                        type="number"
+                        type="tel"
                         class="w-full"
-                        v-model="wholesaleForm.quantity"
+                        v-model.number="wholesaleForm.quantity"
                         required
                         autofocus
                         :class="{
@@ -249,9 +249,9 @@ const submitWholesale = () => {
                     <InputLabel for="price" value="Price" />
                     <TextInput
                         id="price"
-                        type="number"
+                        type="tel"
                         class="w-full"
-                        v-model="wholesaleForm.price"
+                        v-model.number="wholesaleForm.price"
                         required
                         autofocus
                         :class="{

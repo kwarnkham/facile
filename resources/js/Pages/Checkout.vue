@@ -48,7 +48,7 @@ const submit = () => {
                 <InputLabel for="phone" value="Phone" />
                 <TextInput
                     id="phone"
-                    type="phone"
+                    type="tel"
                     class="w-full"
                     v-model="form.phone"
                     :class="{ 'daisy-input-error': form.errors.phone }"

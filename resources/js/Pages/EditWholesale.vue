@@ -42,9 +42,9 @@ const submit = () => {
                 <InputLabel for="quantity" value="Quantity" />
                 <TextInput
                     id="quantity"
-                    type="number"
+                    type="tel"
                     class="w-full"
-                    v-model="form.quantity"
+                    v-model.number="form.quantity"
                     required
                     autofocus
                     :class="{
@@ -58,9 +58,9 @@ const submit = () => {
                 <InputLabel for="price" value="Price" />
                 <TextInput
                     id="price"
-                    type="number"
+                    type="tel"
                     class="w-full"
-                    v-model="form.price"
+                    v-model.number="form.price"
                     required
                     autofocus
                     :class="{

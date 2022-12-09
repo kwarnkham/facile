@@ -82,7 +82,7 @@ onMounted(() => {
                 <InputLabel for="quantity" value="Quantity" />
                 <TextInput
                     id="quantity"
-                    type="number"
+                    type="tel"
                     class="w-full"
                     v-model.number="quantity"
                     :class="{

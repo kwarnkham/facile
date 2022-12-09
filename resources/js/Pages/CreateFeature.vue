@@ -55,9 +55,9 @@ const submit = () => {
                 <InputLabel for="purchase_price" value="Purchase Price" />
                 <TextInput
                     id="purchase_price"
-                    type="number"
+                    type="tel"
                     class="w-full"
-                    v-model="form.purchase_price"
+                    v-model.number="form.purchase_price"
                     required
                     :class="{ 'daisy-input-error': form.errors.purchase_price }"
                 />
@@ -68,9 +68,9 @@ const submit = () => {
                 <InputLabel for="price" value="Price" />
                 <TextInput
                     id="price"
-                    type="number"
+                    type="tel"
                     class="w-full"
-                    v-model="form.price"
+                    v-model.number="form.price"
                     required
                     :class="{ 'daisy-input-error': form.errors.price }"
                 />
@@ -81,9 +81,9 @@ const submit = () => {
                 <InputLabel for="stock" value="Stock" />
                 <TextInput
                     id="stock"
-                    type="number"
+                    type="tel"
                     class="w-full"
-                    v-model="form.stock"
+                    v-model.number="form.stock"
                     required
                     :class="{ 'daisy-input-error': form.errors.stock }"
                 />

@@ -116,9 +116,9 @@ const showBatches = () => {
                     <InputLabel for="price" value="Price" />
                     <TextInput
                         id="price"
-                        type="number"
+                        type="tel"
                         class="w-full"
-                        v-model="form.price"
+                        v-model.number="form.price"
                         required
                         :class="{ 'daisy-input-error': form.errors.price }"
                     />
@@ -136,9 +136,9 @@ const showBatches = () => {
                     </div>
                     <TextInput
                         id="stock"
-                        type="number"
+                        type="tel"
                         class="w-full"
-                        v-model="form.stock"
+                        v-model.number="form.stock"
                         required
                         :class="{ 'daisy-input-error': form.errors.stock }"
                         disabled
