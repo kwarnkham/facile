@@ -42,6 +42,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'admin',
                 'email' => '911@gmail.com',
                 'password' => '$2y$10$XVaseaCA.MTLMDMPeC0lVuuRvZNRagUlB3E2kfXJk/slvshzPbyL2',
+                'active_merchant_id' => null,
                 'created_at' => $now,
                 'updated_at' => $now
             ],

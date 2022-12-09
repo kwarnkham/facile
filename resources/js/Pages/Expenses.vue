@@ -5,6 +5,7 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
+import pickBy from "lodash/pickBy";
 import { ref } from "vue";
 
 const form = useForm({
@@ -13,6 +14,7 @@ const form = useForm({
 
 const recordExpenseForm = useForm({
     price: "",
+    note: "",
 });
 
 const showRecordExpenseForm = (expense) => {
@@ -32,18 +34,20 @@ const submit = () => {
 };
 
 const recordExpense = () => {
-    recordExpenseForm.post(
-        route("expenses.record", {
-            expense: expenseBeingRecorded?.value.id,
-        }),
-        {
-            preserveState: true,
-            onSuccess: () => {
-                recordExpenseForm.reset("price");
-                open.value = false;
-            },
-        }
-    );
+    recordExpenseForm
+        .transform((data) => pickBy(data))
+        .post(
+            route("expenses.record", {
+                expense: expenseBeingRecorded?.value.id,
+            }),
+            {
+                preserveState: true,
+                onSuccess: () => {
+                    recordExpenseForm.reset("price", "note");
+                    open.value = false;
+                },
+            }
+        );
 };
 const expenseBeingRecorded = ref(null);
 
@@ -111,6 +115,20 @@ const open = ref(false);
                     }"
                 />
                 <InputError :message="recordExpenseForm.errors.price" />
+            </div>
+
+            <div>
+                <InputLabel for="note" value="Note" />
+                <TextInput
+                    id="note"
+                    type="text"
+                    class="mt-1 w-full"
+                    v-model="recordExpenseForm.note"
+                    :class="{
+                        'daisy-input-error': recordExpenseForm.errors.note,
+                    }"
+                />
+                <InputError :message="recordExpenseForm.errors.note" />
             </div>
 
             <div class="flex items-center justify-end">

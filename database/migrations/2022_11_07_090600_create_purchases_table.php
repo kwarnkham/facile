@@ -20,6 +20,7 @@ return new class extends Migration
             $table->double('price');
             $table->integer('quantity')->default(1);
             $table->tinyInteger('status')->default(1);
+            $table->string('note')->nullable();
             $table->timestamps();
         });
     }

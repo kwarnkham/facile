@@ -15,7 +15,7 @@ const props = defineProps({
             v-for="order in orders.data"
             @click="$inertia.visit(route('orders.show', { order: order.id }))"
         >
-            {{ order.customer }}
+            {{ order.id }} : {{ order.amount - order.discount }}
         </div>
     </div>
 </template>

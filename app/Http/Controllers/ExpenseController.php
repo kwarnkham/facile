@@ -46,7 +46,8 @@ class ExpenseController extends Controller
     public function record(Expense $expense)
     {
         $attributes = request()->validate([
-            'price' => ['required', 'numeric']
+            'price' => ['required', 'numeric'],
+            'note' => ['sometimes', 'required', 'string']
         ]);
         $expense->purchases()->create($attributes);
         return Redirect::back()->with('message', 'Success');
