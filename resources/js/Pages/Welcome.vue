@@ -19,6 +19,7 @@ import { Head } from "@inertiajs/inertia-vue3";
             Purchases
         </Button>
         <Button
+            v-if="$page.props.auth.user"
             @click="
                 $inertia.visit(
                     route('features.all', {

@@ -65,6 +65,10 @@ sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate --force
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan up
 ```
 
+```
+sudo chown -R 1000:1000 storage bootstrap/cache
+```
+
 # Domain used in
 
 1. env file
