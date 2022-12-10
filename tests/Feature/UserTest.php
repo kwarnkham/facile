@@ -12,9 +12,9 @@ class UserTest extends TestCase
 
     public function test_users_screen_of_merchant_role_can_be_rendered()
     {
-        $count = rand(3, 100);
-        $per_page = (int)floor($count / 3);
+        $count = rand(5, 100);
         $existed = User::count();
+        $per_page = (int)floor($count / 3) + $existed;
         $users = User::factory($count)->create();
         $this->get(route('users.index', [
             'per_page' => $per_page
