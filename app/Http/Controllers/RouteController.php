@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrderStatus;
+use App\Enums\PurchaseStatus;
+use App\Models\Order;
+use App\Models\Purchase;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,5 +19,25 @@ class RouteController extends Controller
     public function checkout()
     {
         return Inertia::render('Checkout');
+    }
+
+    public function financialSummary()
+    {
+        request()->validate([
+            'from' => ['sometimes', 'required', 'date'],
+            'to' => ['required_with:from', 'date'],
+        ]);
+        $summary = [
+            'orders' => Order::where([
+                'merchant_id' => request()->user()->merchant->id,
+                'status' => OrderStatus::COMPLETED->value
+            ])->get(['amount', 'discount']),
+            // 'purchases' => Purchase::with(['purchasable'])->whereRelation('purchasable', 'merchant_id', request()->user()->merchant->id)
+            //     ->where('status', PurchaseStatus::NORMAL->value)
+            //     ->get([
+            //         'price', 'quantity'
+            //     ])
+        ];
+        return Inertia::render('FinancialSummary', ['summary' => $summary]);
     }
 }

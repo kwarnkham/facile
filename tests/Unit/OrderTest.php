@@ -2,11 +2,12 @@
 
 namespace Tests\Unit;
 
-use App\Models\Batch;
 use App\Models\Feature;
 use App\Models\Item;
+use App\Models\Merchant;
 use App\Models\Order;
-use App\Models\Purchase;
+use App\Models\User;
+use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
@@ -41,4 +42,30 @@ class OrderTest extends TestCase
             $order->features->reduce(fn ($carry, $val) => $carry + ($val->pivot->discount * $val->pivot->quantity), 0)
         );
     }
+
+    // public function test_orders_are_filtered_by_merchant()
+    // {
+    //     $user = User::factory()->create();
+    //     $merchant = Merchant::factory()->create();
+    //     $user->merchants()->attach($merchant);
+    //     $user->active_merchant_id = $merchant->id;
+    //     $user->save();
+
+    //     Order::factory()->create(['merchant_id' => $this->merchant->id, 'amount' => 1000]);
+    //     Order::factory()->create(['merchant_id' => $merchant->id, 'amount' => 1000]);
+
+    //     $this->assertDatabaseCount('orders', 2);
+    //     $this->actingAs($this->merchant)->get(route('orders.index'))
+    //         ->assertOk()
+    //         ->assertInertia(
+    //             fn (AssertableInertia $page) =>
+    //             $page->component('Orders')
+    //                 ->has(
+    //                     'orders',
+    //                     fn (AssertableInertia $page) => $page
+    //                         ->has('data', 1)
+    //                         ->etc()
+    //                 )
+    //         );
+    // }
 }

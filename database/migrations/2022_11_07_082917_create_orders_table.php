@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('merchant_id')->constrained();
             $table->double('amount');
             $table->double('discount')->default(0);
-            $table->tinyInteger('status')->default(1);
+            $table->tinyInteger('status')->default(1)->index();
             $table->string('customer')->nullable();
             $table->string('phone')->nullable();
             $table->string('address')->nullable();

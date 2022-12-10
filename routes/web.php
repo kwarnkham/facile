@@ -128,6 +128,7 @@ Route::controller(RouteController::class)->group(function () {
     Route::middleware(['auth', 'verified', 'merchant'])->group(function () {
         Route::get('cart', 'cart')->name('routes.cart');
         Route::get('checkout', 'checkout')->name('routes.checkout');
+        Route::get('financial-summary', 'financialSummary')->name('routes.financial-summary');
     });
 });
 

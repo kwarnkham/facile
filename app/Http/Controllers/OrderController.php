@@ -25,7 +25,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $order = Order::paginate(request()->per_page ?? 20);
+        $order = Order::where('merchant_id', request()->user()->merchant->id)->paginate(request()->per_page ?? 20);
         return Inertia::render('Orders', ['orders' => $order]);
     }
 

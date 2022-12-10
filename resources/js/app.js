@@ -30,14 +30,14 @@ createInertiaApp({
 
 InertiaProgress.init({ color: '#4B5563', delay: 250, showSpinner: false, });
 
-// window.addEventListener('popstate', (event) => {
-//     event.stopImmediatePropagation();
+window.addEventListener('popstate', (event) => {
+    event.stopImmediatePropagation();
 
-//     Inertia.reload({
-//         preserveState: false,
-//         preserveScroll: false,
-//         replace: true,
-//         onSuccess: (page) => Inertia.setPage(page),
-//         onError: () => window.location.href = event.state.url,
-//     });
-// });
+    Inertia.reload({
+        preserveState: false,
+        preserveScroll: false,
+        replace: true,
+        onSuccess: (page) => Inertia.setPage(page),
+        onError: () => window.location.href = event.state.url,
+    });
+});
