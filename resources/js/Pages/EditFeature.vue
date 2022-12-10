@@ -249,7 +249,7 @@ const showBatches = () => {
                 </div>
                 <div class="text-right pt-2">
                     <Button :disabled="purchaseForm.processing" type="submit">
-                        Make Payment
+                        Submit
                     </Button>
                 </div>
             </form>

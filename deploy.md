@@ -49,6 +49,9 @@ sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate:fresh --
 
 ```
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan down
+sudo docker-compose -f docker-compose.prod.yml down
+sudo docker-compose -f docker-compose.prod.yml up
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan up
 ```
 
 ## Javascript
