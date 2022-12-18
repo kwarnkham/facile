@@ -2,43 +2,43 @@
 
 namespace Tests\Feature;
 
+use App\Enums\PaymentStatus;
 use App\Models\Payment;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class PaymentTest extends TestCase
 {
-    use RefreshDatabase;
-    public function test_merchant_add_a_payment()
+    protected $tenancy = true;
+    public function test_add_a_payment()
     {
-        $existed = $this->merchant->merchant->payments()->count();
-        $payment = Payment::factory()->create();
-        $this->actingAs($this->merchant)->post(route('merchant_payments.store'), [
+        $existed = Payment::count();
+        $this->actingAs($this->user)->post(route('payments.store'), [
             'number' => '123',
-            'payment_id' => $payment->id
+            'payment_type_id' => $this->payment_type_id
         ]);
 
-        $this->assertDatabaseCount('merchant_payments', $existed + 1);
+        $this->assertDatabaseCount('payments', $existed + 1);
 
-        $this->actingAs($this->merchant)->post(route('merchant_payments.store'), [
+        $this->actingAs($this->user)->post(route('payments.store'), [
             'number' => '123',
-            'payment_id' => $payment->id
+            'payment_type_id' => $this->payment_type_id
         ])->assertSessionHasErrors(['number']);
     }
 
-    public function test_merchant_toggle_a_payment()
+    public function test_toggle_a_payment()
     {
-        $this->actingAs($this->merchant)->post(route('merchant_payments.store'), [
+        $this->actingAs($this->user)->post(route('payments.store'), [
             'number' => '123',
-            'payment_id' => Payment::factory()->create()->id
+            'payment_type_id' => $this->payment_type_id
         ]);
-        $payment = $this->merchant->merchant->payments()->first()->pivot;
-        $this->actingAs($this->merchant)->post(route('merchant_payments.toggle', ['merchantPayment' => $payment->id]));
+        $payment = Payment::first();
 
-        $this->assertEquals($payment->fresh()->status, 2);
+        $this->actingAs($this->user)->post(route('payments.toggle', ['payment' => $payment->id]));
 
-        $this->actingAs($this->merchant)->post(route('merchant_payments.toggle', ['merchantPayment' => $payment->id]));
+        $this->assertEquals($payment->fresh()->status, PaymentStatus::DISABLED->value);
 
-        $this->assertEquals($payment->fresh()->status, 1);
+        $this->actingAs($this->user)->post(route('payments.toggle', ['payment' => $payment->id]));
+
+        $this->assertEquals($payment->fresh()->status, PaymentStatus::ENABLED->value);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Enums\ResponseStatus;
 use App\Models\Batch;
 use App\Models\Feature;
 use App\Models\Item;
@@ -12,17 +11,18 @@ use Tests\TestCase;
 
 class ItemFeatureTest extends TestCase
 {
+    protected $tenancy = true;
     public function test_add_feature_to_an_item()
     {
         $data = Feature::factory()->make()->toArray();
-        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $item = Item::factory()->create();
         $data['item_id'] = $item->id;
         $data['purchase_price'] = floor($data['price'] * 0.9);
-        $this->actingAs($this->merchant)->post(route('features.store'), $data);
+        $this->actingAs($this->user)->post(route('features.store'), $data);
         $this->assertDatabaseCount('features', 1);
         $this->assertDatabaseHas('features', collect($data)->except('purchase_price')->toArray());
         $this->assertEquals($item->features()->first()->name, $data['name']);
-        $this->actingAs($this->merchant)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
+        $this->actingAs($this->user)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
         $this->assertDatabaseCount('purchases', 1);
         $this->assertEquals($data['stock'], Purchase::first()->quantity);
         $this->assertDatabaseCount('batches', 1);
@@ -32,24 +32,25 @@ class ItemFeatureTest extends TestCase
 
     public function test_update_feature_of_an_item()
     {
-        $item = Item::factory()->has(Feature::factory())->create(['merchant_id' => $this->merchant->merchant->id]);
+        $item = Item::factory()->has(Feature::factory())->create();
         $data = Feature::factory()->make()->toArray();
+        $this->actingAs($this->user)->put(
+            route('features.update', ['feature' => $item->features()->first()->id]),
+            $data
+        );
+
         unset($data['stock']);
-        $data['item_id'] = $item->id;
-        $this->actingAs($this->merchant)->put(route('features.update', ['feature' => $item->features()->first()->id]), $data);
         $this->assertDatabaseHas('features', $data);
         $this->assertDatabaseCount('features', 1);
-        $data['item_id'] = $item->id + rand(1, 10);
-        $this->actingAs($this->merchant)->put(route('features.update', ['feature' => $item->features()->first()->id]), $data)->assertStatus(ResponseStatus::UNAUTHORIZED->value);
     }
 
     public function test_cannot_update_feature_stock()
     {
-        $item = Item::factory()->has(Feature::factory())->create(['merchant_id' => $this->merchant->merchant->id]);
+        $item = Item::factory()->has(Feature::factory())->create();
         $oldStock = $item->features()->first()->stock;
         $data = Feature::factory()->make()->toArray();
         $data['item_id'] = $item->id;
-        $this->actingAs($this->merchant)->put(route('features.update', ['feature' => $item->features()->first()->id]), $data);
+        $this->actingAs($this->user)->put(route('features.update', ['feature' => $item->features()->first()->id]), $data);
 
         $this->assertDatabaseCount('features', 1);
         $this->assertEquals(Feature::first()->stock, $oldStock);
@@ -58,14 +59,14 @@ class ItemFeatureTest extends TestCase
     public function test_purchase_is_created_with_feature()
     {
         $data = Feature::factory()->make()->toArray();
-        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $item = Item::factory()->create();
         $data['item_id'] = $item->id;
         $data['purchase_price'] = floor($data['price'] * 0.9);
-        $this->actingAs($this->merchant)->post(route('features.store'), $data);
+        $this->actingAs($this->user)->post(route('features.store'), $data);
         $this->assertDatabaseCount('features', 1);
         $this->assertDatabaseHas('features', collect($data)->except('purchase_price')->toArray());
         $this->assertEquals($item->features()->first()->name, $data['name']);
-        $this->actingAs($this->merchant)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
+        $this->actingAs($this->user)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
         $this->assertDatabaseCount('purchases', 1);
         $this->assertEquals(Purchase::first()->purchasable_id, Feature::first()->id);
         $this->assertEquals(Purchase::first()->purchasable_type, Feature::class);
@@ -73,7 +74,7 @@ class ItemFeatureTest extends TestCase
 
     public function test_feature_qr_is_deleted_after_model_is_deleted()
     {
-        $feature = Feature::factory()->for(Item::factory()->state(['merchant_id' => $this->merchant->merchant->id]))->create();
+        $feature = Feature::factory()->for(Item::factory())->create();
         $feature->qr();
         $file = $feature->qrFilePath();
         $this->assertTrue(Storage::exists($file));
@@ -84,21 +85,21 @@ class ItemFeatureTest extends TestCase
     public function test_restock_the_feature()
     {
         $data = Feature::factory()->make()->toArray();
-        $item = Item::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
+        $item = Item::factory()->create();
         $data['item_id'] = $item->id;
         $data['purchase_price'] = floor($data['price'] * 0.9);
-        $this->actingAs($this->merchant)->post(route('features.store'), $data);
+        $this->actingAs($this->user)->post(route('features.store'), $data);
         $this->assertDatabaseCount('features', 1);
         $this->assertDatabaseHas('features', collect($data)->except('purchase_price')->toArray());
         $this->assertEquals($item->features()->first()->name, $data['name']);
-        $this->actingAs($this->merchant)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
+        $this->actingAs($this->user)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
         $this->assertDatabaseCount('purchases', 1);
         $this->assertEquals(Purchase::first()->price, $data['purchase_price']);
 
         $feature = Feature::first();
         $quantity = rand(1, 10);
         $price = rand(1000, 10000);
-        $this->actingAs($this->merchant)->post(route('features.restock', ['feature' => $feature->id]), [
+        $this->actingAs($this->user)->post(route('features.restock', ['feature' => $feature->id]), [
             'price' => $price,
             'quantity' => $quantity
         ]);

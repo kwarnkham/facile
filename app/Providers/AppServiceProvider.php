@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         Model::preventLazyLoading();
-        Model::preventAccessingMissingAttributes();
+        // Model::preventAccessingMissingAttributes();
 
         Password::defaults(function () {
             $rule = Password::min(5);
@@ -36,5 +36,9 @@ class AppServiceProvider extends ServiceProvider
                 ? $rule->mixedCase()->uncompromised()
                 : $rule;
         });
+
+        \Stancl\Tenancy\Middleware\InitializeTenancyByPath::$onFail = function ($exception, $request, $next) {
+            abort(404);
+        };
     }
 }

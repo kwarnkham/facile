@@ -14,7 +14,7 @@ class UpdateWholesaleRequest extends FormRequest
      */
     public function authorize()
     {
-        return !is_null($this->user()->merchant) && $this->wholesale->item_id == $this->item_id;
+        return true;
     }
 
     /**
@@ -25,7 +25,6 @@ class UpdateWholesaleRequest extends FormRequest
     public function rules()
     {
         return [
-            'item_id' => ['required'],
             'price' => ['required', 'numeric'],
             'quantity' => [
                 'required',

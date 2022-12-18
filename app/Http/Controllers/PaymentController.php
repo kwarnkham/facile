@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PaymentStatus;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Payment;
@@ -36,7 +37,14 @@ class PaymentController extends Controller
      */
     public function store(StorePaymentRequest $request)
     {
-        //
+        $attributes = $request->validated();
+        Payment::create($attributes);
+    }
+
+    public function toggle(Payment $payment)
+    {
+        $payment->status = $payment->status == PaymentStatus::ENABLED->value ? PaymentStatus::DISABLED->value : PaymentStatus::ENABLED->value;
+        $payment->save();
     }
 
     /**

@@ -31,11 +31,6 @@ class Item extends Model
         return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
-    public function merchant()
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function scopeFilter(Builder $query, $filters)
     {
         $query
@@ -48,10 +43,6 @@ class Item extends Model
             ->when(
                 $filters['status'] ?? null,
                 fn (Builder $query, $status) => $query->where('status', $status)
-            )
-            ->when(
-                $filters['merchant_id'] ?? null,
-                fn (Builder $query, $merchant_id) => $query->where('merchant_id', $merchant_id)
             )
             ->when(
                 $filters['search'] ?? null,

@@ -14,7 +14,7 @@ class UpdateItemRequest extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()->merchant->id == $this->item->merchant_id;
+        return true;
     }
 
     /**
@@ -27,10 +27,11 @@ class UpdateItemRequest extends FormRequest
         return [
             'name' => [
                 'required', 'string',
-                Rule::unique('items', 'name')->where(fn ($query) => $query->where([
-                    ['merchant_id', $this->item->merchant_id],
-                    ['id', '!=', $this->item->id]
-                ]))
+                Rule::unique('items', 'name')->where(fn ($query) => $query->where(
+                    'id',
+                    '!=',
+                    $this->item->id
+                ))
             ],
             'description' => ['required', 'string', 'max:255']
         ];

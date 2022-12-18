@@ -16,8 +16,6 @@ class PaymentFactory extends Factory
      */
     public function definition()
     {
-        return [
-            'name' => fake()->unique()->name()
-        ];
+        return [];
     }
 }

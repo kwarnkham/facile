@@ -9,7 +9,7 @@ use App\Models\Batch;
 use App\Models\Credit;
 use App\Models\Feature;
 use App\Models\Order;
-use App\Models\MerchantPayment;
+use App\Models\Payment;
 use App\Models\Picture;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -25,7 +25,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $order = Order::where('merchant_id', request()->user()->merchant->id)->paginate(request()->per_page ?? 20);
+        $order = Order::paginate(request()->per_page ?? 20);
         return Inertia::render('Orders', ['orders' => $order]);
     }
 
@@ -40,7 +40,7 @@ class OrderController extends Controller
         $totalPaid = $order->paidAmount() + $order->discount;
         $remaining = floor($order->amount - $totalPaid);
         $attributes = request()->validate([
-            'payment_id' => ['required', Rule::exists('merchant_payments', 'id')->where('merchant_id', request()->user()->merchant->id)],
+            'payment_id' => ['required', Rule::exists('payments', 'id')],
             'amount' => [
                 'required', 'numeric', function ($attribute, $value, $fail) use ($remaining) {
                     if (strval($value) <= 0) {
@@ -58,11 +58,11 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $picture = array_key_exists('picture', $attributes) ? Picture::savePictureInDisk($attributes['picture'], 'payments') : null;
-            $order->merchantPayments()->attach(
+            $order->payments()->attach(
                 $attributes['payment_id'],
                 [
                     'amount' => $attributes['amount'],
-                    'number' => MerchantPayment::find($attributes['payment_id'])->number,
+                    'number' => Payment::find($attributes['payment_id'])->number,
                     'note' => $attributes['note'] ?? null,
                     'picture' => $picture
                 ]
@@ -100,11 +100,11 @@ class OrderController extends Controller
                     }
                 });
 
-                $order->merchantPayments->each(function ($merchantPayment) {
+                $order->payments->each(function ($payment) {
                     Credit::create([
-                        'order_payment_id' => $merchantPayment->pivot->id,
-                        'amount' => $merchantPayment->pivot->amount,
-                        'number' => $merchantPayment->pivot->number,
+                        'order_payment_id' => $payment->id,
+                        'amount' => $payment->pivot->amount,
+                        'number' => $payment->pivot->number,
                     ]);
                 });
             });
@@ -163,17 +163,13 @@ class OrderController extends Controller
             floor($attributes['discount'] ?? 0);
         if ($remaining < 0) return Redirect::back()->with('message', 'Total discount is greater than the amount');
 
-        $createdOrder = DB::transaction(function () use ($attributes, $request, $amount, $remaining) {
+        $createdOrder = DB::transaction(function () use ($attributes, $amount, $remaining) {
             $order = Order::create(
                 collect([
-                    ...[
-                        'merchant_id' => $request->user()->merchant->id,
-                        'amount' => $amount,
-                    ],
+                    'amount' => $amount,
                     ...$attributes
                 ])->except(['features'])->toArray()
             );
-
             if ($remaining == 0) $order->update(['status' => 3]);
             $order->features()->attach(
                 collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => [
@@ -207,14 +203,11 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['features', 'merchantPayments.payment']);
-        $order->merchantPayments->each(function (&$value) {
+        $order->load(['features', 'payments']);
+        $order->payments->each(function (&$value) {
             if ($value->pivot->picture) $value->pivot->picture = $value->picture;
         });
-        return Inertia::render('Order', ['order' => $order, 'merchant_payments' => MerchantPayment::with(['payment'])->where([
-            'merchant_id' => $order->merchant->id,
-            'status' => 1,
-        ])->get()]);
+        return Inertia::render('Order', ['order' => $order, 'payments' => Payment::all()]);
     }
 
     /**

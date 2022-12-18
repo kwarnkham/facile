@@ -2,15 +2,14 @@
 
 namespace Tests\Feature;
 
-use App\Models\Role;
 use App\Models\User;
 use Tests\TestCase;
 use Inertia\Testing\AssertableInertia as Assert;
 
 class UserTest extends TestCase
 {
-
-    public function test_users_screen_of_merchant_role_can_be_rendered()
+    protected $tenancy = true;
+    public function test_users_screen_can_be_rendered()
     {
         $count = rand(5, 100);
         $existed = User::count();

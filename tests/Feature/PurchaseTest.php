@@ -7,10 +7,11 @@ use Tests\TestCase;
 
 class PurchaseTest extends TestCase
 {
+    protected $tenancy = true;
     public function test_create_a_purchase_for_expense()
     {
-        $expnese = Expense::factory()->create(['merchant_id' => $this->merchant->merchant->id]);
-        $this->actingAs($this->merchant)->post(route('purchases.store'), [
+        $expnese = Expense::factory()->create();
+        $this->actingAs($this->user)->post(route('purchases.store'), [
             'price' => rand(1000, 100000),
             'quantity' => 2,
             'type' => 'expense',

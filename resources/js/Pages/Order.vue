@@ -24,7 +24,7 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    merchant_payments: {
+    payments: {
         type: Array,
         required: true,
     },
@@ -34,10 +34,7 @@ const remaining = computed(
     () =>
         props.order.amount -
         props.order.discount -
-        props.order.merchant_payments.reduce(
-            (carry, e) => carry + e.pivot.amount,
-            0
-        )
+        props.order.payments.reduce((carry, e) => carry + e.pivot.amount, 0)
 );
 const modalPicture = ref("");
 const showPicture = (picture) => {
@@ -47,7 +44,7 @@ const canMakePayment = computed(() => paymentForm.amount <= remaining.value);
 const paymentForm = useForm({
     amount: remaining.value,
     note: "",
-    payment_id: props.merchant_payments[0]?.id,
+    payment_id: props.payments[0]?.id,
     picture: null,
 });
 
@@ -127,12 +124,12 @@ const isPaymentInfoExpanded = ref(false);
             </div>
         </Collapse>
         <Collapse
-            v-if="order.merchant_payments.length"
+            v-if="order.payments.length"
             v-model:checked="isPaymentInfoExpanded"
             title="Payment Information"
         >
             <div
-                v-for="orderPayment in order.merchant_payments"
+                v-for="orderPayment in order.payments"
                 :key="orderPayment.id"
                 class="text-sm w-ful"
             >
@@ -247,7 +244,7 @@ const isPaymentInfoExpanded = ref(false);
                     <td colspan="4" class="text-right">Paid</td>
                     <td class="text-right">
                         {{
-                            order.merchant_payments
+                            order.payments
                                 .reduce((carry, e) => carry + e.pivot.amount, 0)
                                 .toLocaleString()
                         }}
@@ -260,7 +257,7 @@ const isPaymentInfoExpanded = ref(false);
                             (
                                 order.amount -
                                 order.discount -
-                                order.merchant_payments.reduce(
+                                order.payments.reduce(
                                     (carry, e) => carry + e.pivot.amount,
                                     0
                                 )
@@ -270,7 +267,7 @@ const isPaymentInfoExpanded = ref(false);
                 </tr>
             </tbody>
         </table>
-        <div class="text-xs flex items-center" v-if="!merchant_payments.length">
+        <div class="text-xs flex items-center" v-if="!payments.length">
             <ExclamationTriangleIcon class="w-4 h-4 text-info" />
             You have no payment method or payment is not enabled.
         </div>
@@ -280,14 +277,14 @@ const isPaymentInfoExpanded = ref(false);
         >
             <PrimaryButton
                 @click="showPaymentForm = true"
-                v-if="merchant_payments.length && order.status != 3"
+                v-if="payments.length && order.status != 3"
             >
                 Pay
             </PrimaryButton>
 
             <PrimaryButton
-                @click="$inertia.visit(route('merchant_payments.index'))"
-                v-else-if="!merchant_payments.length && order.status != 3"
+                @click="$inertia.visit(route('payments.index'))"
+                v-else-if="!payments.length && order.status != 3"
             >
                 Manage Payments
             </PrimaryButton>
@@ -328,19 +325,19 @@ const isPaymentInfoExpanded = ref(false);
         >
             <div
                 class="daisy-form-control"
-                v-for="merchantPayment in merchant_payments"
-                :key="merchantPayment.id"
+                v-for="payment in payments"
+                :key="payment.id"
             >
                 <label class="daisy-label cursor-pointer">
                     <span class="daisy-label-text">
-                        {{ merchantPayment.payment.name }} -
-                        {{ merchantPayment.number }}
+                        {{ payment.payment_type_id }} -
+                        {{ payment.number }}
                     </span>
                     <input
                         type="radio"
                         class="daisy-radio checked:bg-primary"
                         v-model="paymentForm.payment_id"
-                        :value="merchantPayment.id"
+                        :value="payment.id"
                     />
                 </label>
             </div>

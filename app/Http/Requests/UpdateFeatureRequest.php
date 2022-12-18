@@ -14,7 +14,7 @@ class UpdateFeatureRequest extends FormRequest
      */
     public function authorize()
     {
-        return !is_null($this->user()->merchant) && $this->item_id == $this->feature->item_id;
+        return true;
     }
 
     /**
@@ -25,7 +25,6 @@ class UpdateFeatureRequest extends FormRequest
     public function rules()
     {
         return [
-            'item_id' => ['required'],
             'name' => ['required', 'string', Rule::unique('features', 'name')->where('item_id', $this->item_id)->ignore($this->feature->id)],
             'price' => ['required', 'numeric'],
             'note' => ['sometimes', 'required', 'string']

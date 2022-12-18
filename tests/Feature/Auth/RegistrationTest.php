@@ -8,18 +8,18 @@ use Tests\TestCase;
 
 class RegistrationTest extends TestCase
 {
-
+    protected $tenancy = true;
 
     public function test_registration_screen_can_be_rendered()
     {
-        $response = $this->get('/register');
+        $response = $this->get(route('register'));
 
         $response->assertStatus(200);
     }
 
     public function test_new_users_can_register()
     {
-        $response = $this->post('/register', [
+        $response = $this->post(route('register'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password',
@@ -32,7 +32,7 @@ class RegistrationTest extends TestCase
 
     public function test_cannot_register_with_invalid_role()
     {
-        $response = $this->post('/register', [
+        $response = $this->post(route('register'), [
             'name' => 'Test Merchnat',
             'email' => 'merchant@example.com',
             'password' => 'password',
@@ -44,7 +44,7 @@ class RegistrationTest extends TestCase
 
     public function test_admin_role_cannot_be_used_to_register()
     {
-        $response = $this->post('/register', [
+        $response = $this->post(route('register'), [
             'name' => 'Test Merchnat',
             'email' => 'merchant@example.com',
             'password' => 'password',

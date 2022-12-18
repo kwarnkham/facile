@@ -8,12 +8,12 @@ use Tests\TestCase;
 class PasswordConfirmationTest extends TestCase
 {
 
-
+    protected $tenancy = true;
     public function test_confirm_password_screen_can_be_rendered()
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/confirm-password');
+        $response = $this->actingAs($user)->get(route('password.confirm'));
 
         $response->assertStatus(200);
     }
@@ -22,7 +22,7 @@ class PasswordConfirmationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post('/confirm-password', [
+        $response = $this->actingAs($user)->post(route('password.confirm'), [
             'password' => 'password',
         ]);
 
@@ -34,7 +34,7 @@ class PasswordConfirmationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post('/confirm-password', [
+        $response = $this->actingAs($user)->post(route('password.confirm'), [
             'password' => 'wrong-password',
         ]);
 

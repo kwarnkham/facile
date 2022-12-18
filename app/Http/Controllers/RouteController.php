@@ -29,10 +29,9 @@ class RouteController extends Controller
         ]);
         $summary = [
             'orders' => Order::where([
-                'merchant_id' => request()->user()->merchant->id,
                 'status' => OrderStatus::COMPLETED->value
             ])->get(['amount', 'discount']),
-            // 'purchases' => Purchase::with(['purchasable'])->whereRelation('purchasable', 'merchant_id', request()->user()->merchant->id)
+            // 'purchases' => Purchase::with(['purchasable'])->whereRelation('purchasable', 'merchant_id', request()->user()->merchants()->first()->id)
             //     ->where('status', PurchaseStatus::NORMAL->value)
             //     ->get([
             //         'price', 'quantity'

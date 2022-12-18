@@ -26,11 +26,11 @@ const submit = () => {
     });
 };
 
-const togglePayment = (merchantPayment) => {
+const togglePayment = (payment) => {
     toggling.value = true;
     Inertia.visit(
         route("merchant_payments.toggle", {
-            merchantPayment: merchantPayment.id,
+            payment: payment.id,
         }),
         {
             method: "post",

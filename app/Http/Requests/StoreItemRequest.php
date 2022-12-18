@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreItemRequest extends FormRequest
 {
@@ -14,7 +13,7 @@ class StoreItemRequest extends FormRequest
      */
     public function authorize()
     {
-        return !is_null($this->user()->merchant);
+        return true;
     }
 
     /**
@@ -25,10 +24,7 @@ class StoreItemRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => [
-                'required', 'string',
-                Rule::unique('items', 'name')->where(fn ($query) => $query->where('merchant_id', $this->user()->merchant->id))
-            ],
+            'name' => ['required', 'string', 'unique:items'],
             'description' => ['required', 'string', 'max:255']
         ];
     }

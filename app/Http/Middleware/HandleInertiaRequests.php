@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 
@@ -37,7 +36,7 @@ class HandleInertiaRequests extends Middleware
     {
         return array_merge(parent::share($request), [
             'auth' => [
-                'user' => $request->user() ? $request->user()->load(['merchant']) : $request->user(),
+                'user' => $request->user(),
             ],
             'ziggy' => function () use ($request) {
                 return array_merge((new Ziggy)->toArray(), [
@@ -48,6 +47,7 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'tenant_id' => tenant('id') ?? 1
         ]);
     }
 }

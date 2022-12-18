@@ -14,7 +14,7 @@ class StoreFeatureRequest extends FormRequest
      */
     public function authorize()
     {
-        return !is_null($this->user()->merchant);
+        return true;
     }
 
     /**
@@ -25,7 +25,7 @@ class StoreFeatureRequest extends FormRequest
     public function rules()
     {
         return [
-            'item_id' => ['required', Rule::exists('items', 'id')->where('merchant_id', $this->user()->merchant->id)],
+            'item_id' => ['required', 'exists:items,id'],
             'name' => ['required', 'string', Rule::unique('features', 'name')->where('item_id', $this->item_id)],
             'stock' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],

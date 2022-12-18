@@ -15,7 +15,7 @@ class StorePictureRequest extends FormRequest
      */
     public function authorize()
     {
-        return !is_null($this->user()->merchant);
+        return true;
     }
 
     /**

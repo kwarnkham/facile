@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class EmailVerificationTest extends TestCase
 {
-
+    protected $tenancy = true;
 
     public function test_email_verification_screen_can_be_rendered()
     {
@@ -19,7 +19,7 @@ class EmailVerificationTest extends TestCase
             'email_verified_at' => null,
         ]);
 
-        $response = $this->actingAs($user)->get('/verify-email');
+        $response = $this->actingAs($user)->get(route('verification.notice'));
 
         $response->assertStatus(200);
     }
@@ -30,7 +30,7 @@ class EmailVerificationTest extends TestCase
             'email_verified_at' => null,
         ]);
 
-        Event::fake();
+        Event::fake([Verified::class]);
 
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',

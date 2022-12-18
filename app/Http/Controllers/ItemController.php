@@ -6,7 +6,6 @@ use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Feature;
 use App\Models\Item;
-use App\Models\Merchant;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
@@ -21,18 +20,12 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $validator = Validator::make(request()->only(['merchant_id', 'search']), [
-            'merchant_id' => ['required', 'numeric'],
+        $validator = Validator::make(request()->only(['search']), [
             'search' => ['string']
         ]);
 
-        if (in_array('merchant_id', $validator->errors()->keys())) return redirect()->route(
-            'items.index',
-            ['merchant_id' => Merchant::first()->id]
-        );
-
         $query = Item::query();
-        $filters = $validator->safe()->only(['merchant_id', 'search']);
+        $filters = $validator->safe()->only(['search']);
         return Inertia::render('Items', [
             'items' => $query->filter($filters)->with(['pictures'])->paginate(request()->per_page ?? 20),
             'filters' => $filters,
@@ -58,7 +51,7 @@ class ItemController extends Controller
     public function store(StoreItemRequest $request)
     {
         $attributes = $request->validated();
-        $item = Item::create([...$attributes, 'merchant_id' => $request->user()->merchant->id]);
+        $item = Item::create($attributes);
         return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'success');
     }
 
@@ -82,7 +75,7 @@ class ItemController extends Controller
      */
     public function edit(Item $item)
     {
-        $tags = Tag::whereRelation('items', 'merchant_id', '=', $item->merchant_id)->get();
+        $tags = Tag::all();
         return Inertia::render('EditItem', [
             'item' => $item->load(['pictures', 'tags', 'wholesales']),
             'tags' => $tags,

@@ -39,7 +39,6 @@ class ExpenseController extends Controller
     public function store(StoreExpenseRequest $request)
     {
         $attributes = $request->validated();
-        $attributes['merchant_id'] = $request->user()->merchant->id;
         Expense::create($attributes);
     }
 
