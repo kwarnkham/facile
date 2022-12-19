@@ -36,13 +36,11 @@ const query = ref({
                     <figure>
                         <img
                             :src="'https://placeimg.com/400/225/arch'"
-                            alt="Merchant Avatar"
+                            alt="User Avatar"
                         />
                     </figure>
                     <div class="daisy-card-body">
                         <h2 class="daisy-card-title">{{ user.name }}</h2>
-                        <p>{{ user.merchant?.description }}</p>
-                        <p>{{ user.merchant?.address }}</p>
                         <div class="daisy-card-actions justify-end">
                             <button
                                 class="daisy-btn daisy-btn-primary daisy-btn-sm capitalize"

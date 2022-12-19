@@ -10,7 +10,7 @@ import { Head } from "@inertiajs/inertia-vue3";
         <Button @click="$inertia.visit(route('items.create'))">Add item</Button>
         <Button @click="$inertia.visit(route('items.index'))">Item List</Button>
         <Button @click="$inertia.visit(route('orders.index'))">Orders</Button>
-        <Button @click="$inertia.visit(route('merchant_payments.index'))">
+        <Button @click="$inertia.visit(route('payments.index'))">
             Payments
         </Button>
         <Button @click="$inertia.visit(route('expenses.create'))">
@@ -21,13 +21,7 @@ import { Head } from "@inertiajs/inertia-vue3";
         </Button>
         <Button
             v-if="$page.props.auth.user"
-            @click="
-                $inertia.visit(
-                    route('features.all', {
-                        merchant_id: $page.props.auth.user.merchant.id,
-                    })
-                )
-            "
+            @click="$inertia.visit(route('features.all'))"
         >
             All Features
         </Button>

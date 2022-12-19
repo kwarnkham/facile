@@ -40,11 +40,10 @@ class FeatureController extends Controller
         request()->validate([
             'search' => ['sometimes', 'required', 'string'],
             'stocked' => ['boolean'],
-            'merchant_id' => ['exists:merchants,id', 'required']
         ]);
 
-        $filters = request()->only(['search', 'stocked', 'merchant_id']);
-        $features = Feature::with(['pictures'])->whereRelation('item', 'merchant_id', request()->merchant_id)->filter($filters)->orderBy('id', 'desc')->paginate(request()->per_page ?? 20);
+        $filters = request()->only(['search', 'stocked']);
+        $features = Feature::with(['pictures'])->filter($filters)->orderBy('id', 'desc')->paginate(request()->per_page ?? 20);
         return Inertia::render('AllFeatures', [
             'features' => $features,
             'filters' => $filters

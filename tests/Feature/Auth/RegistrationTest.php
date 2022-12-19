@@ -33,8 +33,8 @@ class RegistrationTest extends TestCase
     public function test_cannot_register_with_invalid_role()
     {
         $response = $this->post(route('register'), [
-            'name' => 'Test Merchnat',
-            'email' => 'merchant@example.com',
+            'name' => 'Test admin',
+            'email' => 'admin@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
             'role_id' => 0
@@ -45,8 +45,8 @@ class RegistrationTest extends TestCase
     public function test_admin_role_cannot_be_used_to_register()
     {
         $response = $this->post(route('register'), [
-            'name' => 'Test Merchnat',
-            'email' => 'merchant@example.com',
+            'name' => 'Test admin',
+            'email' => 'admin@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
             'role_id' => 1

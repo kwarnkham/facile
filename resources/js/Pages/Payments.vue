@@ -8,18 +8,18 @@ import { Head, useForm } from "@inertiajs/inertia-vue3";
 import { ref } from "vue";
 
 const props = defineProps({
-    merchant_payments: {
+    payments: {
         type: Object,
         required: true,
     },
-    payments: {
+    payment_types: {
         type: Object,
         required: true,
     },
 });
 
 const submit = () => {
-    form.post(route("merchant_payments.store"), {
+    form.post(route("payments.store"), {
         onSuccess() {
             form.reset("number");
         },
@@ -29,7 +29,7 @@ const submit = () => {
 const togglePayment = (payment) => {
     toggling.value = true;
     Inertia.visit(
-        route("merchant_payments.toggle", {
+        route("payments.toggle", {
             payment: payment.id,
         }),
         {
@@ -50,25 +50,24 @@ const form = useForm({
 
 <template>
     <div class="h-full p-1">
-        <Head title="Merchant Payments" />
+        <Head title="Payments" />
         <div
-            v-for="merchnatPayment in merchant_payments"
-            :key="merchnatPayment.id"
+            v-for="payment in payments"
+            :key="payment.id"
             class="flex items-center"
         >
-            <span class="inline-block mr-1"
-                >{{ merchnatPayment.payment.name }} :
-                {{ merchnatPayment.number }}</span
-            >
+            <span class="inline-block mr-1">
+                {{ payment.payment_type_id }} : {{ payment.number }}
+            </span>
             <EyeIcon
-                v-if="merchnatPayment.status == 1 && !toggling"
+                v-if="payment.status == 1 && !toggling"
                 class="w-5 h-5 inline-block text-success"
-                @click="togglePayment(merchnatPayment)"
+                @click="togglePayment(payment)"
             />
             <EyeSlashIcon
-                v-else-if="merchnatPayment.status == 2 && !toggling"
+                v-else-if="payment.status == 2 && !toggling"
                 class="w-5 h-5 inline-block text-error"
-                @click="togglePayment(merchnatPayment)"
+                @click="togglePayment(payment)"
             />
         </div>
         <form @submit.prevent="submit" class="p-4 flex flex-col space-y-2">
@@ -80,7 +79,7 @@ const form = useForm({
             >
                 <option disabled selected>Select Payment</option>
                 <option
-                    v-for="payment in payments"
+                    v-for="payment in payment_types"
                     :key="payment.id"
                     :value="payment.id"
                 >

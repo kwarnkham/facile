@@ -20,7 +20,6 @@ const props = defineProps({
 const query = ref({
     search: props.filters.search ?? "",
     stocked: Boolean(props.filters.stocked) ?? false,
-    merchant_id: props.filters.merchant_id,
 });
 </script>
 

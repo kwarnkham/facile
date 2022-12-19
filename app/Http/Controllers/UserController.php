@@ -69,9 +69,7 @@ class UserController extends Controller
         ]);
         $filters = $validator->safe()->only(['search', 'status', 'selected_tags']);
         if (!array_key_exists('status', $filters)) $filters['status'] = 2;
-        $tags = Tag::whereHas('items', function ($query) use ($user) {
-            $query->where('merchant_id', $user->id);
-        })->get();
+        $tags = Tag::all();
         $user->items = User::find($user->id)->items()->filter($filters)->paginate(request()->per_page ?? 20);
         return Inertia::render('User', ['user' => $user, 'filters' => $filters, 'tags' => $tags]);
     }

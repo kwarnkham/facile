@@ -6,6 +6,8 @@ use App\Enums\PaymentStatus;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Payment;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class PaymentController extends Controller
 {
@@ -16,7 +18,10 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Payments', [
+            'payment_types' => DB::table('payment_types')->get(),
+            'payments' => Payment::all()
+        ]);
     }
 
     /**

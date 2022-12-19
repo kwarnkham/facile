@@ -12,8 +12,6 @@ const props = defineProps({
 <template>
     <div class="h-full p-1">
         <div>Name : {{ user.name }}</div>
-        <div>Address : {{ user.merchant.address }}</div>
-        <div>Description : {{ user.merchant.description }}</div>
         <div>Status : {{ user.status }}</div>
         <div>Joined on : {{ user.created_at }}</div>
         <Button

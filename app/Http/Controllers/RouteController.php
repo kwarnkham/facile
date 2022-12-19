@@ -31,7 +31,7 @@ class RouteController extends Controller
             'orders' => Order::where([
                 'status' => OrderStatus::COMPLETED->value
             ])->get(['amount', 'discount']),
-            // 'purchases' => Purchase::with(['purchasable'])->whereRelation('purchasable', 'merchant_id', request()->user()->merchants()->first()->id)
+            // 'purchases' => Purchase::with(['purchasable'])
             //     ->where('status', PurchaseStatus::NORMAL->value)
             //     ->get([
             //         'price', 'quantity'
