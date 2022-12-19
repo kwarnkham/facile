@@ -50,6 +50,7 @@ grant db user all PRIVILEGES and create tenants in tinker
 
 ```
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan down
+git pull
 sudo docker-compose -f docker-compose.prod.yml down
 sudo docker-compose -f docker-compose.prod.yml up
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan tenants:migrate
