@@ -15,7 +15,7 @@
     @vite('resources/js/app.js')
     @inertiaHead
     <script>
-        Ziggy.url = "{{ env('APP_URL') }}"
+        Ziggy.url = "{{ config('app')['url'] }}"
     </script>
 </head>
 
