@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         \Stancl\Tenancy\Middleware\InitializeTenancyByPath::$onFail = function ($exception, $request, $next) {
-            abort(404);
+            abort(500);
         };
     }
 }
