@@ -88,4 +88,9 @@ services:
     working_dir: /var/www/html
     depends_on:
       - php
-    command: ["/bin/sh", "-c", "php artisan optimize && php artisan view:cache"]
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "php artisan optimize && php artisan view:cache && php artisan tenants:migrate",
+      ]
