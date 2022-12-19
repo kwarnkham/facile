@@ -29,7 +29,7 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Feature::observe(FeatureObserver::class);
+        // Feature::observe(FeatureObserver::class);
     }
 
     /**

@@ -43,6 +43,7 @@ sudo docker-compose -f docker-compose.prod.yml up
 sudo docker-compose -f docker-compose.prod.yml exec nginx id facile
 sudo chmod -R 755 storage bootstrap/cache
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate:fresh --seed --force
+grant db user all PRIVILEGES and create tenants in tinker
 ```
 
 # Update
@@ -51,6 +52,7 @@ sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate:fresh --
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan down
 sudo docker-compose -f docker-compose.prod.yml down
 sudo docker-compose -f docker-compose.prod.yml up
+sudo docker-compose -f docker-compose.prod.yml run --rm artisan tenants:migrate
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan up
 ```
 
