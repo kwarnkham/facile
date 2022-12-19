@@ -14,6 +14,9 @@
     @routes
     @vite('resources/js/app.js')
     @inertiaHead
+    <script>
+        Ziggy.url = "{{ env('APP_URL') }}"
+    </script>
 </head>
 
 <body class="font-sans antialiased">
