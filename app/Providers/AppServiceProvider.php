@@ -36,9 +36,5 @@ class AppServiceProvider extends ServiceProvider
                 ? $rule->mixedCase()->uncompromised()
                 : $rule;
         });
-
-        \Stancl\Tenancy\Middleware\InitializeTenancyByPath::$onFail = function ($exception, $request, $next) {
-            abort(404);
-        };
     }
 }

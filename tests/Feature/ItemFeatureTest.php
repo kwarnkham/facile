@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class ItemFeatureTest extends TestCase
 {
-    protected $tenancy = true;
+
     public function test_add_feature_to_an_item()
     {
         $data = Feature::factory()->make()->toArray();

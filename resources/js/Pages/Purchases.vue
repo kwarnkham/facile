@@ -21,6 +21,7 @@ const cancelPurchase = (purchase) => {
     <Head title="Purchases" />
     <div class="p-2">
         <div
+            v-if="purchases.length"
             v-for="purchase in purchases"
             :key="purchase.id"
             class="border-b border-b-primary"
@@ -46,5 +47,6 @@ const cancelPurchase = (purchase) => {
                 </Button>
             </div>
         </div>
+        <div v-else class="text-center text-lg font-bold">No purchase yet</div>
     </div>
 </template>

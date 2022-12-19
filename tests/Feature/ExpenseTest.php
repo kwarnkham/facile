@@ -7,7 +7,6 @@ use Tests\TestCase;
 
 class ExpenseTest extends TestCase
 {
-    protected $tenancy = true;
     public function test_create_expense()
     {
         $dataExpense = Expense::factory()->make();

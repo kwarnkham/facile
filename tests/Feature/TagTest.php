@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class TagTest extends TestCase
 {
-    protected $tenancy = true;
+
     public function test_create_new_tag_and_attach_to_an_item()
     {
         $item = Item::factory()->create();

@@ -97,7 +97,6 @@ const submit = () => {
                     type="date"
                     class="w-full"
                     v-model="form.expired_on"
-                    required
                     :class="{ 'daisy-input-error': form.errors.expired_on }"
                 />
                 <InputError :message="form.errors.expired_on" />

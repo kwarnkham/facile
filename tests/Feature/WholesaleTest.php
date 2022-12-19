@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class WholesaleTest extends TestCase
 {
-    protected $tenancy = true;
+
     public function test_wholesale_can_be_added()
     {
         $data = Wholesale::factory()->make()->toArray();

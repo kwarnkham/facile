@@ -10,7 +10,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 class ItemTest extends TestCase
 {
 
-    protected $tenancy = true;
+
     public function test_admin_can_add_item()
     {
         $data = Item::factory()->make()->toArray();

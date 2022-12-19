@@ -21,7 +21,7 @@ use Tests\TestCase;
 class OrderTest extends TestCase
 {
     protected $item;
-    protected $tenancy = true;
+
     public function setUp(): void
     {
         parent::setUp();
