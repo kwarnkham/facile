@@ -8,7 +8,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 class UserTest extends TestCase
 {
-    protected $tenancy = true;
+
     public function test_users_screen_can_be_rendered()
     {
         $count = rand(5, 100);

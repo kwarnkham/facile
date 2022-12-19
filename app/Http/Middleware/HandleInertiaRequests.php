@@ -47,7 +47,6 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message'),
                 'error' => fn () => $request->session()->get('error'),
             ],
-            'tenant_id' => tenant('id') ?? 1
         ]);
     }
 }

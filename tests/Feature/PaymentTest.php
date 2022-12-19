@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class PaymentTest extends TestCase
 {
-    protected $tenancy = true;
+
     public function test_add_a_payment()
     {
         $existed = Payment::count();

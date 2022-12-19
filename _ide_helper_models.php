@@ -176,33 +176,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * App\Models\Tenant
- *
- * @property int $id
- * @property string|null $name
- * @property string|null $description
- * @property string|null $address
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property array|null $data
- * @method static \Stancl\Tenancy\Database\TenantCollection|static[] all($columns = ['*'])
- * @method static \Stancl\Tenancy\Database\TenantCollection|static[] get($columns = ['*'])
- * @method static \Illuminate\Database\Eloquent\Builder|Tenant newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Tenant newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Tenant query()
- * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereUpdatedAt($value)
- */
-	class Tenant extends \Eloquent implements \Stancl\Tenancy\Contracts\TenantWithDatabase {}
-}
-
-namespace App\Models{
-/**
  * App\Models\User
  *
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications

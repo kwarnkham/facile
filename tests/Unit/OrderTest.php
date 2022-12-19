@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 class OrderTest extends TestCase
 {
-    protected $tenancy = true;
+
 
     public function test_get_feature_discounts()
     {

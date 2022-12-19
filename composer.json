@@ -16,7 +16,6 @@
         "laravel/tinker": "^2.7",
         "league/flysystem-aws-s3-v3": "^3.0",
         "simplesoftwareio/simple-qrcode": "~4",
-        "stancl/tenancy": "^3.6",
         "tightenco/ziggy": "^1.0"
     },
     "require-dev": {

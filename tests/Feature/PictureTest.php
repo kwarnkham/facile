@@ -11,7 +11,7 @@ use Tests\TestCase;
 class PictureTest extends TestCase
 {
 
-    protected $tenancy = true;
+
     public function test_store_pictures_item()
     {
         $item = Item::factory()->create();

@@ -5,13 +5,11 @@ namespace Tests;
 use App\Models\Payment;
 use App\Models\Role;
 use App\Models\Tag;
-use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\URL;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -26,15 +24,11 @@ abstract class TestCase extends BaseTestCase
     protected $user;
     protected $payment;
     protected $tag;
-    protected $tenancy = false;
     protected $payment_type_id;
 
     public function setUp(): void
     {
         parent::setUp();
-        if ($this->tenancy) {
-            $this->initializeTenancy();
-        }
         $this->user = User::factory()->has(Role::factory()->state(['name' => 'admin']))->create();
         $this->tag = Tag::factory()->create();
 
@@ -47,22 +41,5 @@ abstract class TestCase extends BaseTestCase
         $this->payment = Payment::factory()->create([
             'payment_type_id' => $this->payment_type_id
         ]);
-    }
-
-    public function tearDown(): void
-    {
-        Tenant::all()->each(fn ($tenant) => $tenant->delete());
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        // Tenant::all()->each(fn ($tenant) => $tenant->delete());
-    }
-
-    public function initializeTenancy()
-    {
-        $tenant = Tenant::create();
-        tenancy()->initialize($tenant);
-        URL::defaults(['tenant' => $tenant->id]);
     }
 }

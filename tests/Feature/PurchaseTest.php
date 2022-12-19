@@ -7,7 +7,7 @@ use Tests\TestCase;
 
 class PurchaseTest extends TestCase
 {
-    protected $tenancy = true;
+
     public function test_create_a_purchase_for_expense()
     {
         $expnese = Expense::factory()->create();
