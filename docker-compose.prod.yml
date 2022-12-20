@@ -20,6 +20,8 @@ services:
       dockerfile: php.dockerfile
     container_name: facile-php
     restart: unless-stopped
+    ports:
+      - ${DOCKER_HOST_PHP_PORT}:9000
     volumes:
       - ./:/var/www/html
   composer:
