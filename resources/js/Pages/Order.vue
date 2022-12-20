@@ -364,6 +364,14 @@ const isPaymentInfoExpanded = ref(false);
                 </label>
             </div>
             <div class="daisy-divider"></div>
+            <img
+                v-if="payments.find((e) => e.id == paymentForm.payment_id).qr"
+                :src="payments.find((e) => e.id == paymentForm.payment_id).qr"
+                alt="payment qr"
+                class="w-full"
+            />
+            <div class="daisy-divider"></div>
+
             <div>
                 <InputLabel for="paymentAmount" value="Amount" />
                 <TextInput

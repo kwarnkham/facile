@@ -125,6 +125,12 @@ const form = useForm({
                                 (e) => e.id == payment.payment_type_id
                             ).name
                         }}
+                        <img
+                            :src="payment.qr"
+                            alt="payment qr"
+                            v-if="payment.qr"
+                            class="h-10"
+                        />
                     </h4>
                     <p v-if="payment.number">Number: {{ payment.number }}</p>
                     <p v-if="payment.account_name">
