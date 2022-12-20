@@ -5,6 +5,7 @@ import TextInput from "@/Components/TextInput.vue";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/solid";
 import { Inertia } from "@inertiajs/inertia";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
+import pickBy from "lodash/pickBy";
 import { ref } from "vue";
 
 const props = defineProps({
@@ -19,7 +20,7 @@ const props = defineProps({
 });
 
 const submit = () => {
-    form.post(route("payments.store"), {
+    form.transform((data) => pickBy(data)).post(route("payments.store"), {
         onSuccess() {
             form.reset("number");
         },
