@@ -81,6 +81,11 @@ sudo docker-compose -f docker-compose.prod.yml run --rm composer install --optim
 sudo docker-compose -f docker-compose.prod.yml up
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan up
+
+php artisan config:cache
+php artisan optimize
+php artisan route:cache
+php artisan view:cache
 ```
 
 ## Javascript
@@ -88,6 +93,10 @@ sudo docker-compose -f docker-compose.prod.yml run --rm artisan up
 ```
 sudo docker-compose -f docker-compose.prod.yml run --rm npm install
 sudo docker-compose -f docker-compose.prod.yml run --rm npm run build
+
+npm i
+npm run build
+cp public/manifest.webmanifest public/build
 ```
 
 ## PHP
@@ -95,6 +104,9 @@ sudo docker-compose -f docker-compose.prod.yml run --rm npm run build
 ```
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate --force
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan up
+
+composer install --optimize-autoloader --no-dev
+php artisan migrate
 ```
 
 ```
@@ -116,4 +128,5 @@ df -h
 docker rmi $(docker images -f "dangling=true" -q)
 deluser --remove-home newuser
 sudo systemctl status certbot.timer
+git config credential.helper store
 ```
