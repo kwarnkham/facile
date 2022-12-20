@@ -1,0 +1,15 @@
+{
+    "background_color": "#5C7F67",
+    "description": "Facile, your business facilitator",
+    "display": "fullscreen",
+    "icons": [
+        {
+            "src": "icon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }
+    ],
+    "name": "Facile",
+    "short_name": "Facile",
+    "start_url": "/"
+}

@@ -45,6 +45,32 @@ sudo chmod -R 755 storage bootstrap/cache
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate:fresh --seed --force
 ```
 
+4. build and deploy without docker
+
+```
+sudo apt-get install php8.1-gd
+composer install --optimize-autoloader --no-dev
+php artisan key:generate
+php artisan config:cache
+php artisan optimize
+php artisan route:cache
+php artisan view:cache
+create database
+php artisan migrate --seed
+sudo chown -R www-data.www-data /var/www/facile/storage /var/www/facile/bootstrap/cache
+sudo chmod -R 755 /var/www/facile/storage /var/www/facile/bootstrap/cache
+install node and npm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+source ~/.bashrc
+nvm list-remote
+nvm install v16.19.0
+nvm current
+nvm list
+npm i
+npm run build
+```
+
 # Update
 
 ```
@@ -89,4 +115,5 @@ watch -n 5 free -m
 df -h
 docker rmi $(docker images -f "dangling=true" -q)
 deluser --remove-home newuser
+sudo systemctl status certbot.timer
 ```
