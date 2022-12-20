@@ -9,7 +9,7 @@
 
     <!-- Fonts -->
     <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" crossorigin="anonymous">
-    <link rel="manifest" href="{{ public_path('manifest.webmanifest') }}" />
+    <link rel="manifest" href="manifest.webmanifest" />
 
 
     <!-- Scripts -->
