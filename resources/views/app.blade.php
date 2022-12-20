@@ -14,9 +14,6 @@
     @routes
     @vite('resources/js/app.js')
     @inertiaHead
-    <script>
-        Ziggy.url = "{{ config('app')['url'] }}"
-    </script>
 </head>
 
 <body class="font-sans antialiased">
