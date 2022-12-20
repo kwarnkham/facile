@@ -96,7 +96,6 @@ sudo docker-compose -f docker-compose.prod.yml run --rm npm run build
 
 npm i
 npm run build
-cp public/manifest.webmanifest public/build
 ```
 
 ## PHP
