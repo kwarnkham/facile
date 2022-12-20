@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdatePaymentRequest extends FormRequest
 {
@@ -13,7 +14,7 @@ class UpdatePaymentRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +25,12 @@ class UpdatePaymentRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'qr' => [Rule::requiredIf($this->payment_type_id != 1), 'image'],
+            'account_name' => [Rule::requiredIf($this->payment_type_id != 1)],
+            'number' => [
+                Rule::requiredIf($this->route('payment')->payment_type_id != 1),
+                Rule::unique('payments')->where('payment_type_id', $this->route('payment')->payment_type_id)->ignore($this->number, 'number')
+            ],
         ];
     }
 }

@@ -4,6 +4,9 @@ namespace Tests\Feature;
 
 use App\Enums\PaymentStatus;
 use App\Models\Payment;
+use App\Models\Picture;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PaymentTest extends TestCase
@@ -12,17 +15,15 @@ class PaymentTest extends TestCase
     public function test_add_a_payment()
     {
         $existed = Payment::count();
-        $this->actingAs($this->user)->post(route('payments.store'), [
-            'number' => '123',
-            'payment_type_id' => $this->payment_type_id_2
-        ]);
+        $payment = Payment::factory()->make()->toArray();
+        $payment['payment_type_id'] = $this->payment_type_id_2;
+        $payment['qr'] = UploadedFile::fake()->image('qr.jpg');
 
+        $this->actingAs($this->user)->post(route('payments.store'), $payment);
+        $this->assertTrue(Picture::deletePictureFromDisk($payment['qr']->hashName(), 'payments'));
         $this->assertDatabaseCount('payments', $existed + 1);
 
-        $this->actingAs($this->user)->post(route('payments.store'), [
-            'number' => '123',
-            'payment_type_id' => $this->payment_type_id_2
-        ])->assertSessionHasErrors(['number']);
+        $this->actingAs($this->user)->post(route('payments.store'), $payment)->assertSessionHasErrors(['number']);
     }
 
     public function test_toggle_a_payment()
@@ -40,5 +41,31 @@ class PaymentTest extends TestCase
         $this->actingAs($this->user)->post(route('payments.toggle', ['payment' => $payment->id]));
 
         $this->assertEquals($payment->fresh()->status, PaymentStatus::ENABLED->value);
+    }
+
+    public function test_update_payment()
+    {
+        $payment = Payment::factory()->make()->toArray();
+        $payment['payment_type_id'] = $this->payment_type_id_2;
+        $payment['qr'] = UploadedFile::fake()->image('qr.jpg');
+
+        $this->actingAs($this->user)->post(route('payments.store'), $payment);
+
+        $payment = Payment::latest('id')->first();
+
+
+        $updatedPayment = Payment::factory()->make()->toArray();
+        $updatedPayment['qr'] = UploadedFile::fake()->image('qr.jpg');
+        $this->actingAs($this->user)->put(
+            route('payments.update', ['payment' => $payment->id]),
+            $updatedPayment
+        );
+
+        $this->assertFalse(Storage::exists(Picture::picturePath($payment->getRawOriginal('qr'), 'order_payments')));
+        $payment->refresh();
+        $this->assertTrue(Picture::deletePictureFromDisk($payment->getRawOriginal('qr'), 'payments'));
+        $this->assertEquals($updatedPayment['number'], $payment->number);
+        $this->assertEquals($updatedPayment['account_name'], $payment->account_name);
+        $this->assertEquals($updatedPayment['qr']->hashName(), $payment->getRawOriginal('qr'));
     }
 }

@@ -74,6 +74,7 @@ Route::controller(PaymentController::class)->prefix('/payments')->group(function
         Route::post('/{payment}/toggle', 'toggle')->name('payments.toggle');
         Route::post('', 'store')->name('payments.store');
         Route::get('', 'index')->name('payments.index');
+        Route::put('/{payment}', 'update')->name('payments.update');
     });
 });
 

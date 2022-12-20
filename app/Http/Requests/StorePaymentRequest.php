@@ -32,7 +32,6 @@ class StorePaymentRequest extends FormRequest
             ],
             'qr' => [Rule::requiredIf($this->payment_type_id != 1), 'image'],
             'account_name' => [Rule::requiredIf($this->payment_type_id != 1)],
-            'qr' => [Rule::requiredIf($this->payment_type_id != 1), 'image']
         ];
     }
 }

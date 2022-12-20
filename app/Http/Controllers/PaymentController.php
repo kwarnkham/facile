@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\PaymentStatus;
+use App\Enums\ResponseStatus;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Payment;
 use App\Models\Picture;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Redirect;
 
 class PaymentController extends Controller
 {
@@ -44,11 +46,11 @@ class PaymentController extends Controller
     public function store(StorePaymentRequest $request)
     {
         $attributes = $request->validated();
-        DB::transaction(function () use ($attributes) {
-            $qr = array_key_exists('qr', $attributes) ? Picture::savePictureInDisk($attributes['qr'], 'payments') : null;
+        $qr = array_key_exists('qr', $attributes) ? Picture::savePictureInDisk($attributes['qr'], 'payments') : null;
+        if ($qr) {
             $attributes['qr'] = $qr;
             Payment::create($attributes);
-        });
+        }
     }
 
     public function toggle(Payment $payment)
@@ -88,7 +90,16 @@ class PaymentController extends Controller
      */
     public function update(UpdatePaymentRequest $request, Payment $payment)
     {
-        //
+        $attributes = $request->validated();
+        if ($payment->qr)
+            abort_unless(Picture::deletePictureFromDisk($payment->getRawOriginal('qr'), 'payments'), ResponseStatus::SERVER_ERROR->value, 'Failed to delete existed QR');
+        $qr = array_key_exists('qr', $attributes) ? Picture::savePictureInDisk($attributes['qr'], 'payments') : null;
+        if ($qr) {
+            $attributes['qr'] = $qr;
+            $payment->update($attributes);
+        }
+
+        return Redirect::back()->with('message', 'Updated');
     }
 
     /**
