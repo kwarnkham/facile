@@ -24,6 +24,7 @@ services:
       - ${DOCKER_HOST_PHP_PORT}:9000
     volumes:
       - ./:/var/www/html
+      - ./public:/var/www/html/public
   composer:
     build:
       context: .
