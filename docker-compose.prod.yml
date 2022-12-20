@@ -1,20 +1,6 @@
 version: "3.8"
 
 services:
-  nginx:
-    build:
-      context: .
-      dockerfile: nginx.dockerfile
-    container_name: facile-nginx
-    restart: unless-stopped
-    ports:
-      - 81:80
-      - 444:443
-    volumes:
-      - ./public:/var/www/html/public
-    depends_on:
-      - mysql
-      - php
   mysql:
     image: mysql:8.0
     container_name: facile-mysql
