@@ -25,10 +25,10 @@ class StoreOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'customer' => ['sometimes', 'required', 'string'],
+            'customer' => ['sometimes', 'required'],
             'phone' => ['sometimes', 'required', 'numeric'],
-            'address' => ['sometimes', 'required', 'string'],
-            'note' => ['sometimes', 'required', 'string'],
+            'address' => ['sometimes', 'required'],
+            'note' => ['sometimes', 'required'],
             'discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
             'features' => ['required', 'array'],
             'features.*' => ['required', 'array'],

@@ -21,7 +21,7 @@ class ItemController extends Controller
     public function index()
     {
         $validator = Validator::make(request()->only(['search']), [
-            'search' => ['string']
+            'search' => ['']
         ]);
 
         $query = Item::query();

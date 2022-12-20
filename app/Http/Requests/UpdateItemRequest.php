@@ -26,14 +26,14 @@ class UpdateItemRequest extends FormRequest
     {
         return [
             'name' => [
-                'required', 'string',
+                'required',
                 Rule::unique('items', 'name')->where(fn ($query) => $query->where(
                     'id',
                     '!=',
                     $this->item->id
                 ))
             ],
-            'description' => ['required', 'string', 'max:255']
+            'description' => ['required', 'max:255']
         ];
     }
 }

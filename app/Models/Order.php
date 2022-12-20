@@ -30,7 +30,7 @@ class Order extends Model
     public function payments()
     {
         return $this->belongsToMany(Payment::class)->withPivot([
-            'amount', 'number', 'note', 'picture'
-        ]);
+            'amount', 'number', 'note', 'picture', 'payment_name', 'account_name'
+        ])->withTimestamps();
     }
 }

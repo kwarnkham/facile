@@ -23,7 +23,7 @@ class FeatureController extends Controller
     {
         $attributes = request()->validate([
             'item_id' => ['required', 'exists:items,id'],
-            'search' => ['sometimes', 'required', 'string'],
+            'search' => ['sometimes', 'required'],
             'stocked' => ['boolean']
         ]);
         $filters = request()->only(['search', 'stocked']);
@@ -38,7 +38,7 @@ class FeatureController extends Controller
     public function all()
     {
         request()->validate([
-            'search' => ['sometimes', 'required', 'string'],
+            'search' => ['sometimes', 'required'],
             'stocked' => ['boolean'],
         ]);
 

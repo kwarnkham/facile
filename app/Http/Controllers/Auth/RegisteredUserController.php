@@ -43,8 +43,8 @@ class RegisteredUserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role_id' => ['sometimes', Rule::exists('roles', 'id')->where(fn ($query) => $query->where('name', '!=', 'admin'))],
-            'address' => ['required_if:role_id,2', 'string'],
-            'description' => ['required_if:role_id,2', 'string'],
+            'address' => ['required_if:role_id,2'],
+            'description' => ['required_if:role_id,2'],
         ]);
 
         $user = User::create([

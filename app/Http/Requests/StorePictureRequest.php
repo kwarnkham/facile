@@ -30,7 +30,6 @@ class StorePictureRequest extends FormRequest
             'pictures.*' => ['required', 'image'],
             'type' => [
                 'required',
-                'string',
                 function ($attribute, $value, $fail) {
                     $value = ucfirst(strtolower($value));
                     if (!file_exists(app_path('Models/' . $value . '.php'))) {

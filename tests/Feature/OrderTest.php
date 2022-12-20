@@ -167,8 +167,8 @@ class OrderTest extends TestCase
         ]);
 
         $picture = $order->payments()->first()->pivot->picture;
-        $this->assertTrue(Storage::exists(Picture::picturePath($picture, 'payments')));
-        $this->assertTrue(Picture::deletePictureFromDisk($picture, 'payments'));
+        $this->assertTrue(Storage::exists(Picture::picturePath($picture, 'order_payments')));
+        $this->assertTrue(Picture::deletePictureFromDisk($picture, 'order_payments'));
 
         $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,

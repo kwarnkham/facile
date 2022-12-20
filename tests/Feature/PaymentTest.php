@@ -14,14 +14,14 @@ class PaymentTest extends TestCase
         $existed = Payment::count();
         $this->actingAs($this->user)->post(route('payments.store'), [
             'number' => '123',
-            'payment_type_id' => $this->payment_type_id
+            'payment_type_id' => $this->payment_type_id_2
         ]);
 
         $this->assertDatabaseCount('payments', $existed + 1);
 
         $this->actingAs($this->user)->post(route('payments.store'), [
             'number' => '123',
-            'payment_type_id' => $this->payment_type_id
+            'payment_type_id' => $this->payment_type_id_2
         ])->assertSessionHasErrors(['number']);
     }
 

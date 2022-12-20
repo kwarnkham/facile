@@ -11,7 +11,7 @@ trait Spaceable
 
     public static function saveFile(File|UploadedFile $file)
     {
-        return basename(Storage::putFile(config('app')['name'] . '/picture/' . static::spaceDir() . '/' . config('app')['env'], $file, 'public'));
+        return basename(Storage::putFile(config('app')['name'] . '/pictures/' . static::spaceDir() . '/' . config('app')['env'], $file, 'public'));
     }
 
     public static function spaceDir()

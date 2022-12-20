@@ -26,10 +26,10 @@ class StoreFeatureRequest extends FormRequest
     {
         return [
             'item_id' => ['required', 'exists:items,id'],
-            'name' => ['required', 'string', Rule::unique('features', 'name')->where('item_id', $this->item_id)],
+            'name' => ['required', Rule::unique('features', 'name')->where('item_id', $this->item_id)],
             'stock' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],
-            'note' => ['sometimes', 'required', 'string'],
+            'note' => ['sometimes', 'required'],
             'purchase_price' => ['required', 'numeric'],
             'type' => ['sometimes', 'required', 'in:1,2'],
             'expired_on' => ['sometimes', 'required', 'date']

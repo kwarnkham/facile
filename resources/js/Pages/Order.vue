@@ -28,6 +28,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    payment_types: {
+        type: Array,
+        required: true,
+    },
 });
 
 const remaining = computed(
@@ -138,7 +142,13 @@ const isPaymentInfoExpanded = ref(false);
                         <strong>{{ orderPayment.pivot.amount }}</strong> MMK is
                         paid to
                         <span class="font-semibold">
-                            {{ orderPayment.payment.name }} -
+                            {{ orderPayment.pivot.account_name }}
+                        </span>
+                        <span
+                            class="font-semibold"
+                            v-if="orderPayment.pivot.number"
+                        >
+                            -
                             {{ orderPayment.pivot.number }}
                         </span>
                     </div>
@@ -148,7 +158,6 @@ const isPaymentInfoExpanded = ref(false);
                         v-if="orderPayment.pivot.picture"
                     />
                 </div>
-
                 <div>
                     {{
                         new Date(orderPayment.created_at)
@@ -329,10 +338,23 @@ const isPaymentInfoExpanded = ref(false);
                 :key="payment.id"
             >
                 <label class="daisy-label cursor-pointer">
-                    <span class="daisy-label-text">
-                        {{ payment.payment_type_id }} -
-                        {{ payment.number }}
-                    </span>
+                    <div class="daisy-label-text">
+                        <span>
+                            {{
+                                payment_types.find(
+                                    (e) => e.id == payment.payment_type_id
+                                ).name
+                            }}
+                        </span>
+                        <strong v-if="payment.number">
+                            -
+                            {{ payment.number }}
+                        </strong>
+                        <strong v-if="payment.account_name">
+                            -
+                            {{ payment.account_name }}
+                        </strong>
+                    </div>
                     <input
                         type="radio"
                         class="daisy-radio checked:bg-primary"

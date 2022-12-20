@@ -25,6 +25,7 @@ abstract class TestCase extends BaseTestCase
     protected $payment;
     protected $tag;
     protected $payment_type_id;
+    protected $payment_type_id_2;
 
     public function setUp(): void
     {
@@ -38,6 +39,14 @@ abstract class TestCase extends BaseTestCase
             'updated_at' => now()
         ]);
         $this->payment_type_id = DB::table('payment_types')->first()->id;
+
+        DB::table('payment_types')->insert([
+            'name' => 'other',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        $this->payment_type_id_2 = DB::table('payment_types')->where('name', 'other')->first()->id;
+
         $this->payment = Payment::factory()->create([
             'payment_type_id' => $this->payment_type_id
         ]);

@@ -19,6 +19,8 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained();
             $table->double('amount');
             $table->string('number')->nullable();
+            $table->string('account_name')->nullable();
+            $table->string('payment_name')->nullable();
             $table->string('note')->nullable();
             $table->string('picture')->nullable();
             $table->timestamps();

@@ -30,7 +30,6 @@ class StorePurchaseRequest extends FormRequest
             'quantity' => ['required', 'numeric', 'gt:0'],
             'type' => [
                 'required',
-                'string',
                 function ($attribute, $value, $fail) {
                     $value = ucfirst(strtolower($value));
                     if (!file_exists(app_path('Models/' . $value . '.php'))) {

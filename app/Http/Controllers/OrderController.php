@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Batch;
@@ -13,6 +14,7 @@ use App\Models\Payment;
 use App\Models\Picture;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -51,19 +53,22 @@ class OrderController extends Controller
                     }
                 }
             ],
-            'note' => ['sometimes', 'required', 'string'],
+            'note' => ['sometimes', 'required'],
             'picture' => ['sometimes', 'required', 'image']
         ]);
 
         DB::beginTransaction();
         try {
-            $picture = array_key_exists('picture', $attributes) ? Picture::savePictureInDisk($attributes['picture'], 'payments') : null;
+            $picture = array_key_exists('picture', $attributes) ? Picture::savePictureInDisk($attributes['picture'], 'order_payments') : null;
+            $payment = Payment::find($attributes['payment_id']);
             $order->payments()->attach(
                 $attributes['payment_id'],
                 [
                     'amount' => $attributes['amount'],
-                    'number' => Payment::find($attributes['payment_id'])->number,
+                    'number' => $payment->number,
                     'note' => $attributes['note'] ?? null,
+                    'account_name' => $payment->account_name,
+                    'payment_name' => DB::table('payment_types')->where('id', $payment->payment_type_id)->first()->name,
                     'picture' => $picture
                 ]
             );
@@ -205,9 +210,19 @@ class OrderController extends Controller
     {
         $order->load(['features', 'payments']);
         $order->payments->each(function (&$value) {
-            if ($value->pivot->picture) $value->pivot->picture = $value->picture;
+            if ($value->pivot->picture) $value->pivot->picture = Storage::url(
+                config('app')['name'] .
+                    '/order_payments/' .
+                    config('app')['env'] .
+                    '/' .
+                    $value->pivot->picture
+            );
         });
-        return Inertia::render('Order', ['order' => $order, 'payments' => Payment::all()]);
+        return Inertia::render('Order', [
+            'order' => $order,
+            'payments' => Payment::where('status', PaymentStatus::ENABLED->value)->get(),
+            'payment_types' => DB::table('payment_types')->get()
+        ]);
     }
 
     /**

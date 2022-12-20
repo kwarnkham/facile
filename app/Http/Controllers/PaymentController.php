@@ -6,6 +6,7 @@ use App\Enums\PaymentStatus;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Payment;
+use App\Models\Picture;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -43,7 +44,11 @@ class PaymentController extends Controller
     public function store(StorePaymentRequest $request)
     {
         $attributes = $request->validated();
-        Payment::create($attributes);
+        DB::transaction(function () use ($attributes) {
+            $qr = array_key_exists('qr', $attributes) ? Picture::savePictureInDisk($attributes['qr'], 'payments') : null;
+            $attributes['qr'] = $qr;
+            Payment::create($attributes);
+        });
     }
 
     public function toggle(Payment $payment)

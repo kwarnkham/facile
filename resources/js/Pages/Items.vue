@@ -52,6 +52,17 @@ const query = ref({
                         <Button
                             @click="
                                 $inertia.visit(
+                                    route('features.create', {
+                                        item_id: item.id,
+                                    })
+                                )
+                            "
+                        >
+                            Add Feature
+                        </Button>
+                        <Button
+                            @click="
+                                $inertia.visit(
                                     route('items.edit', { item: item.id })
                                 )
                             "

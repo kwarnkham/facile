@@ -18,7 +18,7 @@ class UserController extends Controller
     public function index()
     {
         $validator = Validator::make(request()->only(['search']), [
-            'search' => ['string']
+            'search' => ['']
         ]);
         $filters = $validator->safe()->only(['search']);
         $query = User::query()->filter($filters);
@@ -58,9 +58,9 @@ class UserController extends Controller
     public function show(User $user)
     {
         $validator = Validator::make(request()->only(['search', 'status', 'selected_tags']), [
-            'search' => ['string'],
+            'search' => [''],
             'status' => ['exists:items,status'],
-            'selected_tags' => ['sometimes', 'required', 'string', function ($attribute, $value, $fail) {
+            'selected_tags' => ['sometimes', 'required', function ($attribute, $value, $fail) {
                 $tag_ids = collect(explode(',', $value));
                 if (!$tag_ids->every(fn ($tag_id) => Tag::where('id', $tag_id)->exists())) {
                     $fail('The selected ' . $attribute . ' is invalid.');

@@ -46,7 +46,7 @@ class ExpenseController extends Controller
     {
         $attributes = request()->validate([
             'price' => ['required', 'numeric'],
-            'note' => ['sometimes', 'required', 'string']
+            'note' => ['sometimes', 'required']
         ]);
         $expense->purchases()->create($attributes);
         return Redirect::back()->with('message', 'Success');
