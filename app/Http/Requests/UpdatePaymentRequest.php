@@ -25,7 +25,7 @@ class UpdatePaymentRequest extends FormRequest
     public function rules()
     {
         return [
-            'qr' => [Rule::requiredIf($this->payment_type_id != 1), 'image'],
+            'qr' => ['sometimes', Rule::requiredIf($this->payment_type_id != 1), 'image'],
             'account_name' => [Rule::requiredIf($this->payment_type_id != 1)],
             'number' => [
                 Rule::requiredIf($this->route('payment')->payment_type_id != 1),

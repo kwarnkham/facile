@@ -29,7 +29,6 @@ const submit = () => {
 };
 
 const togglePayment = (payment) => {
-    toggling.value = true;
     Inertia.visit(
         route("payments.toggle", {
             payment: payment.id,
@@ -37,13 +36,10 @@ const togglePayment = (payment) => {
         {
             method: "post",
             preserveState: true,
-            onFinish: () => {
-                toggling.value = false;
-            },
         }
     );
 };
-const toggling = ref(false);
+
 const form = useForm({
     number: "",
     payment_type_id: props.payment_types[0]?.id,
@@ -73,39 +69,43 @@ const form = useForm({
                 </option>
             </select>
             <InputError :message="form.errors.payment_type_id" />
-            <div>
-                <TextInput
-                    id="number"
-                    type="tel"
-                    placeholder="Number"
-                    class="mt-1 block w-full"
-                    v-model.number="form.number"
-                    :required="form.payment_type_id != 1"
-                    :class="{ 'daisy-input-error': form.errors.number }"
-                />
-                <InputError :message="form.errors.number" />
-            </div>
 
-            <div>
-                <TextInput
-                    id="account_name"
-                    type="text"
-                    placeholder="Account Name"
-                    class="mt-1 block w-full"
-                    v-model.number="form.account_name"
-                    :required="form.payment_type_id != 1"
-                    :class="{ 'daisy-input-error': form.errors.account_name }"
-                />
-                <InputError :message="form.errors.account_name" />
-            </div>
-            <div>
-                <PicturePicker
-                    :label="'QR Code'"
-                    class="mt-2"
-                    v-model="form.qr"
-                />
-                <InputError :message="form.errors.qr" />
-            </div>
+            <template v-if="form.payment_type_id != 1">
+                <div>
+                    <TextInput
+                        id="number"
+                        type="tel"
+                        placeholder="Number"
+                        class="mt-1 block w-full"
+                        v-model.number="form.number"
+                        :required="form.payment_type_id != 1"
+                        :class="{ 'daisy-input-error': form.errors.number }"
+                    />
+                    <InputError :message="form.errors.number" />
+                </div>
+                <div>
+                    <TextInput
+                        id="account_name"
+                        type="text"
+                        placeholder="Account Name"
+                        class="mt-1 block w-full"
+                        v-model.number="form.account_name"
+                        :required="form.payment_type_id != 1"
+                        :class="{
+                            'daisy-input-error': form.errors.account_name,
+                        }"
+                    />
+                    <InputError :message="form.errors.account_name" />
+                </div>
+                <div>
+                    <PicturePicker
+                        :label="'QR Code'"
+                        class="mt-2"
+                        v-model="form.qr"
+                    />
+                    <InputError :message="form.errors.qr" />
+                </div>
+            </template>
             <div class="text-right">
                 <PrimaryButton type="submit" :disabled="form.processing">
                     Add
@@ -119,7 +119,17 @@ const form = useForm({
                 class="daisy-card bg-base-100 shadow-xl daisy-card-compact w-full mb-1"
             >
                 <div class="daisy-card-body">
-                    <h4 class="daisy-card-title">
+                    <h4
+                        class="daisy-card-title"
+                        :class="{
+                            'pointer-events-none': payment.payment_type_id == 1,
+                        }"
+                        @click="
+                            $inertia.visit(
+                                route('payments.edit', { payment: payment.id })
+                            )
+                        "
+                    >
                         {{
                             payment_types.find(
                                 (e) => e.id == payment.payment_type_id
@@ -138,12 +148,12 @@ const form = useForm({
                     </p>
                     <div class="daisy-card-actions justify-end">
                         <EyeIcon
-                            v-if="payment.status == 1 && !toggling"
+                            v-if="payment.status == 1"
                             class="w-5 h-5 inline-block text-success"
                             @click="togglePayment(payment)"
                         />
                         <EyeSlashIcon
-                            v-else-if="payment.status == 2 && !toggling"
+                            v-else-if="payment.status == 2"
                             class="w-5 h-5 inline-block text-error"
                             @click="togglePayment(payment)"
                         />

@@ -49,8 +49,8 @@ class PaymentController extends Controller
         $qr = array_key_exists('qr', $attributes) ? Picture::savePictureInDisk($attributes['qr'], 'payments') : null;
         if ($qr) {
             $attributes['qr'] = $qr;
-            Payment::create($attributes);
         }
+        Payment::create($attributes);
     }
 
     public function toggle(Payment $payment)
@@ -78,7 +78,7 @@ class PaymentController extends Controller
      */
     public function edit(Payment $payment)
     {
-        //
+        return Inertia::render('EditPayment', ['payment' => $payment]);
     }
 
     /**
@@ -91,13 +91,16 @@ class PaymentController extends Controller
     public function update(UpdatePaymentRequest $request, Payment $payment)
     {
         $attributes = $request->validated();
-        if ($payment->qr)
-            abort_unless(Picture::deletePictureFromDisk($payment->getRawOriginal('qr'), 'payments'), ResponseStatus::SERVER_ERROR->value, 'Failed to delete existed QR');
-        $qr = array_key_exists('qr', $attributes) ? Picture::savePictureInDisk($attributes['qr'], 'payments') : null;
-        if ($qr) {
+        if (array_key_exists('qr', $attributes)) {
+            if ($payment->qr)
+                abort_unless(Picture::deletePictureFromDisk($payment->getRawOriginal('qr'), 'payments'), ResponseStatus::SERVER_ERROR->value, 'Failed to delete existed QR');
+
+            $qr =  Picture::savePictureInDisk($attributes['qr'], 'payments');
             $attributes['qr'] = $qr;
-            $payment->update($attributes);
         }
+
+        $payment->update($attributes);
+
 
         return Redirect::back()->with('message', 'Updated');
     }
