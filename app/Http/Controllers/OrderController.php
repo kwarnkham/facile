@@ -140,6 +140,37 @@ class OrderController extends Controller
         return Inertia::render('PreOrder', ['items' => $items, 'search' => $search]);
     }
 
+    public function preOrder()
+    {
+        $attributes = request()->validate([
+            'customer' => ['required'],
+            'phone' => ['required'],
+            'address' => ['required'],
+            'discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
+            'note' => ['sometimes', 'required'],
+            'items' => ['required', 'array'],
+            'items.*' => ['required', 'array'],
+            'items.*.item_id' => ['required', 'exists:items,id'],
+            'items.*.price' => ['required', 'numeric', 'gt:0'],
+            'items.*.quantity' => ['required', 'numeric', 'gt:0'],
+        ]);
+
+
+        DB::transaction(function () use ($attributes) {
+            $amount = array_reduce($attributes['items'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0);
+            $attributes['amount'] = $amount;
+            $order = Order::create(collect($attributes)->except('items')->toArray());
+            foreach ($attributes['items'] as $key => $item) {
+                $order->items()->attach($item['item_id'], [
+                    'price' => $item['price'],
+                    'quantity' => $item['quantity'],
+                ]);
+            }
+        });
+
+        return Redirect::back()->with('message', 'success');
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -211,7 +242,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['features', 'payments']);
+        $order->load(['features', 'payments', 'items']);
         $order->payments->each(function (&$value) {
             if ($value->pivot->picture) $value->pivot->picture = Storage::url(
                 config('app')['name'] .

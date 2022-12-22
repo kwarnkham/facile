@@ -65,14 +65,14 @@ watch(
 const cartItems = computed(() => {
     return store.cart.items;
 });
-onMounted(() => {
-    const setHeight = () => {
-        const vh = window.innerHeight * 0.01;
-        document.querySelector(".layout").style.setProperty("--vh", `${vh}px`);
-    };
-    setHeight();
-    window.addEventListener("resize", setHeight);
-});
+// onMounted(() => {
+//     const setHeight = () => {
+//         const vh = window.innerHeight * 0.01;
+//         document.querySelector(".layout").style.setProperty("--vh", `${vh}px`);
+//     };
+//     setHeight();
+//     window.addEventListener("resize", setHeight);
+// });
 </script>
 
 <template>

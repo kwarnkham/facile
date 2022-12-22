@@ -39,4 +39,28 @@ class OrderTest extends TestCase
             $order->features->reduce(fn ($carry, $val) => $carry + ($val->pivot->discount * $val->pivot->quantity), 0)
         );
     }
+
+    public function test_create_unstocked_order()
+    {
+        $items = Item::factory(rand(1, 5))->create()->map(fn ($item) => [
+            'item_id' => $item->id,
+            'price' => rand(1000, 5000),
+            'quantity' => rand(1, 10)
+        ]);
+        $amount = $items->reduce(fn ($carry, $item) => $carry + $item['price'] * $item['quantity'], 0);
+        $data = [
+            'discount' => floor((int)$amount / 2),
+            'customer' => 'account_name',
+            'phone' => 'phone',
+            'address' => 'address',
+            'note' => 'note',
+            'items' => $items->toArray()
+        ];
+        $this->actingAs($this->user)->post(route('orders.preOrder'), $data);
+
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertDatabaseHas('orders', collect([...$data, 'amount' => $amount])->except(['items'])->toArray());
+        $this->assertDatabaseCount('item_order', $items->count());
+        $items->each(fn ($item) => $this->assertDatabaseHas('item_order', $item));
+    }
 }

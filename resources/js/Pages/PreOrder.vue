@@ -29,7 +29,16 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.transform((data) => pickBy(data)).post("orders.preOrder", {
+    form.transform((data) =>
+        pickBy({
+            ...data,
+            items: selectedItems.value.map((item) => ({
+                item_id: item.item.id,
+                price: item.price,
+                quantity: item.quantity,
+            })),
+        })
+    ).post(route("orders.preOrder"), {
         onSuccess() {},
     });
 };
@@ -142,6 +151,7 @@ watch(item, () => {
         </div>
         <div>
             <button
+                type="button"
                 class="daisy-btn daisy-btn-secondary capitalize daisy-btn-sm"
                 @click="showChooseItem = true"
             >

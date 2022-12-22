@@ -93,6 +93,7 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
     Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::post('', 'store')->name('orders.store');
         Route::get('/create', 'create')->name('orders.create');
+        Route::post('/pre-order', 'preOrder')->name('orders.preOrder');
         Route::get('', 'index')->name('orders.index');
         Route::get('{order}', 'show')->name('orders.show');
         Route::post('{order}/pay', 'pay')->name('orders.pay');
