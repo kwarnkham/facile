@@ -32,10 +32,15 @@ const confirmInvokeAndClose = () => {
 const updateOpenConfirmDialog = (payload) => {
     openConfirmDialog.value = payload;
 };
+const confirmTitle = ref("");
+const updateConfirmTitle = (payload) => {
+    confirmTitle.value = payload;
+};
 
 provide("confirmDialog", {
     updateOpenConfirmDialog,
     updateConfirmInvoke,
+    updateConfirmTitle,
 });
 provide("message", {
     message,
@@ -146,6 +151,7 @@ onMounted(() => {
             {{ message }}
         </div>
         <Dialog :open="openConfirmDialog" title="Confirm">
+            <div>{{ confirmTitle }}</div>
             <div class="flex flex-row justify-end space-x-2">
                 <Button @click="openConfirmDialog = false">No</Button>
                 <Button @click="confirmInvokeAndClose">Yes</Button>

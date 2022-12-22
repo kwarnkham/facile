@@ -3,6 +3,7 @@ import Dialog from "@/Components/Dialog.vue";
 import InputError from "@/Components/InputError.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
+import useConfirm from "@/Composables/confirm";
 import { Inertia } from "@inertiajs/inertia";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 import debounce from "lodash/debounce";
@@ -47,18 +48,33 @@ watch(
         getItems();
     }, 400)
 );
-
+const { confirm } = useConfirm();
+const removeItem = (index) => {
+    confirm(() => {
+        selectedItems.value.splice(index, 1);
+    }, "Do you want to remove the item?");
+};
 const item = ref(null);
 const price = ref("");
 const quantity = ref("");
 const selectedItems = ref([]);
 const showChooseItem = ref(false);
 const chooseItem = () => {
-    selectedItems.value.push({
+    if (!item.value || !price.value || !quantity.value) return;
+    const data = {
         item: item.value,
         price: price.value,
         quantity: quantity.value,
-    });
+    };
+    if (selectedItems.value.length == 0) selectedItems.value.push(data);
+    else {
+        const index = selectedItems.value.findIndex((e) => {
+            return e.item.id == item.value.id && e.price == price.value;
+        });
+
+        if (index >= 0) selectedItems.value[index].quantity += quantity.value;
+        else selectedItems.value.push(data);
+    }
     item.value = null;
     price.value = "";
     quantity.value = "";
@@ -146,8 +162,8 @@ watch(item, () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(value, index) in selectedItems" :key="value.id">
-                        <th>{{ index + 1 }}</th>
+                    <tr v-for="(value, index) in selectedItems" :key="index">
+                        <th @click="removeItem(index)">{{ index + 1 }}</th>
                         <td>{{ value.item.name }}</td>
                         <td class="text-right">
                             {{ value.price.toLocaleString() }}
@@ -230,7 +246,7 @@ watch(item, () => {
             <div class="flex flex-row w-full justify-start flex-wrap">
                 <div
                     class="daisy-badge daisy-badge-primary mr-1 mb-1"
-                    :class="{ 'daisy-badge-success': item?.id == value.id }"
+                    :class="{ 'daisy-badge-info': item?.id == value.id }"
                     v-for="value in items"
                     :key="value.id"
                     @click="item = value"
