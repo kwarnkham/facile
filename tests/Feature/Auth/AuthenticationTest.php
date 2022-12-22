@@ -41,4 +41,22 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_change_password()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('changePassword'), [
+            'password' => 'password',
+            'new_password' => 'new_password',
+            'new_password_confirmation' => 'new_password',
+        ]);
+
+        $this->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'new_password',
+        ]);
+
+        $this->assertAuthenticated();
+    }
 }

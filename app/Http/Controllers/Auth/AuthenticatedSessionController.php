@@ -7,6 +7,8 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -55,5 +57,23 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    public function changePassword()
+    {
+
+        $attributes = request()->validate([
+            'password' => ['required'],
+            'new_password' => ['required', 'confirmed'],
+        ]);
+        $message = 'Incorrect Password';
+        $user = request()->user();
+
+        if (Hash::check($attributes['password'], $user->password)) {
+            $user->password = bcrypt($attributes['new_password']);
+            $user->save();
+            $message = 'Success';
+        }
+        return Redirect::back()->with('message', $message);
     }
 }
