@@ -15,6 +15,7 @@ import {
     PhoneIcon,
     PhotoIcon,
     UserIcon,
+    HashtagIcon,
 } from "@heroicons/vue/24/solid";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 import pickBy from "lodash/pickBy";
@@ -83,6 +84,9 @@ const isPaymentInfoExpanded = ref(false);
             title="Order Information"
         >
             <div class="text-xs">
+                <div class="flex items-center justify-center">
+                    <HashtagIcon class="h-4 w-4 mr-2" /> {{ order.id }}
+                </div>
                 <div class="flex flex-row justify-between">
                     <div class="flex items-center" v-if="order.customer">
                         <UserIcon class="h-4 w-4 mr-2" />

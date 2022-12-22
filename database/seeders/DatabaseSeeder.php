@@ -30,6 +30,28 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => $now
             ],
         ]);
+        DB::table('expenses')->insert([
+            [
+                'name' => 'Pre-order',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'name' => 'Electric Bill',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'name' => 'Rent',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'name' => 'General',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+        ]);
 
         DB::table('role_user')->insert([
             [

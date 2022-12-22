@@ -15,6 +15,11 @@ class Order extends Model
         return $this->belongsToMany(Feature::class)->withPivot(['quantity', 'price', 'discount', 'batch_id'])->withTimestamps();
     }
 
+    public function purchases()
+    {
+        return $this->morphMany(Purchase::class, 'purchasable');
+    }
+
     public function items()
     {
         return $this->belongsToMany(Item::class)->withPivot(['price', 'quantity']);

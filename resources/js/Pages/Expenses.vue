@@ -84,7 +84,7 @@ const open = ref(false);
             </div>
         </form>
 
-        <div class="px-2">
+        <div class="px-2 w-full flex flex-row justify-evenly">
             <Button
                 class="daisy-btn-accent"
                 v-for="expense in expenses"
