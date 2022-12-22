@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Batch;
 use App\Models\Credit;
 use App\Models\Feature;
+use App\Models\Item;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Picture;
@@ -134,7 +135,9 @@ class OrderController extends Controller
      */
     public function create()
     {
-        //
+        $search = request()->get('search');
+        $items = $search ? Item::with(['latestFeature'])->filter(['search' => $search])->take(5)->get() : [];
+        return Inertia::render('PreOrder', ['items' => $items, 'search' => $search]);
     }
 
     /**

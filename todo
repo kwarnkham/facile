@@ -1,9 +1,7 @@
-receipts printing
 Todo
+receipts printing
 change password
 make order for unstocked items
-qr for payment
-show payment pic
 
 reports
 Date range income (default to a month)
@@ -18,3 +16,4 @@ purchase
 # server
 
 check if db data can be managed
+auto backup db

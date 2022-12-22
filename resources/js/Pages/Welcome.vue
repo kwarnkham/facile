@@ -25,6 +25,12 @@ import { Head } from "@inertiajs/inertia-vue3";
         >
             All Features
         </Button>
+        <Button
+            v-if="$page.props.auth.user"
+            @click="$inertia.visit(route('orders.create'))"
+        >
+            Pre Order
+        </Button>
         <Button @click="$inertia.visit(route('routes.financial-summary'))">
             Summary
         </Button>

@@ -26,6 +26,11 @@ class Item extends Model
         return $this->hasMany(Feature::class);
     }
 
+    public function latestFeature()
+    {
+        return $this->hasOne(Feature::class)->latestOfMany();
+    }
+
     public function tags()
     {
         return $this->belongsToMany(Tag::class)->withTimestamps();
@@ -48,8 +53,7 @@ class Item extends Model
                 $filters['search'] ?? null,
                 fn (Builder $query, $search) => $query->where(function (Builder $query) use ($search) {
                     $query->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('description', 'like', '%' . $search . '%')
-                        ->orWhere('price', 'like', '%' . $search . '%');
+                        ->orWhere('description', 'like', '%' . $search . '%');
                     // ->orWhereHas('organization', function ($query) use ($search) {
                     //     $query->where('name', 'like', '%' . $search . '%');
                     // });

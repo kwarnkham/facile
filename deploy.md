@@ -82,10 +82,7 @@ sudo docker-compose -f docker-compose.prod.yml up
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan migrate
 sudo docker-compose -f docker-compose.prod.yml run --rm artisan up
 
-php artisan config:cache
-php artisan optimize
-php artisan route:cache
-php artisan view:cache
+php artisan config:cache && php artisan optimize && php artisan route:cache && php artisan view:cache
 ```
 
 ## Javascript
