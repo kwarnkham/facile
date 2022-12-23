@@ -76,4 +76,9 @@ class AuthenticatedSessionController extends Controller
         }
         return Redirect::back()->with('message', $message);
     }
+
+    public function editPassword()
+    {
+        return Inertia::render('ChangePassword');
+    }
 }

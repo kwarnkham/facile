@@ -34,6 +34,9 @@ import { Head } from "@inertiajs/inertia-vue3";
         <Button @click="$inertia.visit(route('routes.financial-summary'))">
             Summary
         </Button>
+        <Button @click="$inertia.visit(route('editPassword'))">
+            Change Password
+        </Button>
         <Button
             @click="$inertia.post(route('logout'))"
             v-if="$page.props.auth.user"

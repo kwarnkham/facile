@@ -56,4 +56,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('change-password', [AuthenticatedSessionController::class, 'changePassword'])
         ->name('changePassword');
+
+    Route::get('change-password', [AuthenticatedSessionController::class, 'editPassword'])
+        ->name('editPassword');
 });
