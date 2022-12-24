@@ -22,7 +22,7 @@ class PurchaseController extends Controller
     public function index()
     {
         return Inertia::render('Purchases', [
-            'purchases' => Purchase::with(['purchasable'])->get()
+            'purchases' => Purchase::with(['purchasable'])->paginate(request()->per_page ?? 10)
         ]);
     }
 

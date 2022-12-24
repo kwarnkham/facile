@@ -1,6 +1,9 @@
 <script setup>
 import Button from "@/Components/Button.vue";
+import useConfirm from "@/Composables/confirm";
 import { Head } from "@inertiajs/inertia-vue3";
+
+const { confirm } = useConfirm();
 </script>
 
 <template>
@@ -41,7 +44,13 @@ import { Head } from "@inertiajs/inertia-vue3";
             Change Password
         </Button>
         <Button
-            @click="$inertia.post(route('logout'))"
+            @click="
+                () => {
+                    confirm(() => {
+                        $inertia.post(route('logout'));
+                    }, 'Do you want to logout?');
+                }
+            "
             v-if="$page.props.auth.user"
         >
             Logout
