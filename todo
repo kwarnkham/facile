@@ -1,6 +1,5 @@
 Todo
 receipts printing
-qr for payment
 show payment pic
 only show name in item features
 show wholesale price in cart for discount
@@ -11,7 +10,6 @@ zoom pic
 test
 
 reports
-Date range income (default to a month)
 Stock report (with notify preference)
 Order overview
 

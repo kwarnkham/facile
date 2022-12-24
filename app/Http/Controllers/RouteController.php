@@ -7,6 +7,7 @@ use App\Enums\PurchaseStatus;
 use App\Models\Order;
 use App\Models\Purchase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
 class RouteController extends Controller
@@ -23,20 +24,32 @@ class RouteController extends Controller
 
     public function financialSummary()
     {
-        request()->validate([
-            'from' => ['sometimes', 'required', 'date'],
-            'to' => ['required_with:from', 'date'],
+        $filters = request()->validate([
+            'from' => ['date'],
+            'to' => ['date'],
         ]);
+        if (!array_key_exists('from', $filters)) {
+            $filters['from'] = now()->startOfDay();
+        } else {
+            $filters['from'] = (new Carbon($filters['from']))->startOfDay();
+        }
+        if (!array_key_exists('to', $filters)) {
+            $filters['to'] = now()->endOfDay();
+        } else {
+            $filters['to'] = (new Carbon($filters['to']))->endOfDay();
+        }
         $summary = [
-            'orders' => Order::where([
+            'completed_orders' => Order::whereBetween('updated_at', [$filters['from'], $filters['to']])->where([
                 'status' => OrderStatus::COMPLETED->value
             ])->get(['amount', 'discount']),
-            // 'purchases' => Purchase::with(['purchasable'])
-            //     ->where('status', PurchaseStatus::NORMAL->value)
-            //     ->get([
-            //         'price', 'quantity'
-            //     ])
+            'purchases' => Purchase::with(['purchasable'])
+                ->whereBetween('updated_at', [$filters['from'], $filters['to']])
+                ->where('status', PurchaseStatus::NORMAL->value)
+                ->get()
         ];
-        return Inertia::render('FinancialSummary', ['summary' => $summary]);
+        return Inertia::render('FinancialSummary', ['summary' => $summary, 'filters' => [
+            'from' => $filters['from'],
+            'to' => $filters['to']->startOfDay(),
+        ]]);
     }
 }

@@ -21,6 +21,8 @@ import { Head, useForm } from "@inertiajs/inertia-vue3";
 import pickBy from "lodash/pickBy";
 import { computed, ref } from "vue";
 import ItemOrder from "@/Components/ItemOrder.vue";
+import useConfirm from "@/Composables/confirm";
+import { Inertia } from "@inertiajs/inertia";
 
 const props = defineProps({
     order: {
@@ -75,6 +77,12 @@ const submitPayment = () => {
         });
 };
 const isPaymentInfoExpanded = ref(false);
+const { confirm } = useConfirm();
+const cancelOrder = (order) => {
+    confirm(() => {
+        Inertia.post(route("orders.cancel", { order: order.id }));
+    }, "Do you want to cancel the order?");
+};
 </script>
 <template>
     <div class="h-full overflow-y-auto p-1 flex flex-col">
@@ -205,9 +213,7 @@ const isPaymentInfoExpanded = ref(false);
             <button
                 class="daisy-btn-sm daisy-btn-warning daisy-btn capitalize"
                 :disabled="order.status == 3 && passedHours >= 24"
-                @click="
-                    $inertia.post(route('orders.cancel', { order: order.id }))
-                "
+                @click="cancelOrder(order)"
             >
                 Cancel
             </button>
@@ -269,7 +275,7 @@ const isPaymentInfoExpanded = ref(false);
             </div>
             <div class="daisy-divider"></div>
             <img
-                v-if="payments.find((e) => e.id == paymentForm.payment_id).qr"
+                v-if="payments.find((e) => e.id == paymentForm.payment_id)?.qr"
                 :src="payments.find((e) => e.id == paymentForm.payment_id).qr"
                 alt="payment qr"
                 class="w-full"

@@ -26,7 +26,7 @@ class StoreOrderRequest extends FormRequest
     {
         return [
             'customer' => ['sometimes', 'required'],
-            'phone' => ['sometimes', 'required', 'numeric'],
+            'phone' => ['sometimes', 'required'],
             'address' => ['sometimes', 'required'],
             'note' => ['sometimes', 'required'],
             'discount' => ['sometimes', 'required', 'numeric', 'gt:0'],

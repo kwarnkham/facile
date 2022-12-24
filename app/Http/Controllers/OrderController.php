@@ -156,7 +156,7 @@ class OrderController extends Controller
         ]);
 
 
-        DB::transaction(function () use ($attributes) {
+        $order = DB::transaction(function () use ($attributes) {
             $amount = array_reduce($attributes['items'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0);
             $attributes['amount'] = $amount;
             $order = Order::create(collect($attributes)->except('items')->toArray());
@@ -166,9 +166,10 @@ class OrderController extends Controller
                     'quantity' => $item['quantity'],
                 ]);
             }
+            return $order;
         });
 
-        return Redirect::back()->with('message', 'success');
+        return Redirect::route('orders.show', ['order' => $order->id])->with('message', 'success');
     }
 
     /**
