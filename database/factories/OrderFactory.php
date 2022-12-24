@@ -17,8 +17,13 @@ class OrderFactory extends Factory
     public function definition()
     {
         return [
+            'amount' => fake()->numberBetween(1000, 10000),
+            'discount' => fake()->numberBetween(100, 500),
+            'address' => fake()->address(),
             'customer' => fake()->name(),
             'phone' => substr(fake()->e164PhoneNumber(), 1),
+            'note' => fake()->sentence(),
+            'status' => fake()->numberBetween(1, 5)
         ];
     }
 }

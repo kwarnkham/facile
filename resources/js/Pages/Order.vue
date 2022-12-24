@@ -37,6 +37,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    order_statuses: {
+        type: Object,
+        required: true,
+    },
 });
 
 const remaining = computed(
@@ -136,7 +140,7 @@ const cancelOrder = (order) => {
                                 .toUpperCase()
                         "
                     >
-                        <div>Status: {{ order.status }}</div>
+                        <div>Status: {{ order_statuses[order.status] }}</div>
                     </div>
                 </div>
             </div>

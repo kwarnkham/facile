@@ -28,8 +28,17 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $order = Order::paginate(request()->per_page ?? 20);
-        return Inertia::render('Orders', ['orders' => $order]);
+        $filters = request()->validate([
+            'status' => ['in:1,2,3,4,5']
+        ]);
+        if (!array_key_exists('status', $filters))
+            $filters['status'] = 1;
+        $order = Order::where('status', $filters['status'])->paginate(request()->per_page ?? 20);
+        return Inertia::render('Orders', [
+            'orders' => $order,
+            'order_statuses' => OrderStatus::array(),
+            'filters' => $filters
+        ]);
     }
 
     /**
@@ -256,7 +265,8 @@ class OrderController extends Controller
         return Inertia::render('Order', [
             'order' => $order,
             'payments' => Payment::where('status', PaymentStatus::ENABLED->value)->get(),
-            'payment_types' => DB::table('payment_types')->get()
+            'payment_types' => DB::table('payment_types')->get(),
+            'order_statuses' => OrderStatus::array()
         ]);
     }
 
