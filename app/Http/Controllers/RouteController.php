@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\OrderStatus;
 use App\Enums\PurchaseStatus;
+use App\Models\Feature;
 use App\Models\Order;
 use App\Models\Purchase;
 use Illuminate\Http\Request;
@@ -51,5 +52,11 @@ class RouteController extends Controller
             'from' => $filters['from'],
             'to' => $filters['to']->startOfDay(),
         ]]);
+    }
+
+    public function stockSummery()
+    {
+        $features = Feature::orderBy('stock')->paginate(request()->per_page ?? 50);
+        return Inertia::render('StockSummary', ['features' => $features]);
     }
 }

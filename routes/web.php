@@ -123,6 +123,7 @@ Route::controller(RouteController::class)->group(function () {
         Route::get('cart', 'cart')->name('routes.cart');
         Route::get('checkout', 'checkout')->name('routes.checkout');
         Route::get('financial-summary', 'financialSummary')->name('routes.financial-summary');
+        Route::get('feature-summary', 'stockSummery')->name('routes.stock-summary');
     });
 });
 

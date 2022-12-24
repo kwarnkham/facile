@@ -2,6 +2,7 @@
 import { Inertia } from "@inertiajs/inertia";
 import debounce from "lodash/debounce";
 import pickBy from "lodash/pickBy";
+import isEmpty from "lodash/isEmpty";
 import { computed, watch } from "vue";
 
 const props = defineProps({
@@ -16,6 +17,7 @@ const props = defineProps({
     query: {
         required: false,
         type: Object,
+        default: () => ({}),
     },
 });
 
@@ -33,14 +35,14 @@ const getPage = (page = 1) => {
         preserveState: true,
     });
 };
-
-watch(
-    props.query,
-    debounce(() => {
-        getPage();
-    }, 400),
-    { deep: true }
-);
+if (!isEmpty(props.query))
+    watch(
+        props.query,
+        debounce(() => {
+            getPage();
+        }, 400),
+        { deep: true }
+    );
 </script>
 
 <template>

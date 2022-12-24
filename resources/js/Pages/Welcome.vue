@@ -32,7 +32,10 @@ import { Head } from "@inertiajs/inertia-vue3";
             Pre Order
         </Button>
         <Button @click="$inertia.visit(route('routes.financial-summary'))">
-            Summary
+            Financial Summary
+        </Button>
+        <Button @click="$inertia.visit(route('routes.stock-summary'))">
+            Stock Summary
         </Button>
         <Button @click="$inertia.visit(route('editPassword'))">
             Change Password
