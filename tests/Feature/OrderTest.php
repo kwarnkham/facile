@@ -114,6 +114,8 @@ class OrderTest extends TestCase
             'amount' => $madeOrder['amount']
         ]);
 
+        $this->assertDatabaseCount('order_payment', 1);
+
         $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]));
 
         $this->assertDatabaseCount('credits', 1);

@@ -18,7 +18,6 @@ class OrderFactory extends Factory
     {
         return [
             'amount' => fake()->numberBetween(1000, 10000),
-            'discount' => fake()->numberBetween(100, 500),
             'address' => fake()->address(),
             'customer' => fake()->name(),
             'phone' => substr(fake()->e164PhoneNumber(), 1),
