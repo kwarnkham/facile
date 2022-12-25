@@ -77,9 +77,9 @@ const pinchZoom = (imageElement) => {
     imageElement.addEventListener("touchend", (event) => {
         // console.log("touchend", event);
         // Reset image to it's original format
-        // imageElement.style.transform = "";
-        // imageElement.style.WebkitTransform = "";
-        // imageElement.style.zIndex = "";
+        imageElement.style.transform = "";
+        imageElement.style.WebkitTransform = "";
+        imageElement.style.zIndex = "";
     });
 };
 const img = ref(null);
