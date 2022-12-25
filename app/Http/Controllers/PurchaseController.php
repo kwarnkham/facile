@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OrderStatus;
+use App\Enums\PurchaseStatus;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Batch;
 use App\Models\Feature;
 use App\Models\Purchase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -21,8 +23,31 @@ class PurchaseController extends Controller
      */
     public function index()
     {
+        $filters = request()->validate([
+            'from' => ['date'],
+            'to' => ['date'],
+        ]);
+        if (!array_key_exists('from', $filters)) {
+            $filters['from'] = now()->startOfDay();
+        } else {
+            $filters['from'] = (new Carbon($filters['from']))->startOfDay();
+        }
+        if (!array_key_exists('to', $filters)) {
+            $filters['to'] = now()->endOfDay();
+        } else {
+            $filters['to'] = (new Carbon($filters['to']))->endOfDay();
+        }
+        $query = Purchase::with(['purchasable'])
+            ->whereBetween('updated_at', [$filters['from'], $filters['to']])
+            ->where('status', PurchaseStatus::NORMAL->value);
+        $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);
         return Inertia::render('Purchases', [
-            'purchases' => Purchase::with(['purchasable'])->paginate(request()->per_page ?? 10)
+            'purchases' => $query->paginate(request()->per_page ?? 10),
+            'filters' => [
+                'from' => $filters['from'],
+                'to' => $filters['to']->startOfDay(),
+            ],
+            'total' => $total
         ]);
     }
 

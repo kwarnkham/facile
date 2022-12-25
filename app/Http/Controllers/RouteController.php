@@ -48,10 +48,13 @@ class RouteController extends Controller
                 ->where('status', PurchaseStatus::NORMAL->value)
                 ->get()
         ];
-        return Inertia::render('FinancialSummary', ['summary' => $summary, 'filters' => [
-            'from' => $filters['from'],
-            'to' => $filters['to']->startOfDay(),
-        ]]);
+        return Inertia::render('FinancialSummary', [
+            'summary' => $summary,
+            'filters' => [
+                'from' => $filters['from'],
+                'to' => $filters['to']->startOfDay(),
+            ]
+        ]);
     }
 
     public function stockSummery()
