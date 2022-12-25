@@ -28,7 +28,7 @@ const pinchZoom = (imageElement) => {
     };
 
     imageElement.addEventListener("touchstart", (event) => {
-        console.log("touchstart", event);
+        // console.log("touchstart", event);
         if (event.touches.length === 2) {
             event.preventDefault(); // Prevent page scroll
 
@@ -40,7 +40,7 @@ const pinchZoom = (imageElement) => {
     });
 
     imageElement.addEventListener("touchmove", (event) => {
-        console.log("touchmove", event);
+        // console.log("touchmove", event);
         if (event.touches.length === 2) {
             event.preventDefault(); // Prevent page scroll
             let scale;
@@ -75,11 +75,11 @@ const pinchZoom = (imageElement) => {
     });
 
     imageElement.addEventListener("touchend", (event) => {
-        console.log("touchend", event);
+        // console.log("touchend", event);
         // Reset image to it's original format
-        imageElement.style.transform = "";
-        imageElement.style.WebkitTransform = "";
-        imageElement.style.zIndex = "";
+        // imageElement.style.transform = "";
+        // imageElement.style.WebkitTransform = "";
+        // imageElement.style.zIndex = "";
     });
 };
 const img = ref(null);
