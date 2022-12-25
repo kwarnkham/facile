@@ -63,7 +63,11 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
-        $item->features = Feature::whereBelongsTo($item)->with(['pictures'])->paginate(20);
+        $item->features = Feature::whereBelongsTo($item)
+            ->where('stock', '>', 0)
+            ->with(['pictures'])
+            ->orderBy('stock', 'desc')
+            ->paginate(20, ['id', 'name']);
         return Inertia::render('Item', ['item' => $item->load(['pictures', 'tags', 'wholesales'])]);
     }
 

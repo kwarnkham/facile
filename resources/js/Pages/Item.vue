@@ -2,7 +2,7 @@
 import Img from "@/Components/Img.vue";
 import { ref } from "vue";
 import Collapse from "@/Components/Collapse.vue";
-import Button from "@/Components/Button.vue";
+import Pagination from "@/Components/Pagination.vue";
 const props = defineProps({
     item: {
         type: Object,
@@ -12,7 +12,7 @@ const props = defineProps({
 const isWholesalesExpanded = ref(false);
 </script>
 <template>
-    <div class="p-1 flex flex-col pb-6">
+    <div class="p-1 flex flex-col pb-6 h-full flex-nowrap">
         <div>
             <div class="text-center w-full font-bold text-xl">
                 Name : {{ item.name }}
@@ -41,64 +41,55 @@ const isWholesalesExpanded = ref(false);
             </div>
         </div>
 
-        <Collapse
-            title="Wholesale prices"
-            v-model:checked="isWholesalesExpanded"
-            class="shadow-xl w-full rounded-md mt-1"
-            v-if="item.wholesales.length"
-        >
-            <div
-                class="flex flex-row justify-between font-bold border-b border-primary"
+        <div>
+            <Collapse
+                title="Wholesale prices"
+                v-model:checked="isWholesalesExpanded"
+                class="shadow-xl w-full rounded-md mt-1"
+                v-if="item.wholesales.length"
             >
-                <div>Quantity</div>
-                <div>Price</div>
-            </div>
-            <div
-                v-for="wholesale in item.wholesales"
-                :key="wholesale.id"
-                class="flex flex-row justify-between"
-            >
-                <div>{{ wholesale.quantity }}</div>
-                <div>{{ wholesale.price }}</div>
-            </div>
-        </Collapse>
-        <div class="text-lg font-bold text-center">Features</div>
-        <div class="flex flex-row flex-wrap justify-evenly mt-1">
-            <div
-                v-for="feature in item.features.data"
-                class="h-40 w-2/5 bg-base-300 rounded-md flex justify-center mb-1"
-                @click="
-                    $inertia.visit(
-                        route('features.show', { feature: feature.id })
-                    )
-                "
-            >
-                <img
-                    v-if="feature.pictures.length"
-                    :src="feature.pictures[0]?.name"
-                    :alt="feature.name"
-                    class="h-full w-auto"
-                />
                 <div
-                    v-else
-                    class="w-full h-full flex justify-center items-center"
+                    class="flex flex-row justify-between font-bold border-b border-primary"
                 >
-                    {{ feature.name }}
+                    <div>Quantity</div>
+                    <div>Price</div>
+                </div>
+                <div
+                    v-for="wholesale in item.wholesales"
+                    :key="wholesale.id"
+                    class="flex flex-row justify-between"
+                >
+                    <div>{{ wholesale.quantity }}</div>
+                    <div>{{ wholesale.price }}</div>
+                </div>
+            </Collapse>
+        </div>
+        <div class="text-lg font-bold text-center">Features</div>
+        <div class="mt-1 w-full flex-grow overflow-y-auto">
+            <div class="list-decimal list-inside space-y-2">
+                <div
+                    v-for="(feature, index) in item.features.data"
+                    :key="feature.id"
+                    @click="
+                        $inertia.visit(
+                            route('features.show', { feature: feature.id })
+                        )
+                    "
+                >
+                    <span>{{ index + item.features.from }}. </span
+                    >{{ feature.name }}
                 </div>
             </div>
         </div>
-        <div
-            class="text-right p-1"
-            v-if="item.features.total > item.features.to"
-        >
-            <Button
-                @click="
-                    $inertia.visit(
-                        route('features.index', { item_id: item.id })
-                    )
+        <div class="text-center">
+            <Pagination
+                :url="
+                    route('items.show', {
+                        item: item.id,
+                    })
                 "
-                >More</Button
-            >
+                :data="item.features"
+            />
         </div>
     </div>
 </template>
