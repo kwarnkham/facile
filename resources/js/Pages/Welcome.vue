@@ -2,12 +2,14 @@
 import Button from "@/Components/Button.vue";
 import QrcodeScanner from "@/Components/QrcodeScanner.vue";
 import useConfirm from "@/Composables/confirm";
+import { Inertia } from "@inertiajs/inertia";
 import { Head } from "@inertiajs/inertia-vue3";
 
 const { confirm } = useConfirm();
 const onScan = (decodedText, decodedResult) => {
-    console.log(decodedText);
-    console.log(decodedResult);
+    // console.log(decodedText);
+    // console.log(decodedResult);
+    Inertia.visit(decodedText);
 };
 </script>
 
