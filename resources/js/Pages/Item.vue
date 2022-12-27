@@ -104,6 +104,7 @@ const showQr = ref(false);
             :src="item.qr"
             :open="showQr"
             @closed="showQr = false"
+            isHtml
         />
     </div>
 </template>

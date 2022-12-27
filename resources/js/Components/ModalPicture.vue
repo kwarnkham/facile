@@ -15,6 +15,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    isHtml: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 defineEmits(["closed"]);
@@ -98,7 +102,8 @@ onMounted(() => {
         <div
             class="daisy-modal-box w-screen max-w-screen h-screen max-h-screen rounded-none flex justify-center items-center p-0 overflow-y-auto"
         >
-            <img :src="src" :alt="src" ref="img" v-bind="$attrs" />
+            <div v-html="src" v-if="isHtml" v-bind="$attrs" id="svg"></div>
+            <img :src="src" :alt="src" ref="img" v-bind="$attrs" v-else />
         </div>
     </div>
     <XMarkIcon
@@ -108,3 +113,10 @@ onMounted(() => {
         :class="{ 'opacity-100 delay-100': open }"
     />
 </template>
+
+<style>
+#svg > svg {
+    width: 100%;
+    height: 100%;
+}
+</style>
