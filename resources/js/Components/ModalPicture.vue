@@ -1,7 +1,8 @@
 <script setup>
 import { XMarkIcon } from "@heroicons/vue/24/solid";
 import { onMounted, ref } from "vue";
-defineProps({
+
+const props = defineProps({
     open: {
         type: Boolean,
         default: false,
@@ -9,6 +10,10 @@ defineProps({
     src: {
         type: String,
         required: true,
+    },
+    noZoom: {
+        type: Boolean,
+        default: false,
     },
 });
 
@@ -84,7 +89,7 @@ const pinchZoom = (imageElement) => {
 };
 const img = ref(null);
 onMounted(() => {
-    pinchZoom(img.value);
+    if (!props.noZoom) pinchZoom(img.value);
 });
 </script>
 
@@ -93,7 +98,7 @@ onMounted(() => {
         <div
             class="daisy-modal-box w-screen max-w-screen h-screen max-h-screen rounded-none flex justify-center items-center p-0 overflow-y-auto"
         >
-            <img :src="src" :alt="src" ref="img" />
+            <img :src="src" :alt="src" ref="img" v-bind="$attrs" />
         </div>
     </div>
     <XMarkIcon

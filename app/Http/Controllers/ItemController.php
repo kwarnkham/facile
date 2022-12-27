@@ -63,6 +63,7 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
+        $item->qr = $item->qr();
         $item->features = Feature::whereBelongsTo($item)
             ->where('stock', '>', 0)
             ->with(['pictures'])

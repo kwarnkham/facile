@@ -3,6 +3,8 @@ import Img from "@/Components/Img.vue";
 import { ref } from "vue";
 import Collapse from "@/Components/Collapse.vue";
 import Pagination from "@/Components/Pagination.vue";
+import { QrCodeIcon } from "@heroicons/vue/24/solid";
+import ModalPicture from "@/Components/ModalPicture.vue";
 const props = defineProps({
     item: {
         type: Object,
@@ -10,12 +12,17 @@ const props = defineProps({
     },
 });
 const isWholesalesExpanded = ref(false);
+const showQr = ref(false);
 </script>
 <template>
     <div class="p-1 flex flex-col pb-6 h-full flex-nowrap">
         <div>
             <div class="text-center w-full font-bold text-xl">
                 Name : {{ item.name }}
+                <QrCodeIcon
+                    class="w-6 h-6 inline-block"
+                    @click="showQr = true"
+                />
             </div>
             <div class="indent-5">Description : {{ item.description }}</div>
         </div>
@@ -91,5 +98,12 @@ const isWholesalesExpanded = ref(false);
                 :data="item.features"
             />
         </div>
+        <ModalPicture
+            class="w-10/12"
+            noZoom
+            :src="item.qr"
+            :open="showQr"
+            @closed="showQr = false"
+        />
     </div>
 </template>

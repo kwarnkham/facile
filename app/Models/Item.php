@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasQR;
 use App\Traits\Spaceable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
-    use HasFactory, Spaceable;
+    use HasFactory, Spaceable, HasQR;
 
     public function pictures()
     {
