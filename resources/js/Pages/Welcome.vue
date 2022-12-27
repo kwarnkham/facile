@@ -1,9 +1,14 @@
 <script setup>
 import Button from "@/Components/Button.vue";
+import QrcodeScanner from "@/Components/QrcodeScanner.vue";
 import useConfirm from "@/Composables/confirm";
 import { Head } from "@inertiajs/inertia-vue3";
 
 const { confirm } = useConfirm();
+const onScan = (decodedText, decodedResult) => {
+    console.log(decodedText);
+    console.log(decodedResult);
+};
 </script>
 
 <template>
@@ -55,5 +60,6 @@ const { confirm } = useConfirm();
         >
             Logout
         </Button>
+        <QrcodeScanner @result="onScan" />
     </div>
 </template>
