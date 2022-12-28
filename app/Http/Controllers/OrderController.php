@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\FeatureType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Http\Requests\StoreOrderRequest;
@@ -105,7 +106,7 @@ class OrderController extends Controller
             DB::transaction(function () use ($order) {
                 $order->update(['status' => OrderStatus::CANCELED->value]);
                 $order->features->each(function ($feature) {
-                    if ($feature->type != 2) {
+                    if ($feature->type != FeatureType::UNSTOCKED->value) {
                         $feature->stock += $feature->pivot->quantity;
                         $feature->save();
 
