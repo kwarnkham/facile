@@ -20,6 +20,11 @@ class Order extends Model
         return $this->morphMany(Purchase::class, 'purchasable');
     }
 
+    public function toppings()
+    {
+        return $this->belongsToMany(Topping::class)->withPivot(['price', 'quantity']);
+    }
+
     public function items()
     {
         return $this->belongsToMany(Item::class)->withPivot(['price', 'quantity']);

@@ -23,6 +23,9 @@ const onScan = (decodedText, decodedResult) => {
         <Button @click="$inertia.visit(route('payments.index'))">
             Payments
         </Button>
+        <Button @click="$inertia.visit(route('toppings.create'))">
+            Create Topping
+        </Button>
         <Button @click="$inertia.visit(route('expenses.create'))">
             Expenses
         </Button>
