@@ -13,4 +13,19 @@ class Topping extends Model
     {
         return $this->belongsToMany(Order::class)->withPivot(['price', 'quantity']);
     }
+
+    public static function mapForOrder(array $data)
+    {
+        $toppings = static::whereIn('id', array_map(fn ($v) => $v['id'], $data))->get();
+
+        $mappedToppings = collect($data)->map(function ($topping) use ($toppings) {
+            $toppings->each(function ($val) use (&$topping) {
+                if ($val->id == $topping['id']) {
+                    $topping['price'] = $val->price;
+                }
+            });
+            return $topping;
+        })->toArray();
+        return $mappedToppings;
+    }
 }

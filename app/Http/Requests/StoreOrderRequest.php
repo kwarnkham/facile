@@ -36,9 +36,9 @@ class StoreOrderRequest extends FormRequest
             'features.*.quantity' => ['required', 'numeric', 'gt:0'],
             'features.*.discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
             'toppings' => ['sometimes', 'required', 'array'],
-            'toppings.*' => ['required', 'array'],
-            'toppings.*.id' => ['required', 'exists:toppings,id', 'distinct'],
-            'toppings.*.quantity' => ['required', 'numeric', 'gt:0'],
+            'toppings.*' => ['required_with:toppings', 'array'],
+            'toppings.*.id' => ['required_with:toppings', 'exists:toppings,id', 'distinct'],
+            'toppings.*.quantity' => ['required_with:toppings', 'numeric', 'gt:0'],
         ];
     }
 }

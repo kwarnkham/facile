@@ -14,6 +14,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Picture;
+use App\Models\Topping;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -191,7 +192,6 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         $attributes = $request->validated();
-
         $outOfStock = Feature::outOfStock($attributes['features']);
         if ($outOfStock) return Redirect::back()->with('message', $outOfStock);
 
@@ -200,6 +200,13 @@ class OrderController extends Controller
         $amount = floor((float) collect($attributes['features'])->reduce(
             fn ($carry, $feature) => $carry + ($feature['price'] - ($feature['discount'] ?? 0)) * $feature['quantity']
         ));
+
+        if (array_key_exists('toppings', $attributes)) {
+            $attributes['toppings'] = Topping::mapForOrder($attributes['toppings']);
+            $amount += floor((float) collect($attributes['toppings'])->reduce(
+                fn ($carry, $topping) => $carry + $topping['price'] * $topping['quantity']
+            ));
+        }
 
         $remaining = $amount - floor($attributes['discount'] ?? 0);
 
@@ -210,7 +217,7 @@ class OrderController extends Controller
                 collect([
                     'amount' => $amount,
                     ...$attributes
-                ])->except(['features'])->toArray()
+                ])->except(['features', 'toppings'])->toArray()
             );
             if ($remaining == 0) $order->update(['status' => 3]);
 
@@ -223,6 +230,17 @@ class OrderController extends Controller
                 ]])->toArray()
             );
 
+            if (array_key_exists('toppings', $attributes)) {
+                $order->toppings()->attach(
+                    collect($attributes['toppings'])->mapWithKeys(fn ($topping) => [
+                        $topping['id'] => [
+                            'quantity' => $topping['quantity'],
+                            'price' => $topping['price'],
+                        ]
+                    ])->toArray()
+                );
+            }
+
             foreach ($attributes['features'] as $val) {
                 $feature = Feature::find($val['id']);
                 $feature->stock -= $val['quantity'];
@@ -232,6 +250,7 @@ class OrderController extends Controller
                 $batch->stock -= $val['quantity'];
                 $batch->save();
             }
+
             return $order;
         });
 
