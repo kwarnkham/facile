@@ -13,7 +13,7 @@ class UpdateToppingRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class UpdateToppingRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => ['required', 'unique:toppings,name,except,' . $this->topping->id],
+            'price' => ['required', 'numeric', 'gt:0'],
         ];
     }
 }

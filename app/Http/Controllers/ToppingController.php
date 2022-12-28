@@ -75,7 +75,8 @@ class ToppingController extends Controller
      */
     public function update(UpdateToppingRequest $request, Topping $topping)
     {
-        //
+        $topping->update($request->validated());
+        return Redirect::back()->with('message', 'Success');
     }
 
     /**
