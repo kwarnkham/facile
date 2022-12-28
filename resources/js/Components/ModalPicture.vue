@@ -114,8 +114,8 @@ onMounted(() => {
     />
 </template>
 
-<style>
-#svg > svg {
+<style scoped>
+#svg::v-deep > svg {
     width: 100%;
     height: 100%;
 }
