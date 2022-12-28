@@ -13,6 +13,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\Picture;
 use App\Models\Purchase;
+use App\Models\Topping;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -48,7 +49,7 @@ class OrderTest extends TestCase
         }, 0);
     }
 
-    public function makeOrder(Collection $features, $discountFactor = 0, $featureDisountFactor = 0)
+    public function makeOrder(Collection $features, $discountFactor = 0, $featureDisountFactor = 0, Collection $toppings = null)
     {
         $features = $features->map(function ($dataFeature) {
             return $this->makeFeature($dataFeature->toArray());
@@ -67,6 +68,10 @@ class OrderTest extends TestCase
             ...['features' => $dataFeatures],
             ...Order::factory()->make()->toArray()
         ];
+
+        if ($toppings) {
+            $data['toppings'] = $toppings->toArray();
+        }
 
         if ($discountFactor) $data['discount'] = floor($this->featureAmount($dataFeatures) * $discountFactor);
         $this->actingAs($this->user)->post(route('orders.store'), $data);
@@ -102,6 +107,19 @@ class OrderTest extends TestCase
             $this->assertEquals($feature->fresh()->stock, 0);
         });
     }
+
+    // public function test_create_order_with_topping()
+    // {
+    //     $toppings = Topping::factory(3)->create()->map(function ($topping) {
+    //         $topping->quantity = rand(1, 10);
+    //         return $topping;
+    //     });
+    //     $features = Feature::factory(rand(2, 10))->make();
+
+
+    //     $this->makeOrder(toppings: $toppings, features: $features);
+    //     $this->assertDatabaseCount('order_topping', $toppings->count());
+    // }
 
     public function test_cancelling_paid_order_generate_credit()
     {

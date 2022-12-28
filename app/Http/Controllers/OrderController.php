@@ -191,26 +191,18 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         $attributes = $request->validated();
-        foreach ($attributes['features'] as $val) {
-            $feature = Feature::find($val['id']);
-            if ($feature->stock < $val['quantity']) return Redirect::back()->with('message', $feature->name . ' is out of stock');
-        }
-        $features = Feature::whereIn('id', array_map(fn ($v) => $v['id'], $attributes['features']))->with(['item.wholesales'])->get();
-        $attributes['features'] = collect($attributes['features'])->map(function ($feature) use ($features) {
-            $features->each(function ($val) use (&$feature) {
-                if ($val->id == $feature['id']) {
-                    $feature['price'] = $val->price;
-                    $feature['batch'] = $val->batches()->where('stock', '>', 0)->first();
-                    $feature['batch_id'] = $feature['batch']->id;
-                }
-            });
-            return $feature;
-        });
+
+        $outOfStock = Feature::outOfStock($attributes['features']);
+        if ($outOfStock) return Redirect::back()->with('message', $outOfStock);
+
+        $attributes['features'] = Feature::mapForOrder($attributes['features']);
+
         $amount = floor((float) collect($attributes['features'])->reduce(
             fn ($carry, $feature) => $carry + ($feature['price'] - ($feature['discount'] ?? 0)) * $feature['quantity']
         ));
-        $remaining = $amount -
-            floor($attributes['discount'] ?? 0);
+
+        $remaining = $amount - floor($attributes['discount'] ?? 0);
+
         if ($remaining < 0) return Redirect::back()->with('message', 'Total discount is greater than the amount');
 
         $createdOrder = DB::transaction(function () use ($attributes, $amount, $remaining) {
@@ -221,6 +213,7 @@ class OrderController extends Controller
                 ])->except(['features'])->toArray()
             );
             if ($remaining == 0) $order->update(['status' => 3]);
+
             $order->features()->attach(
                 collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => [
                     'quantity' => $feature['quantity'],

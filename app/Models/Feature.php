@@ -12,6 +12,35 @@ class Feature extends Model
 {
     use HasFactory, Spaceable;
 
+    public static function outOfStock(array $data)
+    {
+        $features = static::whereIn('id', array_map(fn ($val) => $val['id'], $data))->get(['id', 'stock', 'name']);
+        $features->each(function ($feat) use ($data) {
+            foreach ($data as $val) {
+                if ($feat->id == $val['id']) {
+                    if ($feat->stock < $val['quantity']) return ($feat->name . ' is out of stock');
+                }
+            }
+        });
+    }
+
+    public static function mapForOrder(array $data)
+    {
+        $features = static::whereIn('id', array_map(fn ($v) => $v['id'], $data))->with(['item.wholesales'])->get();
+
+        $features = collect($data)->map(function ($feature) use ($features) {
+            $features->each(function ($val) use (&$feature) {
+                if ($val->id == $feature['id']) {
+                    $feature['price'] = $val->price;
+                    $feature['batch'] = $val->batches()->where('stock', '>', 0)->first();
+                    $feature['batch_id'] = $feature['batch']->id;
+                }
+            });
+            return $feature;
+        });
+        return $features;
+    }
+
     public function item()
     {
         return $this->belongsTo(Item::class);
