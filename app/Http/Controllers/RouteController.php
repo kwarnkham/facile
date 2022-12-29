@@ -7,6 +7,7 @@ use App\Enums\PurchaseStatus;
 use App\Models\Feature;
 use App\Models\Order;
 use App\Models\Purchase;
+use App\Models\Topping;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -15,7 +16,8 @@ class RouteController extends Controller
 {
     public function cart()
     {
-        return Inertia::render('Cart');
+        $toppings = Topping::take(5)->get();
+        return Inertia::render('Cart', ['toppings' => $toppings]);
     }
 
     public function checkout()

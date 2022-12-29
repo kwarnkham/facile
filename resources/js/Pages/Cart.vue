@@ -1,13 +1,21 @@
 <script setup>
 import Button from "@/Components/Button.vue";
+import Collapse from "@/Components/Collapse.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { store } from "@/store";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { Inertia } from "@inertiajs/inertia";
 import { Head } from "@inertiajs/inertia-vue3";
-import { computed, ref } from "vue";
+import debounce from "lodash/debounce";
+import { computed, ref, watch } from "vue";
 
+const props = defineProps({
+    toppings: {
+        required: true,
+        type: Array,
+    },
+});
 const openQuantityEdit = ref(false);
 const openPriceEdit = ref(false);
 
@@ -24,11 +32,16 @@ const checkout = () => {
     localStorage.setItem("cartDiscount", JSON.stringify(discount.value));
     Inertia.visit(route("routes.checkout"));
 };
-const cartTotal = computed(() =>
-    store.cart.items.reduce(
-        (carry, e) => e.quantity * (e.price - (e.discount ?? 0)) + carry,
-        0
-    )
+const cartTotal = computed(
+    () =>
+        store.cart.items.reduce(
+            (carry, e) => e.quantity * (e.price - (e.discount ?? 0)) + carry,
+            0
+        ) +
+        store.cart.toppings.reduce(
+            (carry, e) => e.quantity * e.price + carry,
+            0
+        )
 );
 
 const discount = ref(JSON.parse(localStorage.getItem("cartDiscount")) ?? "");
@@ -53,6 +66,22 @@ const clearCart = () => {
     Inertia.visit(route("items.index"), {
         replace: true,
     });
+};
+
+const toppingSearch = ref("");
+
+watch(
+    toppingSearch,
+    debounce(() => {
+        searchToppings();
+    }, 400)
+);
+
+const searchToppings = () => {
+    console.log(toppingSearch.value);
+};
+const addTopping = (topping) => {
+    store.cart.addTopping(topping);
 };
 </script>
 <template>
@@ -110,12 +139,38 @@ const clearCart = () => {
                             }}
                         </td>
                     </tr>
+
+                    <tr
+                        v-for="(topping, index) in store.cart.toppings"
+                        :key="topping.id"
+                    >
+                        <th>{{ index + store.cart.items.length + 1 }}</th>
+                        <td>{{ topping.name }}</td>
+                        <td class="text-right">
+                            {{ topping.price.toLocaleString() }}
+                        </td>
+                        <td class="text-right underline text-info">
+                            {{ topping.quantity }}
+                        </td>
+
+                        <td class="text-right">
+                            {{
+                                (
+                                    topping.quantity * topping.price
+                                ).toLocaleString()
+                            }}
+                        </td>
+                    </tr>
                     <tr class="font-bold">
                         <th class="underline"></th>
                         <td colspan="2">Total</td>
                         <td class="text-right">
                             {{
                                 store.cart.items.reduce(
+                                    (carry, e) => e.quantity + carry,
+                                    0
+                                ) +
+                                store.cart.toppings.reduce(
                                     (carry, e) => e.quantity + carry,
                                     0
                                 )
@@ -155,6 +210,26 @@ const clearCart = () => {
                     </tr>
                 </tbody>
             </table>
+            <Collapse title="Topping">
+                <TextInput
+                    placeholder="Search..."
+                    id="topping"
+                    type="text"
+                    class="mt-1 w-full"
+                    v-model="toppingSearch"
+                />
+                <div class="flex flex-row justify-evenly flex-wrap">
+                    <Button
+                        v-for="topping in toppings"
+                        :key="topping.id"
+                        class="mr-1 mt-1"
+                        @click="addTopping(topping)"
+                    >
+                        {{ topping.name }}
+                    </Button>
+                </div>
+            </Collapse>
+
             <div class="flex-1 flex items-end justify-end">
                 <Button
                     @click="checkout"

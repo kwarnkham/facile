@@ -14,6 +14,7 @@ const form = useForm({
     note: "",
     features: JSON.parse(localStorage.getItem("cartItems")),
     discount: JSON.parse(localStorage.getItem("cartDiscount")) ?? "",
+    toppings: JSON.parse(localStorage.getItem("toppings")),
 });
 const submit = () => {
     form.transform((data) => pickBy(data)).post(route("orders.store"), {
@@ -21,6 +22,7 @@ const submit = () => {
         onSuccess() {
             localStorage.removeItem("cartItems");
             localStorage.removeItem("cartDiscount");
+            localStorage.removeItem("toppings");
             store.cart.clear();
         },
     });
