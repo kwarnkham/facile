@@ -204,7 +204,7 @@ class OrderController extends Controller
         if (array_key_exists('toppings', $attributes)) {
             $attributes['toppings'] = Topping::mapForOrder($attributes['toppings']);
             $amount += floor((float) collect($attributes['toppings'])->reduce(
-                fn ($carry, $topping) => $carry + ($topping['price'] - $topping['discount']) * $topping['quantity'],
+                fn ($carry, $topping) => $carry + ($topping['price'] - ($topping['discount'] ?? 0)) * $topping['quantity'],
                 0
             ));
         }

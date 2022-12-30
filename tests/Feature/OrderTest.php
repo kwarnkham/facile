@@ -53,7 +53,7 @@ class OrderTest extends TestCase
     {
         return array_reduce($toppings, function ($carry, $dataTopping) {
             $topping = Topping::find($dataTopping['id']);
-            return ($carry + ($topping->price - $dataTopping['discount'])  * $dataTopping['quantity']);
+            return ($carry + ($topping->price - ($dataTopping['discount'] ?? 0))  * $dataTopping['quantity']);
         }, 0);
     }
 
