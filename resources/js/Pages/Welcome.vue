@@ -16,7 +16,6 @@ const onScan = (decodedText, decodedResult) => {
 <template>
     <head title="Welcome" />
     <div class="flex flex-col h-full p-2 space-y-2">
-        <div>1</div>
         <Button @click="$inertia.visit(route('items.create'))">Add item</Button>
         <Button @click="$inertia.visit(route('items.index'))">Item List</Button>
         <Button @click="$inertia.visit(route('orders.index'))">Orders</Button>
