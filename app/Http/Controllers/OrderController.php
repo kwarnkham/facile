@@ -267,7 +267,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['features', 'payments', 'items']);
+        $order->load(['features', 'payments', 'items', 'toppings']);
         $order->payments->each(function (&$value) {
             if ($value->pivot->picture) $value->pivot->picture = Storage::url(
                 config('app')['name'] .

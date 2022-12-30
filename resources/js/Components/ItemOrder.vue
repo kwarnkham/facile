@@ -41,6 +41,7 @@ defineProps({
                     }}
                 </td>
             </tr>
+            <ToppingRow :order="order" />
             <tr class="font-bold">
                 <th class="underline"></th>
                 <td colspan="2">Total</td>
