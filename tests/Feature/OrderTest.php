@@ -53,7 +53,7 @@ class OrderTest extends TestCase
     {
         return array_reduce($toppings, function ($carry, $dataTopping) {
             $topping = Topping::find($dataTopping['id']);
-            return $carry + $topping->price  * $dataTopping['quantity'];
+            return ($carry + ($topping->price - $dataTopping['discount'])  * $dataTopping['quantity']);
         }, 0);
     }
 
@@ -78,10 +78,14 @@ class OrderTest extends TestCase
         ];
 
         if ($toppings) {
-            $data['toppings'] = $toppings->map(fn ($topping) => [
-                'id' => $topping->id,
-                'quantity' => $topping->quantity ?? rand(1, 10)
-            ])->toArray();
+            $data['toppings'] = $toppings->map(function ($topping) {
+                $temp = [
+                    'id' => $topping->id,
+                    'quantity' => $topping->quantity ?? rand(1, 10),
+                ];
+                if ($topping->discount) $temp['discount'] = $topping->discount;
+                return $temp;
+            })->toArray();
         }
 
         if ($discountFactor) $data['discount'] = floor($this->featureAmount($dataFeatures) * $discountFactor);
@@ -89,7 +93,6 @@ class OrderTest extends TestCase
 
         $this->assertDatabaseCount('orders', 1);
         $this->assertEquals(floor(Order::first()->amount), floor(
-
             $this->featureAmount($dataFeatures) + (array_key_exists('toppings', $data) ? $this->toppingAmount($data['toppings']) : 0)
         ));
         return [
@@ -137,6 +140,26 @@ class OrderTest extends TestCase
             'id' => $topping->id,
             'price' => $topping->price,
             'quantity' => $topping->quantity,
+        ]));
+    }
+
+    public function test_create_order_with_toppings_that_have_discount()
+    {
+        $toppings = Topping::factory(3)->create()->map(function ($topping) {
+            $topping->quantity = rand(1, 10);
+            $topping->discount = floor($topping->price / 2);
+            return $topping;
+        });
+
+        $features = Feature::factory(rand(2, 10))->make();
+
+        $this->makeOrder(toppings: $toppings, features: $features);
+        $this->assertDatabaseCount('order_topping', $toppings->count());
+        $toppings->each(fn ($topping) => $this->assertDatabaseHas('order_topping', [
+            'id' => $topping->id,
+            'price' => $topping->price,
+            'quantity' => $topping->quantity,
+            'discount' => $topping->discount
         ]));
     }
 

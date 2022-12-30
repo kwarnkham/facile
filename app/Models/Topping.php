@@ -11,7 +11,7 @@ class Topping extends Model
 
     public function orders()
     {
-        return $this->belongsToMany(Order::class)->withPivot(['price', 'quantity']);
+        return $this->belongsToMany(Order::class)->withPivot(['price', 'quantity', 'discount']);
     }
 
     public static function mapForOrder(array $data)

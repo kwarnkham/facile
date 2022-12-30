@@ -39,6 +39,7 @@ class StoreOrderRequest extends FormRequest
             'toppings.*' => ['required_with:toppings', 'array'],
             'toppings.*.id' => ['required_with:toppings', 'exists:toppings,id', 'distinct'],
             'toppings.*.quantity' => ['required_with:toppings', 'numeric', 'gt:0'],
+            'toppings.*.discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
         ];
     }
 }
