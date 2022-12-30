@@ -45,7 +45,7 @@ const cartTotal = computed(
             0
         ) +
         store.cart.toppings.reduce(
-            (carry, e) => e.quantity * e.price + carry,
+            (carry, e) => e.quantity * (e.price - (e.discount ?? 0)) + carry,
             0
         )
 );
@@ -63,7 +63,6 @@ const removeFromCart = () => {
 
 const updateCartFeature = () => {
     store.cart.update(cartFeatureInEdit.value);
-    openQuantityEdit.value = false;
     openPriceEdit.value = false;
 };
 
@@ -72,6 +71,11 @@ const clearCart = () => {
     Inertia.visit(route("items.index"), {
         replace: true,
     });
+};
+
+const updateCartTopping = () => {
+    store.cart.updateTopping(cartToppingInEdit.value);
+    openToppingPriceEdit.value = false;
 };
 
 const toppingSearch = ref("");
@@ -155,9 +159,9 @@ const addTopping = (topping) => {
                         <td
                             class="text-right"
                             :class="{
-                                'text-indigo-500': feature.discount ?? 0 > 0,
+                                'text-indigo-500': topping.discount ?? 0 > 0,
                             }"
-                            @click="editCartToppingPrice(feature)"
+                            @click="editCartToppingPrice(topping)"
                         >
                             {{
                                 (
@@ -172,7 +176,8 @@ const addTopping = (topping) => {
                         <td class="text-right">
                             {{
                                 (
-                                    topping.quantity * topping.price
+                                    topping.quantity *
+                                    (topping.price - topping.discount ?? 0)
                                 ).toLocaleString()
                             }}
                         </td>
@@ -269,6 +274,7 @@ const addTopping = (topping) => {
                 </Button>
             </div>
         </div>
+
         <Teleport to="body">
             <div
                 class="daisy-modal daisy-modal-bottom sm:daisy-modal-middle"
@@ -369,6 +375,55 @@ const addTopping = (topping) => {
                                 cartFeatureInEdit.discount >
                                     cartFeatureInEdit.price ||
                                 cartFeatureInEdit.discount < 0
+                            "
+                            >Ok</Button
+                        >
+                    </div>
+                </div>
+            </div>
+        </Teleport>
+
+        <Teleport to="body">
+            <div
+                class="daisy-modal daisy-modal-bottom sm:daisy-modal-middle"
+                :class="{ 'daisy-modal-open': openToppingPriceEdit }"
+            >
+                <div class="daisy-modal-box">
+                    <h3 class="font-bold text-lg">
+                        Apply discount for
+                        <span>{{ cartToppingInEdit?.name }}</span>
+                    </h3>
+                    <div class="py-4">
+                        <InputLabel for="discount" value="Discount" />
+                        <TextInput
+                            :autofocus="openToppingPriceEdit"
+                            id="discount"
+                            type="tel"
+                            class="w-full"
+                            v-model.number="cartToppingInEdit.discount"
+                            required
+                        />
+                    </div>
+                    <div class="flex flex-row justify-evenly">
+                        <Button
+                            @click="cartToppingInEdit.discount = ''"
+                            :disabled="!cartToppingInEdit.discount"
+                        >
+                            Remove discount
+                        </Button>
+                    </div>
+                    <div class="daisy-modal-action items-center space-x-2">
+                        <XCircleIcon
+                            class="w-8 h-8"
+                            @click="openToppingPriceEdit = false"
+                        />
+                        <Button
+                            @click="updateCartTopping"
+                            :disabled="
+                                cartToppingInEdit.discount % 1 != 0 ||
+                                cartToppingInEdit.discount >
+                                    cartToppingInEdit.price ||
+                                cartToppingInEdit.discount < 0
                             "
                             >Ok</Button
                         >

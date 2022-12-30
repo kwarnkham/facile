@@ -35,7 +35,9 @@ export const store = reactive({
         },
         clear () {
             this.items = []
+            this.toppings = []
             localStorage.setItem('cartItems', JSON.stringify(this.items))
+            localStorage.setItem('toppings', JSON.stringify(this.toppings))
         },
         addTopping (topping, quantity = 1) {
             topping = JSON.parse(JSON.stringify(topping))
@@ -45,5 +47,13 @@ export const store = reactive({
             else this.toppings[existed].quantity += topping.quantity
             localStorage.setItem('toppings', JSON.stringify(this.toppings))
         },
+        updateTopping (topping) {
+            topping = JSON.parse(JSON.stringify(topping))
+            const index = this.toppings.findIndex(e => e.id == topping.id);
+            this.toppings[index] = topping
+            if (this.toppings[index].quantity <= 0)
+                this.toppings.splice(index, 1)
+            localStorage.setItem('toppings', JSON.stringify(this.toppings))
+        }
     }
 })
