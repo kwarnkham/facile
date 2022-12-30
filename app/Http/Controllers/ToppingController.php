@@ -27,7 +27,8 @@ class ToppingController extends Controller
      */
     public function create()
     {
-        return Inertia::render('CreateTopping');
+        $toppings = Topping::all();
+        return Inertia::render('CreateTopping', ['toppings' => $toppings]);
     }
 
     /**
@@ -63,7 +64,7 @@ class ToppingController extends Controller
      */
     public function edit(Topping $topping)
     {
-        //
+        return Inertia::render('EditTopping', ['topping' => $topping]);
     }
 
     /**

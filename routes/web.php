@@ -123,6 +123,8 @@ Route::controller(ToppingController::class)->prefix('/toppings')->group(function
     Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::post('', 'store')->name('toppings.store');
         Route::get('', 'create')->name('toppings.create');
+        Route::get('{topping}/edit', 'edit')->name('toppings.edit');
+        Route::put('{topping}', 'update')->name('toppings.update');
     });
 });
 

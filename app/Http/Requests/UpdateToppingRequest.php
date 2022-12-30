@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateToppingRequest extends FormRequest
 {
@@ -24,7 +25,7 @@ class UpdateToppingRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'unique:toppings,name,except,' . $this->topping->id],
+            'name' => ['required', Rule::unique('toppings', 'name')->ignore($this->topping->id, 'id')],
             'price' => ['required', 'numeric', 'gt:0'],
         ];
     }

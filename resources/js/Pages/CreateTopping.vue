@@ -1,4 +1,5 @@
 <script setup>
+import Button from "@/Components/Button.vue";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
@@ -8,6 +9,12 @@ import { useForm } from "@inertiajs/inertia-vue3";
 const form = useForm({
     name: "",
     price: "",
+});
+const props = defineProps({
+    toppings: {
+        type: Array,
+        required: true,
+    },
 });
 const submit = () => {
     form.post(route("toppings.store"), {
@@ -19,7 +26,7 @@ const submit = () => {
 </script>
 
 <template>
-    <div>
+    <div class="flex flex-col h-full flex-nowrap">
         <form @submit.prevent="submit" class="daisy-form-control p-4 space-y-2">
             <div class="text-center text-2xl text-primary">Create Topping</div>
             <div>
@@ -59,5 +66,23 @@ const submit = () => {
                 </PrimaryButton>
             </div>
         </form>
+        <div class="daisy-divider text-lg font-bold">Topping List</div>
+        <div
+            class="flex-grow overflow-y-auto p-1 flex flex-row flex-wrap justify-around"
+        >
+            <Button
+                v-for="topping in toppings"
+                :key="topping.id"
+                @click="
+                    $inertia.visit(
+                        route('toppings.edit', {
+                            topping: topping.id,
+                        })
+                    )
+                "
+            >
+                {{ topping.name }}
+            </Button>
+        </div>
     </div>
 </template>
