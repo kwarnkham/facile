@@ -18,6 +18,8 @@ const props = defineProps({
 });
 const openQuantityEdit = ref(false);
 const openPriceEdit = ref(false);
+const openToppingPriceEdit = ref(false);
+const cartToppingInEdit = ref({ quantity: 0, discount: "" });
 
 const cartFeatureInEdit = ref({ quantity: 0, discount: "" });
 const editCartFeatureQuantity = (feature) => {
@@ -27,6 +29,10 @@ const editCartFeatureQuantity = (feature) => {
 const editCartFeaturePrice = (feature) => {
     openPriceEdit.value = true;
     cartFeatureInEdit.value = JSON.parse(JSON.stringify(feature));
+};
+const editCartToppingPrice = (topping) => {
+    openToppingPriceEdit.value = true;
+    cartToppingInEdit.value = JSON.parse(JSON.stringify(topping));
 };
 const checkout = () => {
     localStorage.setItem("cartDiscount", JSON.stringify(discount.value));
@@ -146,8 +152,18 @@ const addTopping = (topping) => {
                     >
                         <th>{{ index + store.cart.items.length + 1 }}</th>
                         <td>{{ topping.name }}</td>
-                        <td class="text-right">
-                            {{ topping.price.toLocaleString() }}
+                        <td
+                            class="text-right"
+                            :class="{
+                                'text-indigo-500': feature.discount ?? 0 > 0,
+                            }"
+                            @click="editCartToppingPrice(feature)"
+                        >
+                            {{
+                                (
+                                    topping.price - (topping.discount ?? 0)
+                                )?.toLocaleString()
+                            }}
                         </td>
                         <td class="text-right underline text-info">
                             {{ topping.quantity }}
