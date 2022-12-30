@@ -17,6 +17,7 @@ const props = defineProps({
     },
 });
 const openQuantityEdit = ref(false);
+const openToppingQuantityEdit = ref(false);
 const openPriceEdit = ref(false);
 const openToppingPriceEdit = ref(false);
 const cartToppingInEdit = ref({ quantity: 0, discount: "" });
@@ -26,6 +27,10 @@ const editCartFeatureQuantity = (feature) => {
     openQuantityEdit.value = true;
     cartFeatureInEdit.value = JSON.parse(JSON.stringify(feature));
 };
+const editCartToppingQuantity = (topping) => {
+    openToppingQuantityEdit.value = true;
+    cartToppingInEdit.value = JSON.parse(JSON.stringify(topping));
+};
 const editCartFeaturePrice = (feature) => {
     openPriceEdit.value = true;
     cartFeatureInEdit.value = JSON.parse(JSON.stringify(feature));
@@ -33,6 +38,15 @@ const editCartFeaturePrice = (feature) => {
 const editCartToppingPrice = (topping) => {
     openToppingPriceEdit.value = true;
     cartToppingInEdit.value = JSON.parse(JSON.stringify(topping));
+};
+
+const removeToppingFromCart = () => {
+    store.cart.removeTopping(
+        cartToppingInEdit.value,
+        store.cart.toppings.find((e) => e.id == cartToppingInEdit.value.id)
+            .quantity
+    );
+    openToppingQuantityEdit.value = false;
 };
 const checkout = () => {
     localStorage.setItem("cartDiscount", JSON.stringify(discount.value));
@@ -77,6 +91,7 @@ const clearCart = () => {
 const updateCartTopping = () => {
     store.cart.updateTopping(cartToppingInEdit.value);
     openToppingPriceEdit.value = false;
+    openToppingQuantityEdit.value = false;
 };
 
 const toppingSearch = ref("");
@@ -107,7 +122,7 @@ const addTopping = (topping) => {
             >
                 <thead class="sticky top-0">
                     <tr>
-                        <th></th>
+                        <th>#</th>
                         <th>Name</th>
                         <th class="text-right">Price</th>
                         <th class="text-right">Qty</th>
@@ -170,7 +185,10 @@ const addTopping = (topping) => {
                                 )?.toLocaleString()
                             }}
                         </td>
-                        <td class="text-right underline text-info">
+                        <td
+                            class="text-right underline text-info"
+                            @click="editCartToppingQuantity(topping)"
+                        >
                             {{ topping.quantity }}
                         </td>
 
@@ -178,7 +196,7 @@ const addTopping = (topping) => {
                             {{
                                 (
                                     topping.quantity *
-                                    (topping.price - topping.discount ?? 0)
+                                    (topping.price - (topping.discount ?? 0))
                                 ).toLocaleString()
                             }}
                         </td>
@@ -338,6 +356,57 @@ const addTopping = (topping) => {
         <Teleport to="body">
             <div
                 class="daisy-modal daisy-modal-bottom sm:daisy-modal-middle"
+                :class="{ 'daisy-modal-open': openToppingQuantityEdit }"
+            >
+                <div class="daisy-modal-box">
+                    <h3 class="font-bold text-lg">
+                        Edit <span>{{ cartToppingInEdit?.name }}</span>
+                    </h3>
+                    <div class="py-4">
+                        <InputLabel for="quantity" value="Quantity" />
+                        <TextInput
+                            :autofocus="openToppingQuantityEdit"
+                            id="quantity"
+                            type="tel"
+                            class="w-full"
+                            v-model.number="cartToppingInEdit.quantity"
+                            required
+                        />
+                    </div>
+                    <div class="flex flex-row justify-evenly">
+                        <Button @click="cartToppingInEdit.quantity++">
+                            Increase
+                        </Button>
+                        <Button
+                            @click="cartToppingInEdit.quantity--"
+                            :disabled="cartToppingInEdit.quantity <= 0"
+                        >
+                            Decrease
+                        </Button>
+                        <Button @click="removeToppingFromCart">Remove</Button>
+                    </div>
+                    <div class="daisy-modal-action items-center space-x-2">
+                        <XCircleIcon
+                            class="w-8 h-8"
+                            @click="openToppingQuantityEdit = false"
+                        />
+                        <Button
+                            @click="updateCartTopping"
+                            :disabled="
+                                cartToppingInEdit.quantity % 1 != 0 ||
+                                cartToppingInEdit.quantity < 0 ||
+                                cartToppingInEdit.quantity === ''
+                            "
+                            >Ok</Button
+                        >
+                    </div>
+                </div>
+            </div>
+        </Teleport>
+
+        <Teleport to="body">
+            <div
+                class="daisy-modal daisy-modal-bottom sm:daisy-modal-middle"
                 :class="{ 'daisy-modal-open': openPriceEdit }"
             >
                 <div class="daisy-modal-box">
@@ -441,6 +510,10 @@ th {
 }
 td {
     white-space: normal;
+}
+th,
+td {
+    padding: 14px 0;
 }
 .daisy-table th:first-child {
     position: static;
