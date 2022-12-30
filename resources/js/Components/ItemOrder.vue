@@ -1,4 +1,6 @@
 <script setup>
+import ToppingRow from "./ToppingRow.vue";
+
 defineProps({
     order: {
         type: Object,
@@ -50,18 +52,27 @@ defineProps({
                         order.items.reduce(
                             (carry, e) => e.pivot.quantity + carry,
                             0
+                        ) +
+                        order.toppings.reduce(
+                            (carry, e) => e.pivot.quantity + carry,
+                            0
                         )
                     }}
                 </td>
                 <td class="text-right">
                     {{
-                        order.items
-                            .reduce(
+                        (
+                            order.items.reduce(
+                                (carry, e) =>
+                                    e.pivot.quantity * e.pivot.price + carry,
+                                0
+                            ) +
+                            order.toppings.reduce(
                                 (carry, e) =>
                                     e.pivot.quantity * e.pivot.price + carry,
                                 0
                             )
-                            .toLocaleString()
+                        ).toLocaleString()
                     }}
                 </td>
             </tr>

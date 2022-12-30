@@ -15,6 +15,10 @@ const props = defineProps({
         required: true,
         type: Array,
     },
+    toppingSearch: {
+        default: "",
+        type: String,
+    },
 });
 const openQuantityEdit = ref(false);
 const openToppingQuantityEdit = ref(false);
@@ -94,7 +98,7 @@ const updateCartTopping = () => {
     openToppingQuantityEdit.value = false;
 };
 
-const toppingSearch = ref("");
+const toppingSearch = ref(props.toppingSearch);
 
 watch(
     toppingSearch,
@@ -104,7 +108,14 @@ watch(
 );
 
 const searchToppings = () => {
-    console.log(toppingSearch.value);
+    Inertia.visit(
+        route("routes.cart", {
+            toppingSearch: toppingSearch.value,
+        }),
+        {
+            preserveState: true,
+        }
+    );
 };
 const addTopping = (topping) => {
     store.cart.addTopping(topping);

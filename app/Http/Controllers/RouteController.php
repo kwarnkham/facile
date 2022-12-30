@@ -16,8 +16,11 @@ class RouteController extends Controller
 {
     public function cart()
     {
-        $toppings = Topping::take(5)->get();
-        return Inertia::render('Cart', ['toppings' => $toppings]);
+        $toppingSearch = request()->get('toppingSearch');
+        $query = Topping::take(5);
+        if ($toppingSearch) $query->where('name', 'like', '%' . $toppingSearch . '%');
+        $toppings = $query->get();
+        return Inertia::render('Cart', ['toppings' => $toppings, 'toppingSearch' => $toppingSearch]);
     }
 
     public function checkout()

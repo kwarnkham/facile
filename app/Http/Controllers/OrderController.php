@@ -152,7 +152,7 @@ class OrderController extends Controller
         $items = $search ? $query->filter(['search' => $search])->get() : $query->get();
 
         $query = Topping::take(5);
-        $toppings = $toppingSearch ? $query->where('name', '', $toppingSearch)->get() : $query->get();
+        $toppings = $toppingSearch ? $query->where('name', 'like', '%' . $toppingSearch . '%')->get() : $query->get();
         return Inertia::render('PreOrder', [
             'items' => $items,
             'toppings' => $toppings,
@@ -183,7 +183,12 @@ class OrderController extends Controller
 
 
         $order = DB::transaction(function () use ($attributes) {
-            $amount = array_reduce($attributes['items'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0) +  array_reduce($attributes['toppings'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0);
+            $amount = array_reduce($attributes['items'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0);
+
+            if (array_key_exists('toppings', $attributes)) {
+                $toppings = Topping::query()->whereIn('id', array_map(fn ($val) => $val['topping_id'], $attributes['toppings']))->get(['id', 'price']);
+                $amount += array_reduce($attributes['toppings'], fn ($carry, $val) => $carry + ($toppings->first(fn ($v) => $v->id == $val['topping_id'])->price) * $val['quantity'], 0);
+            };
 
             $attributes['amount'] = $amount;
 
@@ -196,8 +201,8 @@ class OrderController extends Controller
             }
 
             foreach ($attributes['toppings'] as $topping) {
-                $order->toppings()->attach($topping['item_id'], [
-                    'price' => $topping['price'],
+                $order->toppings()->attach($topping['topping_id'], [
+                    'price' => $toppings->first(fn ($v) => $v->id == $topping['topping_id'])->price,
                     'quantity' => $topping['quantity'],
                 ]);
             }

@@ -1,6 +1,7 @@
 <script setup>
 import Dialog from "@/Components/Dialog.vue";
 import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import useConfirm from "@/Composables/confirm";
@@ -35,6 +36,8 @@ const form = useForm({
     note: "",
     discount: "",
 });
+
+const showChooseTopping = ref(false);
 
 const submit = () => {
     form.transform((data) =>
@@ -76,10 +79,21 @@ const removeItem = (index) => {
         selectedItems.value.splice(index, 1);
     }, "Do you want to remove the item?");
 };
+
+const removeTopping = (id) => {
+    confirm(() => {
+        selectedToppings.value.splice(
+            selectedToppings.value.findIndex((e) => e.topping.id == id),
+            1
+        );
+    }, "Do you want to remove the topping?");
+};
 const toppingSearch = ref("");
 const item = ref(null);
+const topping = ref(null);
 const price = ref("");
 const quantity = ref("");
+const toppingQuantity = ref(1);
 const selectedItems = ref([]);
 const selectedToppings = ref([]);
 const showChooseItem = ref(false);
@@ -103,6 +117,27 @@ const chooseItem = () => {
     price.value = "";
     quantity.value = "";
     showChooseItem.value = false;
+};
+
+const chooseTopping = () => {
+    if (!topping.value || !toppingQuantity.value) return;
+    const data = {
+        topping: topping.value,
+        quantity: toppingQuantity.value,
+    };
+    if (selectedToppings.value.length == 0) selectedToppings.value.push(data);
+    else {
+        const index = selectedToppings.value.findIndex((e) => {
+            return e.topping.id == topping.value.id;
+        });
+
+        if (index >= 0)
+            selectedToppings.value[index].quantity += toppingQuantity.value;
+        else selectedToppings.value.push(data);
+    }
+    topping.value = null;
+    toppingQuantity.value = "";
+    showChooseTopping.value = false;
 };
 
 watch(item, () => {
@@ -167,15 +202,22 @@ watch(item, () => {
         <div>
             <button
                 type="button"
-                class="daisy-btn daisy-btn-secondary capitalize daisy-btn-sm"
+                class="daisy-btn daisy-btn-secondary capitalize daisy-btn-sm mr-2"
                 @click="showChooseItem = true"
             >
                 Choose Item
             </button>
+            <button
+                type="button"
+                class="daisy-btn daisy-btn-secondary capitalize daisy-btn-sm"
+                @click="showChooseTopping = true"
+            >
+                Choose Topping
+            </button>
         </div>
         <template v-if="selectedItems.length">
             <table
-                class="daisy-table daisy-table-compact w-full daisy-table-zebra w-full"
+                class="daisy-table daisy-table-compact w-full daisy-table-zebra"
             >
                 <thead class="sticky top-0">
                     <tr>
@@ -205,6 +247,28 @@ watch(item, () => {
                             }}
                         </td>
                     </tr>
+                    <tr v-for="(value, index) in selectedToppings" :key="index">
+                        <th @click="removeTopping(value.id)">
+                            {{ index + 1 + selectedItems.length }}
+                        </th>
+                        <td class="whitespace-pre-wrap">
+                            {{ value.topping.name }}
+                        </td>
+                        <td class="text-right">
+                            {{ value.topping.price.toLocaleString() }}
+                        </td>
+                        <td class="text-right text-info">
+                            {{ value.quantity }}
+                        </td>
+
+                        <td class="text-right">
+                            {{
+                                (
+                                    value.quantity * value.topping.price
+                                ).toLocaleString()
+                            }}
+                        </td>
+                    </tr>
                     <tr class="font-bold">
                         <th class="underline"></th>
                         <td colspan="2">Total</td>
@@ -213,19 +277,29 @@ watch(item, () => {
                                 selectedItems.reduce(
                                     (carry, e) => e.quantity + carry,
                                     0
+                                ) +
+                                selectedToppings.reduce(
+                                    (carry, e) => e.quantity + carry,
+                                    0
                                 )
                             }}
                         </td>
 
                         <td class="text-right">
                             {{
-                                selectedItems
-                                    .reduce(
+                                (
+                                    selectedItems.reduce(
                                         (carry, e) =>
                                             e.quantity * e.price + carry,
                                         0
+                                    ) +
+                                    selectedToppings.reduce(
+                                        (carry, e) =>
+                                            e.quantity * e.topping.price +
+                                            carry,
+                                        0
                                     )
-                                    .toLocaleString()
+                                ).toLocaleString()
                             }}
                         </td>
                     </tr>
@@ -251,7 +325,14 @@ watch(item, () => {
                                         (carry, e) =>
                                             e.quantity * e.price + carry,
                                         0
-                                    ) - form.discount
+                                    ) +
+                                    selectedToppings.reduce(
+                                        (carry, e) =>
+                                            e.quantity * e.topping.price +
+                                            carry,
+                                        0
+                                    ) -
+                                    form.discount
                                 ).toLocaleString()
                             }}
                         </td>
@@ -307,7 +388,9 @@ watch(item, () => {
             <div class="flex flex-row w-full justify-start flex-wrap">
                 <div
                     class="daisy-badge daisy-badge-primary mr-1 mb-1"
-                    :class="{ 'daisy-badge-info': item?.id == value.id }"
+                    :class="{
+                        'daisy-badge-info text-white': item?.id == value.id,
+                    }"
                     v-for="value in items"
                     :key="value.id"
                     @click="item = value"
@@ -333,6 +416,58 @@ watch(item, () => {
                     type="tel"
                     class="w-full"
                     v-model.number="quantity"
+                    required
+                    placeholder="Quantity"
+                />
+            </div>
+            <div class="text-right pt-2">
+                <button
+                    class="daisy-btn daisy-btn-success daisy-btn-sm capitalize"
+                    type="submit"
+                >
+                    Select
+                </button>
+            </div>
+        </form>
+    </Dialog>
+
+    <Dialog
+        :title="'Choose topping'"
+        :open="showChooseTopping"
+        @close="showChooseTopping = false"
+    >
+        <form
+            @submit.prevent="chooseTopping"
+            class="daisy-form-control p-4 space-y-2"
+        >
+            <TextInput
+                type="text"
+                class="w-full"
+                v-model="toppingSearch"
+                placeholder="Search"
+            />
+            <div class="flex flex-row w-full justify-start flex-wrap">
+                <div
+                    class="daisy-badge daisy-badge-primary mr-1 mb-1"
+                    :class="{
+                        'daisy-badge-info text-white': topping?.id == value.id,
+                    }"
+                    v-for="value in toppings"
+                    :key="value.id"
+                    @click="topping = value"
+                >
+                    {{ value.name }}
+                </div>
+            </div>
+            <div class="daisy-divider"></div>
+
+            <div>
+                <InputLabel for="quantity" value="Quantity" />
+                <TextInput
+                    id="quantity"
+                    type="tel"
+                    class="w-full"
+                    v-model.number="toppingQuantity"
                     required
                     placeholder="Quantity"
                 />
