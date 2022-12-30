@@ -36,8 +36,10 @@ export const store = reactive({
         clear () {
             this.items = []
             this.toppings = []
+            this.discount = 0;
             localStorage.setItem('cartItems', JSON.stringify(this.items))
             localStorage.setItem('toppings', JSON.stringify(this.toppings))
+            localStorage.setItem('discount', this.discount)
         },
         addTopping (topping, quantity = 1) {
             topping = JSON.parse(JSON.stringify(topping))

@@ -64,6 +64,7 @@ const removeFromCart = () => {
 const updateCartFeature = () => {
     store.cart.update(cartFeatureInEdit.value);
     openPriceEdit.value = false;
+    openQuantityEdit.value = false;
 };
 
 const clearCart = () => {
