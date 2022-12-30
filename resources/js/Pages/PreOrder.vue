@@ -59,20 +59,25 @@ const submit = () => {
     });
 };
 const search = ref(props.search ?? "");
+const toppingSearch = ref("");
 const getItems = () => {
     Inertia.visit(route("orders.create"), {
         method: "get",
         replace: true,
-        data: { search: search.value },
+        data: pickBy({
+            search: search.value,
+            toppingSearch: toppingSearch.value,
+        }),
         preserveState: true,
     });
 };
 watch(
-    search,
+    [search, toppingSearch],
     debounce(() => {
         getItems();
     }, 400)
 );
+
 const { confirm } = useConfirm();
 const removeItem = (index) => {
     confirm(() => {
@@ -88,7 +93,7 @@ const removeTopping = (id) => {
         );
     }, "Do you want to remove the topping?");
 };
-const toppingSearch = ref("");
+
 const item = ref(null);
 const topping = ref(null);
 const price = ref("");

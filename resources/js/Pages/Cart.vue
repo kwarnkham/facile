@@ -8,6 +8,7 @@ import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { Inertia } from "@inertiajs/inertia";
 import { Head } from "@inertiajs/inertia-vue3";
 import debounce from "lodash/debounce";
+import pickBy from "lodash/pickBy";
 import { computed, ref, watch } from "vue";
 
 const props = defineProps({
@@ -108,14 +109,14 @@ watch(
 );
 
 const searchToppings = () => {
-    Inertia.visit(
-        route("routes.cart", {
+    Inertia.visit(route("routes.cart"), {
+        method: "get",
+        preserveState: true,
+        replace: true,
+        data: pickBy({
             toppingSearch: toppingSearch.value,
         }),
-        {
-            preserveState: true,
-        }
-    );
+    });
 };
 const addTopping = (topping) => {
     store.cart.addTopping(topping);
