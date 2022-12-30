@@ -147,8 +147,18 @@ class OrderController extends Controller
     public function create()
     {
         $search = request()->get('search');
-        $items = $search ? Item::with(['latestFeature'])->filter(['search' => $search])->take(5)->get() : [];
-        return Inertia::render('PreOrder', ['items' => $items, 'search' => $search]);
+        $toppingSearch = request()->get('toppingSearch');
+        $query = Item::with(['latestFeature'])->take(5);
+        $items = $search ? $query->filter(['search' => $search])->get() : $query->get();
+
+        $query = Topping::take(5);
+        $toppings = $toppingSearch ? $query->where('name', '', $toppingSearch)->get() : $query->get();
+        return Inertia::render('PreOrder', [
+            'items' => $items,
+            'toppings' => $toppings,
+            'search' => $search,
+            'toppingSearch' => $toppingSearch
+        ]);
     }
 
     public function preOrder()
@@ -164,17 +174,31 @@ class OrderController extends Controller
             'items.*.item_id' => ['required', 'exists:items,id'],
             'items.*.price' => ['required', 'numeric', 'gt:0'],
             'items.*.quantity' => ['required', 'numeric', 'gt:0'],
+            'toppings' => ['sometimes', 'required', 'array'],
+            'toppings.*' => ['required_with:toppings', 'array'],
+            'toppings.*.topping_id' => ['required_with:toppings', 'exists:toppings,id', 'distinct'],
+            'toppings.*.quantity' => ['required_with:toppings', 'numeric', 'gt:0'],
+            'toppings.*.discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
         ]);
 
 
         $order = DB::transaction(function () use ($attributes) {
-            $amount = array_reduce($attributes['items'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0);
+            $amount = array_reduce($attributes['items'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0) +  array_reduce($attributes['toppings'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0);
+
             $attributes['amount'] = $amount;
-            $order = Order::create(collect($attributes)->except('items')->toArray());
-            foreach ($attributes['items'] as $key => $item) {
+
+            $order = Order::create(collect($attributes)->except('items', 'toppings')->toArray());
+            foreach ($attributes['items'] as $item) {
                 $order->items()->attach($item['item_id'], [
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
+                ]);
+            }
+
+            foreach ($attributes['toppings'] as $topping) {
+                $order->toppings()->attach($topping['item_id'], [
+                    'price' => $topping['price'],
+                    'quantity' => $topping['quantity'],
                 ]);
             }
             return $order;

@@ -15,7 +15,15 @@ const props = defineProps({
         type: String,
         default: "",
     },
+    toppingSearch: {
+        type: String,
+        default: "",
+    },
     items: {
+        type: Array,
+        required: true,
+    },
+    toppings: {
         type: Array,
         required: true,
     },
@@ -36,6 +44,11 @@ const submit = () => {
                 item_id: item.item.id,
                 price: item.price,
                 quantity: item.quantity,
+            })),
+            toppings: selectedToppings.value.map((topping) => ({
+                topping_id: topping.topping.id,
+                price: topping.price,
+                quantity: topping.quantity,
             })),
         })
     ).post(route("orders.preOrder"), {
@@ -63,10 +76,12 @@ const removeItem = (index) => {
         selectedItems.value.splice(index, 1);
     }, "Do you want to remove the item?");
 };
+const toppingSearch = ref("");
 const item = ref(null);
 const price = ref("");
 const quantity = ref("");
 const selectedItems = ref([]);
+const selectedToppings = ref([]);
 const showChooseItem = ref(false);
 const chooseItem = () => {
     if (!item.value || !price.value || !quantity.value) return;
@@ -160,7 +175,7 @@ watch(item, () => {
         </div>
         <template v-if="selectedItems.length">
             <table
-                class="daisy-table daisy-table-compact w-full daisy-table-zebra"
+                class="daisy-table daisy-table-compact w-full daisy-table-zebra w-full"
             >
                 <thead class="sticky top-0">
                     <tr>
@@ -174,7 +189,9 @@ watch(item, () => {
                 <tbody>
                     <tr v-for="(value, index) in selectedItems" :key="index">
                         <th @click="removeItem(index)">{{ index + 1 }}</th>
-                        <td>{{ value.item.name }}</td>
+                        <td class="whitespace-pre-wrap">
+                            {{ value.item.name }}
+                        </td>
                         <td class="text-right">
                             {{ value.price.toLocaleString() }}
                         </td>
@@ -212,6 +229,33 @@ watch(item, () => {
                             }}
                         </td>
                     </tr>
+
+                    <tr class="font-bold" v-if="form.discount">
+                        <th class="underline"></th>
+                        <td colspan="2"></td>
+                        <td class="text-right">Discount</td>
+
+                        <td class="text-right">
+                            {{ form.discount.toLocaleString() }}
+                        </td>
+                    </tr>
+                    <tr class="font-bold">
+                        <th class="underline"></th>
+                        <td colspan="2"></td>
+                        <td class="text-right">Amount</td>
+
+                        <td class="text-right">
+                            {{
+                                (
+                                    selectedItems.reduce(
+                                        (carry, e) =>
+                                            e.quantity * e.price + carry,
+                                        0
+                                    ) - form.discount
+                                ).toLocaleString()
+                            }}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <div>
@@ -232,7 +276,14 @@ watch(item, () => {
                 type="submit"
                 class="ml-4"
                 :class="{ 'opacity-25': form.processing }"
-                :disabled="form.processing"
+                :disabled="
+                    form.processing ||
+                    form.discount >
+                        selectedItems.reduce(
+                            (carry, e) => e.quantity * e.price + carry,
+                            0
+                        )
+                "
             >
                 Submit
             </PrimaryButton>
