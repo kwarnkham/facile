@@ -11,15 +11,14 @@ const props = defineProps({
 const emit = defineEmits(["result"]);
 const html5QrCode = ref(null);
 const stopScanner = () => {
-    if (html5QrCode.value)
-        html5QrCode.value
-            .stop()
-            .then((ignore) => {
-                // QR Code scanning is stopped.
-            })
-            .catch((err) => {
-                // Stop failed, handle it.
-            });
+    if (html5QrCode.value) {
+        try {
+            html5QrCode.value.stop();
+        } catch (error) {
+            console.warn(error);
+        }
+        html5QrCode.value = null;
+    }
 };
 const scan = () => {
     html5QrCode.value = new Html5Qrcode("reader");
@@ -42,6 +41,8 @@ onBeforeUnmount(stopScanner);
     <Button class="daisy-btn-info" @click="scan" v-if="!html5QrCode">
         {{ btnText }}
     </Button>
-    <Button class="daisy-btn-info" @click="scan" v-else> Stop Scanning </Button>
+    <Button class="daisy-btn-info" @click="stopScanner" v-else>
+        Stop Scanning
+    </Button>
     <div id="reader"></div>
 </template>
