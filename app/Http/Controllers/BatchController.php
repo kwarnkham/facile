@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateBatchRequest;
 use App\Models\Batch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class BatchController extends Controller
 {
@@ -72,7 +73,7 @@ class BatchController extends Controller
      */
     public function show(Batch $batch)
     {
-        //
+        return Inertia::render('Batch', ['batch' => $batch->load(['feature'])]);
     }
 
     /**

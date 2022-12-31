@@ -7,7 +7,11 @@ import InputLabel from "@/Components/InputLabel.vue";
 import PicturePicker from "@/Components/PicturePicker.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
-import { InformationCircleIcon, PlusIcon } from "@heroicons/vue/24/solid";
+import {
+    InformationCircleIcon,
+    PencilIcon,
+    PlusIcon,
+} from "@heroicons/vue/24/solid";
 import { Inertia } from "@inertiajs/inertia";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 import pickBy from "lodash/pickBy";
@@ -261,19 +265,29 @@ const showBatches = () => {
             @close="showBatchesDialog = false"
         >
             <div v-for="batch in feature.batches" :key="batch.id">
-                <div class="flex flex-row justify-between">
+                <div class="flex flex-row justify-between py-2">
                     <div>{{ batch.expired_on ?? "No expired date" }}</div>
-                    <div>{{ batch.stock }}</div>
+                    <Button
+                        @click="
+                            $inertia.visit(
+                                route('batches.show', { batch: batch.id })
+                            )
+                        "
+                    >
+                        {{ batch.stock }}
+                    </Button>
                 </div>
             </div>
 
-            <div class="text-right border-t border-t-primary border-dashed">
-                {{
+            <div
+                class="text-right border-t border-t-primary border-dashed mt-1 pt-1"
+            >
+                <Button>{{
                     feature.batches.reduce(
                         (carry, batch) => carry + batch.stock,
                         0
                     )
-                }}
+                }}</Button>
             </div>
         </Dialog>
     </div>

@@ -132,6 +132,7 @@ Route::controller(ToppingController::class)->prefix('/toppings')->group(function
 Route::controller(BatchController::class)->prefix('/batches')->group(function () {
     Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::post('correct/{batch}', 'correct')->name('batches.correct');
+        Route::get('{batch}', 'show')->name('batches.show');
     });
 });
 

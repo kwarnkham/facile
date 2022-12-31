@@ -17,7 +17,10 @@ const form = useForm({
     toppings: JSON.parse(localStorage.getItem("toppings")),
 });
 const submit = () => {
-    form.transform((data) => pickBy(data)).post(route("orders.store"), {
+    form.transform((data) => {
+        if (data.toppings.length == 0) data.toppings = undefined;
+        return pickBy(data);
+    }).post(route("orders.store"), {
         replace: true,
         onSuccess() {
             localStorage.removeItem("cartItems");
