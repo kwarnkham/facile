@@ -55,9 +55,7 @@ const cancelPurchase = (purchase) => {
                 <div v-if="purchase.purchasable_type == 'App\\Models\\Expense'">
                     Type : Expense
                 </div>
-                <div v-if="purchase.note">
-                    {{ purchase.note }}
-                </div>
+                <div v-if="purchase.note">Note: {{ purchase.note }}</div>
                 <div>
                     {{ new Date(purchase.created_at).toLocaleString("en-GB") }}
                 </div>

@@ -21,7 +21,9 @@ const props = defineProps({
     },
 });
 const submit = () => {
-    form.get(props.url);
+    form.get(props.url, {
+        replace: true,
+    });
 };
 const from = props.from ? new Date(props.from) : new Date();
 const to = props.to ? new Date(props.to) : new Date();
