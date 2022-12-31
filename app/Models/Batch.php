@@ -13,4 +13,9 @@ class Batch extends Model
     {
         return $this->belongsTo(Feature::class);
     }
+
+    public function corrections()
+    {
+        return $this->hasMany(Correction::class);
+    }
 }

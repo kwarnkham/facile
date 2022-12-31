@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BatchController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FeatureController;
@@ -125,6 +126,12 @@ Route::controller(ToppingController::class)->prefix('/toppings')->group(function
         Route::get('', 'create')->name('toppings.create');
         Route::get('{topping}/edit', 'edit')->name('toppings.edit');
         Route::put('{topping}', 'update')->name('toppings.update');
+    });
+});
+
+Route::controller(BatchController::class)->prefix('/batches')->group(function () {
+    Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+        Route::post('correct/{batch}', 'correct')->name('batches.correct');
     });
 });
 

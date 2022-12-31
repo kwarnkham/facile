@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreBatchRequest;
 use App\Http\Requests\UpdateBatchRequest;
 use App\Models\Batch;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 class BatchController extends Controller
 {
@@ -16,6 +18,29 @@ class BatchController extends Controller
     public function index()
     {
         //
+    }
+
+    public function correct(Batch $batch)
+    {
+        $attributes = request()->validate([
+            'stock' => ['required', 'numeric'],
+            'type' => ['required', 'in:1,2']
+        ]);
+        DB::transaction(function () use ($batch, $attributes) {
+            $batch->corrections()->create($attributes);
+            $feature = $batch->feature;
+            if ($attributes['type'] == 1) {
+                $batch->stock -= $attributes['stock'];
+                $feature->stock -= $attributes['stock'];
+            } else if ($attributes['type'] == 2) {
+                $batch->stock += $attributes['stock'];
+                $feature->stock += $attributes['stock'];
+            }
+            $batch->save();
+            $feature->save();
+        });
+
+        return Redirect::back()->with('message', 'Success');
     }
 
     /**
