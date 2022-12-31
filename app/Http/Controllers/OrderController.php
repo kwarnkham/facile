@@ -199,13 +199,13 @@ class OrderController extends Controller
                     'quantity' => $item['quantity'],
                 ]);
             }
-
-            foreach ($attributes['toppings'] as $topping) {
-                $order->toppings()->attach($topping['topping_id'], [
-                    'price' => $toppings->first(fn ($v) => $v->id == $topping['topping_id'])->price,
-                    'quantity' => $topping['quantity'],
-                ]);
-            }
+            if (array_key_exists('toppings', $attributes))
+                foreach ($attributes['toppings'] as $topping) {
+                    $order->toppings()->attach($topping['topping_id'], [
+                        'price' => $toppings->first(fn ($v) => $v->id == $topping['topping_id'])->price,
+                        'quantity' => $topping['quantity'],
+                    ]);
+                }
             return $order;
         });
 
