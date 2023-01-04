@@ -12,9 +12,9 @@ const form = useForm({
     phone: "",
     address: "",
     note: "",
-    features: JSON.parse(localStorage.getItem("cartItems")),
+    features: JSON.parse(localStorage.getItem("cartItems")) ?? [],
     discount: JSON.parse(localStorage.getItem("cartDiscount")) ?? "",
-    toppings: JSON.parse(localStorage.getItem("toppings")),
+    toppings: JSON.parse(localStorage.getItem("toppings")) ?? [],
 });
 const submit = () => {
     form.transform((data) => {
