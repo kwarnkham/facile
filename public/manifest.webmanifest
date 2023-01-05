@@ -3,6 +3,7 @@
     "description": "Facile, your business facilitator",
     "theme_color": "#5B7F67",
     "orientation": "portrait",
+    "display": "browser",
     "icons": [
         {
             "src": "android/icon-48.png",
