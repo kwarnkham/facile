@@ -65,14 +65,16 @@ watch(
 const cartItems = computed(() => {
     return store.cart.items;
 });
-// onMounted(() => {
-//     const setHeight = () => {
-//         const vh = window.innerHeight * 0.01;
-//         document.querySelector(".layout").style.setProperty("--vh", `${vh}px`);
-//     };
-//     setHeight();
-//     window.addEventListener("resize", setHeight);
-// });
+onMounted(() => {
+    const setHeight = () => {
+        const doc = document.documentElement;
+        doc.style.setProperty("--vh", window.innerHeight * 0.01 + "px");
+    };
+
+    window.addEventListener("resize", setHeight);
+
+    setHeight();
+});
 </script>
 
 <template>
@@ -159,7 +161,7 @@ const cartItems = computed(() => {
 
 <style scoped>
 .layout {
-    min-height: -webkit-fill-available;
-    height: 100vh;
+    height: 100vh; /* Fallback for browsers that do not support Custom Properties */
+    height: calc(var(--vh, 1vh) * 100);
 }
 </style>
