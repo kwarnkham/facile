@@ -2,6 +2,8 @@
     "background_color": "#ffffff",
     "description": "Facile, your business facilitator",
     "display": "standalone",
+    "theme_color": "#5B7F67",
+    "orientation": "portrait",
     "icons": [
         {
             "src": "android/icon-48.png",
