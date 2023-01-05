@@ -160,6 +160,6 @@ const cartItems = computed(() => {
 <style scoped>
 .layout {
     min-height: -webkit-fill-available;
-    /* height: calc(var(--vh, 1vh) * 100); */
+    height: 100vh;
 }
 </style>
