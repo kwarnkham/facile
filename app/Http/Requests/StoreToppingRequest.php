@@ -26,6 +26,7 @@ class StoreToppingRequest extends FormRequest
         return [
             'name' => ['required', 'unique:toppings,name'],
             'price' => ['required', 'numeric', 'gt:0'],
+            'cost' => ['required', 'numeric']
         ];
     }
 }

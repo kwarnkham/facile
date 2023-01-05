@@ -9,6 +9,7 @@ import { useForm } from "@inertiajs/inertia-vue3";
 const form = useForm({
     name: "",
     price: "",
+    cost: "",
 });
 const props = defineProps({
     toppings: {
@@ -54,6 +55,19 @@ const submit = () => {
                     :class="{ 'daisy-input-error': form.errors.price }"
                 />
                 <InputError :message="form.errors.price" />
+            </div>
+
+            <div>
+                <InputLabel for="cost" value="Cost" />
+                <TextInput
+                    id="cost"
+                    type="number"
+                    class="mt-1 w-full"
+                    v-model.number="form.cost"
+                    required
+                    :class="{ 'daisy-input-error': form.errors.cost }"
+                />
+                <InputError :message="form.errors.cost" />
             </div>
 
             <div class="flex items-center justify-end">

@@ -266,6 +266,7 @@ class OrderController extends Controller
                         $topping['id'] => [
                             'quantity' => $topping['quantity'],
                             'price' => $topping['price'],
+                            'cost' => $topping['cost'],
                             'discount' => $topping['discount'] ?? 0,
                         ]
                     ])->toArray()

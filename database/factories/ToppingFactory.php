@@ -16,9 +16,11 @@ class ToppingFactory extends Factory
      */
     public function definition()
     {
+        $price = fake()->numberBetween(1000, 10000);
         return [
             'name' => fake()->unique()->name(),
-            'price' => fake()->numberBetween(1000, 10000)
+            'price' => $price,
+            'cost' => floor($price / 2)
         ];
     }
 }

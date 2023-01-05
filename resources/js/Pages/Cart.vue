@@ -153,19 +153,19 @@ const addTopping = (topping) => {
                             :class="{
                                 'text-indigo-500': feature.discount ?? 0 > 0,
                             }"
-                            @click="editCartFeaturePrice(feature)"
                         >
-                            {{
-                                (
-                                    feature.price - (feature.discount ?? 0)
-                                )?.toLocaleString()
-                            }}
+                            <span @click="editCartFeaturePrice(feature)">
+                                {{
+                                    (
+                                        feature.price - (feature.discount ?? 0)
+                                    )?.toLocaleString()
+                                }}
+                            </span>
                         </td>
-                        <td
-                            class="text-right underline text-info"
-                            @click="editCartFeatureQuantity(feature)"
-                        >
-                            {{ feature.quantity }}
+                        <td class="text-right underline text-info">
+                            <span @click="editCartFeatureQuantity(feature)">
+                                {{ feature.quantity }}
+                            </span>
                         </td>
 
                         <td class="text-right">

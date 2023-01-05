@@ -27,6 +27,7 @@ class UpdateToppingRequest extends FormRequest
         return [
             'name' => ['required', Rule::unique('toppings', 'name')->ignore($this->topping->id, 'id')],
             'price' => ['required', 'numeric', 'gt:0'],
+            'cost' => ['required', 'numeric']
         ];
     }
 }

@@ -22,7 +22,7 @@ class Order extends Model
 
     public function toppings()
     {
-        return $this->belongsToMany(Topping::class)->withPivot(['price', 'quantity', 'discount']);
+        return $this->belongsToMany(Topping::class)->withPivot(['price', 'quantity', 'discount', 'cost']);
     }
 
     public function items()
