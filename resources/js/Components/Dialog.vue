@@ -1,4 +1,5 @@
 <script setup>
+import { XMarkIcon } from "@heroicons/vue/24/solid";
 import { ref } from "vue";
 const props = defineProps({
     title: {
@@ -19,9 +20,12 @@ defineEmits(["close"]);
         <div
             class="daisy-modal daisy-modal-bottom sm:daisy-modal-middle"
             :class="{ 'daisy-modal-open': open }"
-            @click="$emit('close')"
         >
-            <div class="daisy-modal-box" @click.stop="">
+            <div class="daisy-modal-box">
+                <XMarkIcon
+                    class="w-5 h-5 absolute right-3 top-3"
+                    @click="$emit('close')"
+                />
                 <h3 class="font-bold text-lg">
                     {{ title }}
                 </h3>

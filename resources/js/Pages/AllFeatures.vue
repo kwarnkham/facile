@@ -26,7 +26,6 @@ const query = ref({
 const showPurchaseDialog = ref(false);
 const featureInEdit = ref({});
 const showPurchaseForm = (feature) => {
-    console.log(feature);
     featureInEdit.value = feature;
     showPurchaseDialog.value = true;
 };
