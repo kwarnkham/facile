@@ -76,11 +76,7 @@ const cartItems = computed(() => {
 </script>
 
 <template>
-    <div
-        class="w-screen flex flex-col relative layout"
-        data-theme="garden"
-        style="min-height: -webkit-fill-available"
-    >
+    <div class="w-screen flex flex-col relative layout" data-theme="garden">
         <div class="flex-grow flex-shrink-0 basis-0 overflow-y-auto">
             <slot />
         </div>
@@ -163,6 +159,7 @@ const cartItems = computed(() => {
 
 <style scoped>
 .layout {
-    height: calc(var(--vh, 1vh) * 100);
+    min-height: -webkit-fill-available;
+    /* height: calc(var(--vh, 1vh) * 100); */
 }
 </style>
