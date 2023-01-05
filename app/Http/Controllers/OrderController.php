@@ -103,7 +103,7 @@ class OrderController extends Controller
     public function cancel(Order $order)
     {
         if (in_array($order->status, [OrderStatus::PENDING->value, OrderStatus::PARTIALLY_PAID->value, OrderStatus::PAID->value])) {
-            if ($order->status == OrderStatus::PAID->value && now()->diffInHours($order->updated_at) >= 24) return Redirect::back()->with('message', 'Cannot cancel a paid order after 24 hours');
+            // if ($order->status == OrderStatus::PAID->value && now()->diffInHours($order->updated_at) >= 24) return Redirect::back()->with('message', 'Cannot cancel a paid order after 24 hours');
             DB::transaction(function () use ($order) {
                 $order->update(['status' => OrderStatus::CANCELED->value]);
                 $order->features->each(function ($feature) {

@@ -182,20 +182,20 @@ class OrderTest extends TestCase
         $this->assertEquals(Credit::first()->amount, $madeOrder['amount']);
     }
 
-    public function test_cannot_cancel_a_completed_order_after_24_hours()
-    {
-        $madeOrder = $this->makeOrder(Feature::factory(2)->make());
-        $order = Order::first();
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
-            'payment_id' => $this->payment->id,
-            'amount' => $madeOrder['amount']
-        ]);
+    // public function test_cannot_cancel_a_completed_order_after_24_hours()
+    // {
+    //     $madeOrder = $this->makeOrder(Feature::factory(2)->make());
+    //     $order = Order::first();
+    //     $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+    //         'payment_id' => $this->payment->id,
+    //         'amount' => $madeOrder['amount']
+    //     ]);
 
-        $time = (clone $order->updated_at)->addHours(25);
-        $this->travelTo($time);
-        $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]))->assertSessionHas('message', 'Cannot cancel a paid order after 24 hours');
-        $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
-    }
+    //     $time = (clone $order->updated_at)->addHours(25);
+    //     $this->travelTo($time);
+    //     $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]))->assertSessionHas('message', 'Cannot cancel a paid order after 24 hours');
+    //     $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
+    // }
 
     public function test_complete_an_order()
     {
