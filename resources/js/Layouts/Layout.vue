@@ -77,8 +77,9 @@ const cartItems = computed(() => {
 
 <template>
     <div
-        class="h-screen w-screen flex flex-col relative layout"
+        class="w-screen flex flex-col relative layout"
         data-theme="garden"
+        style="min-height: -webkit-fill-available"
     >
         <div class="flex-grow flex-shrink-0 basis-0 overflow-y-auto">
             <slot />
