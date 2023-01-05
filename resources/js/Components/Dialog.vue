@@ -17,10 +17,7 @@ defineEmits(["close"]);
 
 <template>
     <Teleport to="body">
-        <div
-            class="daisy-modal daisy-modal-bottom sm:daisy-modal-middle"
-            :class="{ 'daisy-modal-open': open }"
-        >
+        <div class="daisy-modal" :class="{ 'daisy-modal-open': open }">
             <div class="daisy-modal-box">
                 <XMarkIcon
                     class="w-5 h-5 absolute right-3 top-3"
