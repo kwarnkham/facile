@@ -6,12 +6,9 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PicturePicker from "@/Components/PicturePicker.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import PurchaseFormDialog from "@/Components/PurchaseFormDialog.vue";
 import TextInput from "@/Components/TextInput.vue";
-import {
-    InformationCircleIcon,
-    PencilIcon,
-    PlusIcon,
-} from "@heroicons/vue/24/solid";
+import { InformationCircleIcon, PlusIcon } from "@heroicons/vue/24/solid";
 import { Inertia } from "@inertiajs/inertia";
 import { Head, useForm } from "@inertiajs/inertia-vue3";
 import pickBy from "lodash/pickBy";
@@ -44,12 +41,6 @@ const form = useForm({
     item_id: props.feature.item_id,
 });
 
-const purchaseForm = useForm({
-    price: "",
-    quantity: "",
-    expired_on: "",
-});
-
 const deletingPicture = ref(false);
 const deletePicture = (id) => {
     deletingPicture.value = true;
@@ -64,13 +55,6 @@ const showPurchaseForm = () => {
     showPurchaseDialog.value = true;
 };
 
-const purchase = () => {
-    purchaseForm
-        .transform((data) => pickBy(data))
-        .post(route("features.restock", { feature: props.feature.id }), {
-            preserveState: false,
-        });
-};
 const showBatchesDialog = ref(false);
 
 const showBatches = () => {
@@ -212,52 +196,11 @@ const showBatches = () => {
             </div>
         </Collapse>
 
-        <Dialog
+        <PurchaseFormDialog
             :open="showPurchaseDialog"
-            title="Purchase"
             @close="showPurchaseDialog = false"
-        >
-            <form @submit.prevent="purchase">
-                <div>
-                    <InputLabel for="purchasePrice" value="Price" />
-                    <TextInput
-                        id="purchasePrice"
-                        type="tel"
-                        class="w-full"
-                        v-model.number="purchaseForm.price"
-                        required
-                        placeholder="Amount"
-                        :autofocus="showPurchaseDialog"
-                    />
-                </div>
-                <div>
-                    <InputLabel for="purchaseQuantity" value="Quantity" />
-                    <TextInput
-                        id="purchaseQuantity"
-                        type="tel"
-                        class="w-full"
-                        v-model.number="purchaseForm.quantity"
-                        required
-                        placeholder="Quantity"
-                    />
-                </div>
-                <div>
-                    <InputLabel for="expiredOn" value="Expire Date" />
-                    <TextInput
-                        id="expiredOn"
-                        type="date"
-                        class="w-full"
-                        v-model="purchaseForm.expired_on"
-                        placeholder="Expire Date"
-                    />
-                </div>
-                <div class="text-right pt-2">
-                    <Button :disabled="purchaseForm.processing" type="submit">
-                        Submit
-                    </Button>
-                </div>
-            </form>
-        </Dialog>
+            :feature="feature"
+        />
 
         <Dialog
             :open="showBatchesDialog"

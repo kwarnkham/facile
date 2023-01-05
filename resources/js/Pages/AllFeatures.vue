@@ -2,6 +2,7 @@
 import Button from "@/Components/Button.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import Pagination from "@/Components/Pagination.vue";
+import PurchaseFormDialog from "@/Components/PurchaseFormDialog.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { MagnifyingGlassCircleIcon } from "@heroicons/vue/24/solid";
 import { Head } from "@inertiajs/inertia-vue3";
@@ -21,6 +22,14 @@ const query = ref({
     search: props.filters.search ?? "",
     stocked: Boolean(props.filters.stocked) ?? false,
 });
+
+const showPurchaseDialog = ref(false);
+const featureInEdit = ref({});
+const showPurchaseForm = (feature) => {
+    console.log(feature);
+    featureInEdit.value = feature;
+    showPurchaseDialog.value = true;
+};
 </script>
 
 <template>
@@ -83,6 +92,9 @@ const query = ref({
                             "
                             >View</Button
                         >
+                        <Button @click="showPurchaseForm(feature)">
+                            Add Stock
+                        </Button>
                         <Button
                             @click="
                                 $inertia.visit(
@@ -104,5 +116,10 @@ const query = ref({
                 :query="query"
             />
         </div>
+        <PurchaseFormDialog
+            :open="showPurchaseDialog"
+            :feature="featureInEdit"
+            @close="showPurchaseDialog = false"
+        />
     </div>
 </template>
