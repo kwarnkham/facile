@@ -26,10 +26,12 @@ class ItemController extends Controller
 
         $query = Item::query();
         $filters = $validator->safe()->only(['search']);
-        return Inertia::render('Items', [
-            'items' => $query->filter($filters)->with(['pictures'])->paginate(request()->per_page ?? 20),
+        $data = [
+            'items' => $query->filter($filters)->latest()->paginate(request()->per_page ?? 20),
             'filters' => $filters,
-        ]);
+        ];
+        if (request()->wantsJson()) return response()->json($data);
+        return Inertia::render('Items', $data);
     }
 
     /**
@@ -52,6 +54,7 @@ class ItemController extends Controller
     {
         $attributes = $request->validated();
         $item = Item::create($attributes);
+        if ($request->wantsJson()) return response()->json(['item' => $item]);
         return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'success');
     }
 
@@ -98,6 +101,9 @@ class ItemController extends Controller
     public function update(UpdateItemRequest $request, Item $item)
     {
         $item->update($request->validated());
+        if ($request->wantsJson()) return response()->json([
+            'item' => $item
+        ]);
         return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'success');
     }
 

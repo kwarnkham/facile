@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +36,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request)
     {
+
         $request->authenticate();
+
+        if ($request->wantsJson()) {
+            $user = User::where('email', $request->email)->first();
+            $token = $user->createToken('');
+            return response()->json(['token' => $token->plainTextToken, 'user' => $user]);
+        }
 
         $request->session()->regenerate();
 
@@ -50,6 +58,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
+        if ($request->wantsJson()) {
+            $user = $request->user();
+            $user->currentAccessToken()->delete();
+            return response()->json(['message' => 'Success']);
+        }
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
