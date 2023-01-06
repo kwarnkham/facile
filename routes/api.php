@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -32,5 +33,18 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
         Route::put('{item}', 'update');
         Route::get('', 'index');
         Route::get('{item}', 'show');
+    });
+});
+
+Route::controller(FeatureController::class)->prefix('/features')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::get('all', 'all');
+        Route::post('', 'store');
+        // Route::get('create', 'create');
+        // Route::get('', 'index')->name('features.index');
+        // Route::get('{feature}/edit', 'edit')->name('features.edit');
+        // Route::put('{feature}', 'update')->name('features.update');
+        // Route::get('{feature}', 'show')->name('features.show');
+        // Route::post('{feature}/restock', 'restock')->name('features.restock');
     });
 });

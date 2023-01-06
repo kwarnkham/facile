@@ -72,7 +72,7 @@ class FeatureController extends Controller
     public function store(StoreFeatureRequest $request)
     {
         $attributes = $request->validated();
-        DB::transaction(function () use ($attributes) {
+        $feature = DB::transaction(function () use ($attributes) {
             $feature = Feature::create(collect($attributes)->except('purchase_price', 'expired_on')->toArray());
             $purchase = $feature->purchases()->create([
                 'price' => $attributes['purchase_price'],
@@ -83,7 +83,10 @@ class FeatureController extends Controller
                 'expired_on' => $attributes['expired_on'] ?? null,
                 'stock' => $attributes['stock']
             ]);
+            return $feature;
         });
+
+        if ($request->wantsJson()) return response()->json(['feature' => $feature]);
         return Redirect::route('features.index', ['item_id' => $attributes['item_id']]);
     }
 

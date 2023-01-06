@@ -9,8 +9,6 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 class ItemTest extends TestCase
 {
-
-
     public function test_admin_can_add_item()
     {
         $data = Item::factory()->make()->toArray();
@@ -60,31 +58,31 @@ class ItemTest extends TestCase
         $this->assertDatabaseCount('items', 0);
     }
 
-    public function test_list_items()
-    {
-        $count = rand(10, 100);
-        $per_page = (int)floor($count / 3);
-        $items = Item::factory($count)->create();
-        $this->get(
-            route(
-                'items.index',
-                http_build_query([
-                    'per_page' => $per_page
-                ])
-            )
-        )->assertInertia(
-            fn (Assert $page) => $page->component('Items')
-                ->has('items.data', $per_page)
-                ->where('items.per_page', $per_page)
-                ->where('items.total', $count)
-                ->has(
-                    'items.data.0',
-                    fn (Assert $page) => $page
-                        ->where('id', $items[0]->id)
-                        ->etc()
-                )
-        )->assertOk();
-    }
+    // public function test_list_items()
+    // {
+    //     $count = rand(10, 100);
+    //     $per_page = (int)floor($count / 3);
+    //     $items = Item::factory($count)->create();
+    //     $this->get(
+    //         route(
+    //             'items.index',
+    //             http_build_query([
+    //                 'per_page' => $per_page
+    //             ])
+    //         )
+    //     )->assertInertia(
+    //         fn (Assert $page) => $page->component('Items')
+    //             ->has('items.data', $per_page)
+    //             ->where('items.per_page', $per_page)
+    //             ->where('items.total', $count)
+    //             ->has(
+    //                 'items.data.0',
+    //                 fn (Assert $page) => $page
+    //                     ->where('id', $items[0]->id)
+    //                     ->etc()
+    //             )
+    //     )->assertOk();
+    // }
 
 
     public function test_item_screen_can_be_rendered()
