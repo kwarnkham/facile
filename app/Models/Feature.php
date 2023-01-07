@@ -74,7 +74,8 @@ class Feature extends Model
                 $query->where('name', 'like', '%' . $search . '%')
                     ->orWhere('stock', 'like', '%' . $search . '%')
                     ->orWhere('note', 'like', '%' . $search . '%')
-                    ->orWhere('price', 'like', '%' . $search . '%');
+                    ->orWhere('price', 'like', '%' . $search . '%')
+                    ->orWhereRelation('item', 'name', 'like', '%' . $search . '%');
             })
         );
 

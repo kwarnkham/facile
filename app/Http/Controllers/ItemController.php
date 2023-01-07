@@ -30,7 +30,7 @@ class ItemController extends Controller
             'items' => $query->filter($filters)->latest()->paginate(request()->per_page ?? 20),
             'filters' => $filters,
         ];
-        if (request()->wantsJson()) return response()->json($data);
+        if (request()->wantsJson()) return response()->json($data['items']);
         return Inertia::render('Items', $data);
     }
 

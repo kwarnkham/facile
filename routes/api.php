@@ -41,7 +41,7 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
         Route::get('all', 'all');
         Route::post('', 'store');
         // Route::get('create', 'create');
-        // Route::get('', 'index')->name('features.index');
+        Route::get('', 'index');
         // Route::get('{feature}/edit', 'edit')->name('features.edit');
         // Route::put('{feature}', 'update')->name('features.update');
         // Route::get('{feature}', 'show')->name('features.show');

@@ -21,6 +21,16 @@ class FeatureController extends Controller
      */
     public function index()
     {
+        if (request()->wantsJson()) {
+            request()->validate([
+                'search' => ['sometimes', 'required'],
+                'stocked' => ['boolean'],
+            ]);
+
+            $filters = request()->only(['search', 'stocked']);
+            $features = Feature::filter($filters)->latest()->paginate(request()->per_page ?? 20);
+            return response()->json($features);
+        }
         $attributes = request()->validate([
             'item_id' => ['required', 'exists:items,id'],
             'search' => ['sometimes', 'required'],
