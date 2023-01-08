@@ -56,6 +56,11 @@ class Feature extends Model
         return $this->hasMany(Batch::class)->orderBy('expired_on');
     }
 
+    public function latestBatch()
+    {
+        return $this->hasOne(Batch::class)->latestOfMany();
+    }
+
     public function pictures()
     {
         return $this->morphMany(Picture::class, 'pictureable')->orderBy('id', 'desc');

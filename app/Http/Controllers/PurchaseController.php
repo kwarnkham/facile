@@ -37,10 +37,13 @@ class PurchaseController extends Controller
         } else {
             $filters['to'] = (new Carbon($filters['to']))->endOfDay();
         }
-        $query = Purchase::with(['purchasable'])
+
+        $query = Purchase::with(['purchasable.item'])
             ->whereBetween('updated_at', [$filters['from'], $filters['to']])
             ->where('status', PurchaseStatus::NORMAL->value);
         $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);
+        $data = $query->paginate(request()->per_page ?? 10);
+        if (request()->wantsJson()) return response()->json($data);
         return Inertia::render('Purchases', [
             'purchases' => $query->paginate(request()->per_page ?? 10),
             'filters' => [
@@ -154,6 +157,8 @@ class PurchaseController extends Controller
             $purchase->status = 2;
             $purchase->save();
         }
+
+        if (request()->wantsJson()) return response()->json(['message' => 'Success']);
         return Redirect::back()->with('message', 'success');
     }
 }

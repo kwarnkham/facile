@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\PurchaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +46,14 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
         // Route::get('{feature}/edit', 'edit')->name('features.edit');
         // Route::put('{feature}', 'update')->name('features.update');
         // Route::get('{feature}', 'show')->name('features.show');
-        // Route::post('{feature}/restock', 'restock')->name('features.restock');
+        Route::post('{feature}/restock', 'restock')->name('features.restock');
+    });
+});
+
+Route::controller(PurchaseController::class)->prefix('/purchases')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        // Route::post('', 'store')->name('purchases.store');
+        Route::post('{purchase}/cancel', 'cancel');
+        Route::get('', 'index');
     });
 });

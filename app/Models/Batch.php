@@ -18,4 +18,9 @@ class Batch extends Model
     {
         return $this->hasMany(Correction::class);
     }
+
+    public function purchase()
+    {
+        return $this->belongsTo(Purchase::class);
+    }
 }

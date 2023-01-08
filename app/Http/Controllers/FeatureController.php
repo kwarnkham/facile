@@ -4,11 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFeatureRequest;
 use App\Http\Requests\UpdateFeatureRequest;
-use App\Models\Batch;
 use App\Models\Feature;
 use App\Models\Item;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -28,7 +26,7 @@ class FeatureController extends Controller
             ]);
 
             $filters = request()->only(['search', 'stocked']);
-            $features = Feature::filter($filters)->latest()->paginate(request()->per_page ?? 20);
+            $features = Feature::with(['item', 'latestBatch.purchase'])->filter($filters)->latest()->paginate(request()->per_page ?? 20);
             return response()->json($features);
         }
         $attributes = request()->validate([
@@ -143,8 +141,7 @@ class FeatureController extends Controller
             'quantity' => ['required', 'numeric', 'gt:0'],
             'expired_on' => ['sometimes', 'required', 'date']
         ]);
-
-        return Redirect::back()->with('message', DB::transaction(function () use ($feature, $attributes) {
+        $result = DB::transaction(function () use ($feature, $attributes) {
             $purchase = $feature->purchases()->create(collect($attributes)->except('expired_on')->toArray());
             $feature->stock += $attributes['quantity'];
             $feature->save();
@@ -153,8 +150,11 @@ class FeatureController extends Controller
                 'expired_on' => $attributes['expired_on'] ?? null,
                 'stock' => $attributes['quantity']
             ]);
-            return true;
-        }) ? 'Success' : 'Failed');
+            return $feature;
+        });
+        if (request()->wantsJson()) return response()->json(['feature' => $result->load(['latestBatch.purchase', 'item'])]);
+
+        return Redirect::back()->with('message', $result ? 'Success' : 'Failed');
     }
 
     /**
