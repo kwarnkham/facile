@@ -115,6 +115,7 @@ Route::controller(PurchaseController::class)->prefix('/purchases')->group(functi
 Route::controller(ExpenseController::class)->prefix('/expenses')->group(function () {
     Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         Route::post('', 'store')->name('expenses.store');
+        Route::put('{expense}', 'update')->name('expenses.update');
         Route::get('', 'create')->name('expenses.create');
         Route::post('{expense}/record', 'record')->name('expenses.record');
     });

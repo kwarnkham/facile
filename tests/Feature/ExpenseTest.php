@@ -30,4 +30,27 @@ class ExpenseTest extends TestCase
 
         $this->assertDatabaseCount('purchases', 1);
     }
+
+    public function test_update_an_expense()
+    {
+        $dataExpense = Expense::factory()->make();
+
+        $this->actingAs($this->user)->post(
+            route('expenses.store'),
+            $dataExpense->toArray()
+        );
+        $this->assertDatabaseCount('expenses', 1);
+
+        $expense = Expense::first();
+
+        $dataExpense = Expense::factory()->make();
+
+        $this->actingAs($this->user)->put(
+            route('expenses.update', ['expense' => $expense->id]),
+            $dataExpense->toArray()
+        );
+
+        $this->assertDatabaseCount('expenses', 1);
+        $this->assertDatabaseHas('expenses', $dataExpense->toArray());
+    }
 }
