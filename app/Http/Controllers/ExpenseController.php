@@ -17,7 +17,7 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(Expense::query()->paginate(request()->per_page ?? 20));
     }
 
     /**
@@ -39,16 +39,19 @@ class ExpenseController extends Controller
     public function store(StoreExpenseRequest $request)
     {
         $attributes = $request->validated();
-        Expense::create($attributes);
+        $expense = Expense::create($attributes);
+        if (request()->wantsJson()) return response()->json(['expense' => $expense]);
     }
 
     public function record(Expense $expense)
     {
         $attributes = request()->validate([
             'price' => ['required', 'numeric'],
-            'note' => ['sometimes', 'required']
+            'note' => ['sometimes', 'required'],
         ]);
-        $expense->purchases()->create($attributes);
+        $attributes['name'] = $expense->name;
+        $purcahse = $expense->purchases()->create($attributes);
+        if (request()->wantsJson()) return response()->json(['purchase' => $purcahse]);
         return Redirect::back()->with('message', 'Success');
     }
 

@@ -17,7 +17,8 @@ class OrderTest extends TestCase
         $feature = Feature::first();
         $purchase = $feature->purchases()->create([
             'price' => $feature->price * 0.9,
-            'quantity' => $feature->stock
+            'quantity' => $feature->stock,
+            'name' => $feature->name
         ]);
         $batch = $feature->batches()->create([
             'purchase_id' => $purchase->id,

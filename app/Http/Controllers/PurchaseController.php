@@ -7,12 +7,15 @@ use App\Enums\PurchaseStatus;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Batch;
+use App\Models\Expense;
 use App\Models\Feature;
+use App\Models\Item;
 use App\Models\Purchase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class PurchaseController extends Controller
 {
@@ -38,7 +41,11 @@ class PurchaseController extends Controller
             $filters['to'] = (new Carbon($filters['to']))->endOfDay();
         }
 
-        $query = Purchase::with(['purchasable.item'])
+        $query = Purchase::with(['purchasable' => function (MorphTo $morphTo) {
+            $morphTo->morphWith([
+                Feature::class => ['item'],
+            ]);
+        }])
             ->whereBetween('updated_at', [$filters['from'], $filters['to']])
             ->where('status', PurchaseStatus::NORMAL->value);
         $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);

@@ -105,7 +105,7 @@ class ItemFeatureTest extends TestCase
         $price = rand(1000, 10000);
         $this->actingAs($this->user)->post(route('features.restock', ['feature' => $feature->id]), [
             'price' => $price,
-            'quantity' => $quantity
+            'quantity' => $quantity,
         ]);
         $this->assertEquals($feature->stock + $quantity, $feature->fresh()->stock);
         $this->assertDatabaseCount('purchases', 2);

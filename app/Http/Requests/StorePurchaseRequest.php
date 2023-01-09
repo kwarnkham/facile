@@ -28,6 +28,7 @@ class StorePurchaseRequest extends FormRequest
         return [
             'price' => ['required', 'numeric', 'gt:0'],
             'quantity' => ['required', 'numeric', 'gt:0'],
+            'name' => ['required'],
             'type' => [
                 'required',
                 function ($attribute, $value, $fail) {

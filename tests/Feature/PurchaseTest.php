@@ -15,7 +15,8 @@ class PurchaseTest extends TestCase
             'price' => rand(1000, 100000),
             'quantity' => 2,
             'type' => 'expense',
-            'type_id' => $expnese->id
+            'type_id' => $expnese->id,
+            'name' => 'name'
         ])->assertSessionHas('message', 'Success');
     }
 }

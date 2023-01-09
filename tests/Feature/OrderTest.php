@@ -34,7 +34,11 @@ class OrderTest extends TestCase
         $data['item_id'] = $this->item->id;
         $feature = Feature::create($data);
 
-        $purchase = $feature->purchases()->create(['quantity' => $feature->stock, 'price' => $feature->price * 0.9]);
+        $purchase = $feature->purchases()->create([
+            'quantity' => $feature->stock,
+            'price' => $feature->price * 0.9,
+            'name' => $feature->name
+        ]);
 
         $feature->batches()->create(['purchase_id' => $purchase->id, 'stock' => $feature->stock]);
 
@@ -89,6 +93,7 @@ class OrderTest extends TestCase
         }
 
         if ($discountFactor) $data['discount'] = floor($this->featureAmount($dataFeatures) * $discountFactor);
+
         $this->actingAs($this->user)->post(route('orders.store'), $data);
 
         $this->assertDatabaseCount('orders', 1);
@@ -548,7 +553,8 @@ class OrderTest extends TestCase
             $feature = Feature::find($v['id']);
             $purchase = $feature->purchases()->create([
                 'price' => $feature->price * 0.9,
-                'quantity' => $feature->stock
+                'quantity' => $feature->stock,
+                'name' => $feature->name
             ]);
             $feature->batches()->create([
                 'purchase_id' => $purchase->id,

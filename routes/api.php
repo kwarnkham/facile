@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PurchaseController;
@@ -55,5 +56,14 @@ Route::controller(PurchaseController::class)->prefix('/purchases')->group(functi
         // Route::post('', 'store')->name('purchases.store');
         Route::post('{purchase}/cancel', 'cancel');
         Route::get('', 'index');
+    });
+});
+
+
+Route::controller(ExpenseController::class)->prefix('/expenses')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('', 'store');
+        Route::get('', 'index');
+        Route::post('{expense}/record', 'record');
     });
 });

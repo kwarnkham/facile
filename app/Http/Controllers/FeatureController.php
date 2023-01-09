@@ -84,7 +84,8 @@ class FeatureController extends Controller
             $feature = Feature::create(collect($attributes)->except('purchase_price', 'expired_on')->toArray());
             $purchase = $feature->purchases()->create([
                 'price' => $attributes['purchase_price'],
-                'quantity' => $attributes['stock']
+                'quantity' => $attributes['stock'],
+                'name' => $feature->name
             ]);
             $feature->batches()->create([
                 'purchase_id' => $purchase->id,
@@ -142,7 +143,9 @@ class FeatureController extends Controller
             'expired_on' => ['sometimes', 'required', 'date']
         ]);
         $result = DB::transaction(function () use ($feature, $attributes) {
-            $purchase = $feature->purchases()->create(collect($attributes)->except('expired_on')->toArray());
+            $data = collect($attributes)->except('expired_on')->toArray();
+            $data['name'] = $feature->name;
+            $purchase = $feature->purchases()->create($data);
             $feature->stock += $attributes['quantity'];
             $feature->save();
             $feature->batches()->create([
