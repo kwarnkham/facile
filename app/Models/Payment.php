@@ -19,4 +19,9 @@ class Payment extends Model
             ) : $value
         );
     }
+
+    public function paymentType()
+    {
+        return $this->belongsTo(PaymentType::class);
+    }
 }

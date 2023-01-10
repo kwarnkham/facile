@@ -21,6 +21,9 @@ class PaymentController extends Controller
      */
     public function index()
     {
+        if (request()->wantsJson()) return response()->json(
+            Payment::with('paymentType')->latest()->paginate(request()->per_page ?? 20)
+        );
         return Inertia::render('Payments', [
             'payment_types' => DB::table('payment_types')->get(),
             'payments' => Payment::all()
@@ -50,7 +53,8 @@ class PaymentController extends Controller
         if ($qr) {
             $attributes['qr'] = $qr;
         }
-        Payment::create($attributes);
+        $payment = Payment::create($attributes);
+        return response()->json(['payment' => $payment]);
     }
 
     public function toggle(Payment $payment)
@@ -101,7 +105,7 @@ class PaymentController extends Controller
 
         $payment->update($attributes);
 
-
+        if ($request->wantsJson()) return response()->json(['payment' => $payment->load(['paymentType'])]);
         return Redirect::back()->with('message', 'Updated');
     }
 

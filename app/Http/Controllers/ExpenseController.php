@@ -17,7 +17,7 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        return response()->json(Expense::query()->paginate(request()->per_page ?? 20));
+        return response()->json(Expense::query()->latest()->paginate(request()->per_page ?? 20));
     }
 
     /**

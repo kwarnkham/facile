@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\PurchaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -66,5 +68,20 @@ Route::controller(ExpenseController::class)->prefix('/expenses')->group(function
         Route::put('{expense}', 'update');
         Route::get('', 'index');
         Route::post('{expense}/record', 'record');
+    });
+});
+
+Route::controller(PaymentController::class)->prefix('/payments')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        // Route::post('/{payment}/toggle', 'toggle')->name('payments.toggle');
+        Route::post('', 'store');
+        Route::get('', 'index');
+        Route::put('/{payment}', 'update');
+    });
+});
+
+Route::controller(PaymentTypeController::class)->prefix('/payment-types')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::get('', 'index');
     });
 });
