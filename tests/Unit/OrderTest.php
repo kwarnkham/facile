@@ -32,7 +32,8 @@ class OrderTest extends TestCase
             'price' => $f->price,
             'quantity' => rand(1, 10),
             'discount' => floor($f->price * 0.1),
-            'batch_id' => $batch->id
+            'batch_id' => $batch->id,
+            'name' => $f->name
         ]));
 
         $this->assertEquals(

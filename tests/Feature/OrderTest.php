@@ -93,7 +93,6 @@ class OrderTest extends TestCase
         }
 
         if ($discountFactor) $data['discount'] = floor($this->featureAmount($dataFeatures) * $discountFactor);
-
         $this->actingAs($this->user)->post(route('orders.store'), $data);
 
         $this->assertDatabaseCount('orders', 1);

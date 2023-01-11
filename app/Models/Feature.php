@@ -34,6 +34,7 @@ class Feature extends Model
                     $feature['price'] = $val->price;
                     $feature['batch'] = $val->batches()->where('stock', '>', 0)->first();
                     $feature['batch_id'] = $feature['batch']->id;
+                    $feature['name'] = $val->name;
                 }
             });
             return $feature;
@@ -68,7 +69,8 @@ class Feature extends Model
 
     public function orders()
     {
-        return $this->belongsToMany(Order::class)->withPivot(['quantity', 'price', 'discount', 'fetures'])->withTimestamps();
+        return $this->belongsToMany(Order::class)
+            ->withPivot(['quantity', 'price', 'discount', 'batch_id', 'name'])->withTimestamps();
     }
 
     public function scopeFilter(Builder $query, $filters)

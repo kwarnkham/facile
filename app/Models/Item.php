@@ -32,6 +32,13 @@ class Item extends Model
         return $this->hasOne(Feature::class)->latestOfMany();
     }
 
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class)
+            ->withPivot(['price', 'quantity', 'name'])
+            ->withTimestamps();
+    }
+
     public function tags()
     {
         return $this->belongsToMany(Tag::class)->withTimestamps();

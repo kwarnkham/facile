@@ -181,12 +181,13 @@ class OrderController extends Controller
             'toppings.*.discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
         ]);
 
-
-        $order = DB::transaction(function () use ($attributes) {
+        $items = Item::whereIn('id', array_map(fn ($val) => $val['item_id'], $attributes['items']))->get();
+        $order = DB::transaction(function () use ($attributes, $items) {
             $amount = array_reduce($attributes['items'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0);
 
             if (array_key_exists('toppings', $attributes)) {
-                $toppings = Topping::query()->whereIn('id', array_map(fn ($val) => $val['topping_id'], $attributes['toppings']))->get(['id', 'price']);
+                $toppings = Topping::query()->whereIn('id', array_map(fn ($val) => $val['topping_id'], $attributes['toppings']))->get(['id', 'price', 'name']);
+
                 $amount += array_reduce($attributes['toppings'], fn ($carry, $val) => $carry + ($toppings->first(fn ($v) => $v->id == $val['topping_id'])->price) * $val['quantity'], 0);
             };
 
@@ -197,14 +198,20 @@ class OrderController extends Controller
                 $order->items()->attach($item['item_id'], [
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
+                    'name' => $items->first(fn ($val) => $val->id == $item['item_id'])->id
                 ]);
             }
             if (array_key_exists('toppings', $attributes))
                 foreach ($attributes['toppings'] as $topping) {
-                    $order->toppings()->attach($topping['topping_id'], [
+                    $order_topping_data = [
                         'price' => $toppings->first(fn ($v) => $v->id == $topping['topping_id'])->price,
                         'quantity' => $topping['quantity'],
-                    ]);
+                        'name' => $toppings->first(fn ($val) => $val->id == $topping['topping_id'])->name
+                    ];
+                    $order->toppings()->attach(
+                        $topping['topping_id'],
+                        $order_topping_data
+                    );
                 }
             return $order;
         });
@@ -232,6 +239,7 @@ class OrderController extends Controller
 
         if (array_key_exists('toppings', $attributes)) {
             $attributes['toppings'] = Topping::mapForOrder($attributes['toppings']);
+
             $amount += floor((float) collect($attributes['toppings'])->reduce(
                 fn ($carry, $topping) => $carry + ($topping['price'] - ($topping['discount'] ?? 0)) * $topping['quantity'],
                 0
@@ -256,7 +264,8 @@ class OrderController extends Controller
                     'quantity' => $feature['quantity'],
                     'price' => $feature['price'],
                     'discount' => $feature['discount'] ?? 0,
-                    'batch_id' => $feature['batch_id']
+                    'batch_id' => $feature['batch_id'],
+                    'name' => $feature['name']
                 ]])->toArray()
             );
 
@@ -268,6 +277,7 @@ class OrderController extends Controller
                             'price' => $topping['price'],
                             'cost' => $topping['cost'],
                             'discount' => $topping['discount'] ?? 0,
+                            'name' => $topping['name']
                         ]
                     ])->toArray()
                 );
