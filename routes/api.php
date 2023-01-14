@@ -7,6 +7,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\ToppingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -83,5 +84,13 @@ Route::controller(PaymentController::class)->prefix('/payments')->group(function
 Route::controller(PaymentTypeController::class)->prefix('/payment-types')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::get('', 'index');
+    });
+});
+
+Route::controller(ToppingController::class)->prefix('/toppings')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('', 'store');
+        Route::get('', 'index');
+        Route::put('{topping}', 'update');
     });
 });

@@ -7,9 +7,7 @@ use App\Enums\PurchaseStatus;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Batch;
-use App\Models\Expense;
 use App\Models\Feature;
-use App\Models\Item;
 use App\Models\Purchase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +27,7 @@ class PurchaseController extends Controller
         $filters = request()->validate([
             'from' => ['date'],
             'to' => ['date'],
+            'search' => ['sometimes']
         ]);
         if (!array_key_exists('from', $filters)) {
             $filters['from'] = now()->startOfDay();
@@ -47,7 +46,8 @@ class PurchaseController extends Controller
             ]);
         }])
             ->whereBetween('updated_at', [$filters['from'], $filters['to']])
-            ->where('status', PurchaseStatus::NORMAL->value);
+            ->where('status', PurchaseStatus::NORMAL->value)
+            ->filter(request()->only(['search']));
         $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);
         $data = $query->paginate(request()->per_page ?? 10);
         if (request()->wantsJson()) return response()->json($data);

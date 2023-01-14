@@ -17,7 +17,7 @@ class ToppingController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(Topping::query()->paginate(request()->per_page ?? 20));
     }
 
     /**
@@ -40,8 +40,8 @@ class ToppingController extends Controller
     public function store(StoreToppingRequest $request)
     {
         $attributes = $request->validated();
-        Topping::create($attributes);
-
+        $topping = Topping::create($attributes);
+        if ($request->wantsJson()) return response()->json(['topping' => $topping]);
         return Redirect::back()->with('message', 'Success');
     }
 
@@ -77,6 +77,9 @@ class ToppingController extends Controller
     public function update(UpdateToppingRequest $request, Topping $topping)
     {
         $topping->update($request->validated());
+        if ($request->wantsJson()) return response()->json([
+            'topping' => $topping
+        ]);
         return Redirect::back()->with('message', 'Success');
     }
 
