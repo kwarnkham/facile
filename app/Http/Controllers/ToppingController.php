@@ -17,7 +17,9 @@ class ToppingController extends Controller
      */
     public function index()
     {
-        return response()->json(Topping::query()->paginate(request()->per_page ?? 20));
+        return response()->json([
+            'data' => Topping::query()->paginate(request()->per_page ?? 20)
+        ]);
     }
 
     /**

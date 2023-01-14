@@ -50,9 +50,12 @@ class PurchaseController extends Controller
             ->filter(request()->only(['search']));
         $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);
         $data = $query->paginate(request()->per_page ?? 10);
-        if (request()->wantsJson()) return response()->json($data);
+        if (request()->wantsJson()) return response()->json([
+            'data' => $data,
+            'total' => $total
+        ]);
         return Inertia::render('Purchases', [
-            'purchases' => $query->paginate(request()->per_page ?? 10),
+            'purchases' => $data,
             'filters' => [
                 'from' => $filters['from'],
                 'to' => $filters['to']->startOfDay(),

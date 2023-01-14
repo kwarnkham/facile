@@ -27,7 +27,9 @@ class FeatureController extends Controller
 
             $filters = request()->only(['search', 'stocked']);
             $features = Feature::with(['item', 'latestBatch.purchase'])->latest()->filter($filters)->latest()->paginate(request()->per_page ?? 20);
-            return response()->json($features);
+            return response()->json([
+                'data' => $features
+            ]);
         }
         $attributes = request()->validate([
             'item_id' => ['required', 'exists:items,id'],
