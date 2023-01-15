@@ -11,7 +11,7 @@ use App\Http\Controllers\PictureController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\TagController;
-use App\Http\Controllers\ToppingController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WholesaleController;
 use Illuminate\Foundation\Application;
@@ -121,12 +121,12 @@ Route::controller(ExpenseController::class)->prefix('/expenses')->group(function
     });
 });
 
-Route::controller(ToppingController::class)->prefix('/toppings')->group(function () {
+Route::controller(ServiceController::class)->prefix('/services')->group(function () {
     Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
-        Route::post('', 'store')->name('toppings.store');
-        Route::get('', 'create')->name('toppings.create');
-        Route::get('{topping}/edit', 'edit')->name('toppings.edit');
-        Route::put('{topping}', 'update')->name('toppings.update');
+        Route::post('', 'store')->name('services.store');
+        Route::get('', 'create')->name('services.create');
+        Route::get('{service}/edit', 'edit')->name('services.edit');
+        Route::put('{service}', 'update')->name('services.update');
     });
 });
 

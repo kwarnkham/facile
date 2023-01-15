@@ -14,7 +14,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Picture;
-use App\Models\Topping;
+use App\Models\Service;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -119,7 +119,7 @@ class OrderController extends Controller
 
                 $order->payments->each(function ($payment) {
                     Credit::create([
-                        'order_payment_id' => $payment->id,
+                        'order_payment_id' => $payment->pivot->id,
                         'amount' => $payment->pivot->amount,
                         'number' => $payment->pivot->number,
                     ]);
@@ -147,17 +147,17 @@ class OrderController extends Controller
     public function create()
     {
         $search = request()->get('search');
-        $toppingSearch = request()->get('toppingSearch');
+        $serviceSearch = request()->get('serviceSearch');
         $query = Item::with(['latestFeature'])->take(5);
         $items = $search ? $query->filter(['search' => $search])->get() : $query->get();
 
-        $query = Topping::take(5);
-        $toppings = $toppingSearch ? $query->where('name', 'like', '%' . $toppingSearch . '%')->get() : $query->get();
+        $query = Service::take(5);
+        $services = $serviceSearch ? $query->where('name', 'like', '%' . $serviceSearch . '%')->get() : $query->get();
         return Inertia::render('PreOrder', [
             'items' => $items,
-            'toppings' => $toppings,
+            'services' => $services,
             'search' => $search,
-            'toppingSearch' => $toppingSearch
+            'serviceSearch' => $serviceSearch
         ]);
     }
 
@@ -174,26 +174,26 @@ class OrderController extends Controller
             'items.*.item_id' => ['required', 'exists:items,id'],
             'items.*.price' => ['required', 'numeric', 'gt:0'],
             'items.*.quantity' => ['required', 'numeric', 'gt:0'],
-            'toppings' => ['sometimes', 'required', 'array'],
-            'toppings.*' => ['required_with:toppings', 'array'],
-            'toppings.*.topping_id' => ['required_with:toppings', 'exists:toppings,id', 'distinct'],
-            'toppings.*.quantity' => ['required_with:toppings', 'numeric', 'gt:0'],
-            'toppings.*.discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
+            'services' => ['sometimes', 'required', 'array'],
+            'services.*' => ['required_with:services', 'array'],
+            'services.*.service_id' => ['required_with:services', 'exists:services,id', 'distinct'],
+            'services.*.quantity' => ['required_with:services', 'numeric', 'gt:0'],
+            'services.*.discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
         ]);
 
         $items = Item::whereIn('id', array_map(fn ($val) => $val['item_id'], $attributes['items']))->get();
         $order = DB::transaction(function () use ($attributes, $items) {
             $amount = array_reduce($attributes['items'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0);
 
-            if (array_key_exists('toppings', $attributes)) {
-                $toppings = Topping::query()->whereIn('id', array_map(fn ($val) => $val['topping_id'], $attributes['toppings']))->get(['id', 'price', 'name']);
+            if (array_key_exists('services', $attributes)) {
+                $services = Service::query()->whereIn('id', array_map(fn ($val) => $val['service_id'], $attributes['services']))->get(['id', 'price', 'name']);
 
-                $amount += array_reduce($attributes['toppings'], fn ($carry, $val) => $carry + ($toppings->first(fn ($v) => $v->id == $val['topping_id'])->price) * $val['quantity'], 0);
+                $amount += array_reduce($attributes['services'], fn ($carry, $val) => $carry + ($services->first(fn ($v) => $v->id == $val['service_id'])->price) * $val['quantity'], 0);
             };
 
             $attributes['amount'] = $amount;
 
-            $order = Order::create(collect($attributes)->except('items', 'toppings')->toArray());
+            $order = Order::create(collect($attributes)->except('items', 'services')->toArray());
             foreach ($attributes['items'] as $item) {
                 $order->items()->attach($item['item_id'], [
                     'price' => $item['price'],
@@ -201,16 +201,16 @@ class OrderController extends Controller
                     'name' => $items->first(fn ($val) => $val->id == $item['item_id'])->id
                 ]);
             }
-            if (array_key_exists('toppings', $attributes))
-                foreach ($attributes['toppings'] as $topping) {
-                    $order_topping_data = [
-                        'price' => $toppings->first(fn ($v) => $v->id == $topping['topping_id'])->price,
-                        'quantity' => $topping['quantity'],
-                        'name' => $toppings->first(fn ($val) => $val->id == $topping['topping_id'])->name
+            if (array_key_exists('services', $attributes))
+                foreach ($attributes['services'] as $service) {
+                    $order_service_data = [
+                        'price' => $services->first(fn ($v) => $v->id == $service['service_id'])->price,
+                        'quantity' => $service['quantity'],
+                        'name' => $services->first(fn ($val) => $val->id == $service['service_id'])->name
                     ];
-                    $order->toppings()->attach(
-                        $topping['topping_id'],
-                        $order_topping_data
+                    $order->services()->attach(
+                        $service['service_id'],
+                        $order_service_data
                     );
                 }
             return $order;
@@ -237,11 +237,11 @@ class OrderController extends Controller
             fn ($carry, $feature) => $carry + ($feature['price'] - ($feature['discount'] ?? 0)) * $feature['quantity']
         ));
 
-        if (array_key_exists('toppings', $attributes)) {
-            $attributes['toppings'] = Topping::mapForOrder($attributes['toppings']);
+        if (array_key_exists('services', $attributes)) {
+            $attributes['services'] = Service::mapForOrder($attributes['services']);
 
-            $amount += floor((float) collect($attributes['toppings'])->reduce(
-                fn ($carry, $topping) => $carry + ($topping['price'] - ($topping['discount'] ?? 0)) * $topping['quantity'],
+            $amount += floor((float) collect($attributes['services'])->reduce(
+                fn ($carry, $service) => $carry + ($service['price'] - ($service['discount'] ?? 0)) * $service['quantity'],
                 0
             ));
         }
@@ -255,7 +255,7 @@ class OrderController extends Controller
                 collect([
                     'amount' => $amount,
                     ...$attributes
-                ])->except(['features', 'toppings'])->toArray()
+                ])->except(['features', 'services'])->toArray()
             );
             if ($remaining == 0) $order->update(['status' => 3]);
 
@@ -269,15 +269,15 @@ class OrderController extends Controller
                 ]])->toArray()
             );
 
-            if (array_key_exists('toppings', $attributes)) {
-                $order->toppings()->attach(
-                    collect($attributes['toppings'])->mapWithKeys(fn ($topping) => [
-                        $topping['id'] => [
-                            'quantity' => $topping['quantity'],
-                            'price' => $topping['price'],
-                            'cost' => $topping['cost'],
-                            'discount' => $topping['discount'] ?? 0,
-                            'name' => $topping['name']
+            if (array_key_exists('services', $attributes)) {
+                $order->services()->attach(
+                    collect($attributes['services'])->mapWithKeys(fn ($service) => [
+                        $service['id'] => [
+                            'quantity' => $service['quantity'],
+                            'price' => $service['price'],
+                            'cost' => $service['cost'],
+                            'discount' => $service['discount'] ?? 0,
+                            'name' => $service['name']
                         ]
                     ])->toArray()
                 );
@@ -307,7 +307,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['features', 'payments', 'items', 'toppings']);
+        $order->load(['features', 'payments', 'items', 'services']);
         $order->payments->each(function (&$value) {
             if ($value->pivot->picture) $value->pivot->picture = Storage::url(
                 config('app')['name'] .

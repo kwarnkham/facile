@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreToppingRequest;
-use App\Http\Requests\UpdateToppingRequest;
-use App\Models\Topping;
+use App\Http\Requests\StoreServiceRequest;
+use App\Http\Requests\UpdateServiceRequest;
+use App\Models\Service;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
-class ToppingController extends Controller
+class ServiceController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,7 +18,7 @@ class ToppingController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => Topping::query()->paginate(request()->per_page ?? 20)
+            'data' => Service::query()->paginate(request()->per_page ?? 20)
         ]);
     }
 
@@ -29,31 +29,31 @@ class ToppingController extends Controller
      */
     public function create()
     {
-        $toppings = Topping::all();
-        return Inertia::render('CreateTopping', ['toppings' => $toppings]);
+        $services = Service::all();
+        return Inertia::render('CreateTopping', ['toppings' => $services]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreToppingRequest  $request
+     * @param  \App\Http\Requests\StoreServiceRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreToppingRequest $request)
+    public function store(StoreServiceRequest $request)
     {
         $attributes = $request->validated();
-        $topping = Topping::create($attributes);
-        if ($request->wantsJson()) return response()->json(['topping' => $topping]);
+        $service = Service::create($attributes);
+        if ($request->wantsJson()) return response()->json(['service' => $service]);
         return Redirect::back()->with('message', 'Success');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Topping  $topping
+     * @param  \App\Models\Service  $service
      * @return \Illuminate\Http\Response
      */
-    public function show(Topping $topping)
+    public function show(Service $service)
     {
         //
     }
@@ -61,26 +61,26 @@ class ToppingController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Topping  $topping
+     * @param  \App\Models\Service  $service
      * @return \Illuminate\Http\Response
      */
-    public function edit(Topping $topping)
+    public function edit(Service $service)
     {
-        return Inertia::render('EditTopping', ['topping' => $topping]);
+        return Inertia::render('EditTopping', ['topping' => $service]);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateToppingRequest  $request
-     * @param  \App\Models\Topping  $topping
+     * @param  \App\Http\Requests\UpdateServiceRequest  $request
+     * @param  \App\Models\Service  $service
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateToppingRequest $request, Topping $topping)
+    public function update(UpdateServiceRequest $request, Service $service)
     {
-        $topping->update($request->validated());
+        $service->update($request->validated());
         if ($request->wantsJson()) return response()->json([
-            'topping' => $topping
+            'service' => $service
         ]);
         return Redirect::back()->with('message', 'Success');
     }
@@ -88,10 +88,10 @@ class ToppingController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Topping  $topping
+     * @param  \App\Models\Service  $service
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Topping $topping)
+    public function destroy(Service $service)
     {
         //
     }

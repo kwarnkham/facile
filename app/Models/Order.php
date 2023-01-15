@@ -21,9 +21,9 @@ class Order extends Model
         return $this->morphMany(Purchase::class, 'purchasable');
     }
 
-    public function toppings()
+    public function services()
     {
-        return $this->belongsToMany(Topping::class)
+        return $this->belongsToMany(Service::class)
             ->withPivot(['price', 'quantity', 'discount', 'cost', 'name'])
             ->withTimestamps();
     }
@@ -51,7 +51,7 @@ class Order extends Model
     {
         return $this->belongsToMany(Payment::class)
             ->withPivot([
-                'amount', 'number', 'note', 'picture', 'payment_name', 'account_name'
+                'amount', 'number', 'note', 'picture', 'payment_name', 'account_name', 'id'
             ])->withTimestamps();
     }
 }

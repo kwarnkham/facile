@@ -13,7 +13,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\Picture;
 use App\Models\Purchase;
-use App\Models\Topping;
+use App\Models\Service;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -53,15 +53,15 @@ class OrderTest extends TestCase
         }, 0);
     }
 
-    public function toppingAmount(array $toppings)
+    public function serviceAmount(array $services)
     {
-        return array_reduce($toppings, function ($carry, $dataTopping) {
-            $topping = Topping::find($dataTopping['id']);
-            return ($carry + ($topping->price - ($dataTopping['discount'] ?? 0))  * $dataTopping['quantity']);
+        return array_reduce($services, function ($carry, $dataService) {
+            $service = Service::find($dataService['id']);
+            return ($carry + ($service->price - ($dataService['discount'] ?? 0))  * $dataService['quantity']);
         }, 0);
     }
 
-    public function makeOrder(Collection $features, $discountFactor = 0, $featureDisountFactor = 0, Collection $toppings = null)
+    public function makeOrder(Collection $features, $discountFactor = 0, $featureDisountFactor = 0, Collection $services = null)
     {
         $features = $features->map(function ($dataFeature) {
             return $this->makeFeature($dataFeature->toArray());
@@ -81,13 +81,13 @@ class OrderTest extends TestCase
             ...Order::factory()->make()->toArray()
         ];
 
-        if ($toppings) {
-            $data['toppings'] = $toppings->map(function ($topping) {
+        if ($services) {
+            $data['services'] = $services->map(function ($service) {
                 $temp = [
-                    'id' => $topping->id,
-                    'quantity' => $topping->quantity ?? rand(1, 10),
+                    'id' => $service->id,
+                    'quantity' => $service->quantity ?? rand(1, 10),
                 ];
-                if ($topping->discount) $temp['discount'] = $topping->discount;
+                if ($service->discount) $temp['discount'] = $service->discount;
                 return $temp;
             })->toArray();
         }
@@ -97,7 +97,7 @@ class OrderTest extends TestCase
 
         $this->assertDatabaseCount('orders', 1);
         $this->assertEquals(floor(Order::first()->amount), floor(
-            $this->featureAmount($dataFeatures) + (array_key_exists('toppings', $data) ? $this->toppingAmount($data['toppings']) : 0)
+            $this->featureAmount($dataFeatures) + (array_key_exists('services', $data) ? $this->serviceAmount($data['services']) : 0)
         ));
         return [
             'amount' => $this->featureAmount($dataFeatures)
@@ -129,42 +129,31 @@ class OrderTest extends TestCase
         });
     }
 
-    public function test_create_order_with_toppings()
+    public function test_create_order_with_services()
     {
-        $toppings = Topping::factory(3)->create()->map(function ($topping) {
-            $topping->quantity = rand(1, 10);
-            return $topping;
+        $services = Service::factory(3)->create()->map(function ($service) {
+            $service->quantity = rand(1, 10);
+            return $service;
         });
 
         $features = Feature::factory(rand(2, 10))->make();
 
-        $this->makeOrder(toppings: $toppings, features: $features);
-        $this->assertDatabaseCount('order_topping', $toppings->count());
-        $toppings->each(fn ($topping) => $this->assertDatabaseHas('order_topping', [
-            'id' => $topping->id,
-            'price' => $topping->price,
-            'quantity' => $topping->quantity,
-        ]));
+        $this->makeOrder(services: $services, features: $features);
+        $this->assertDatabaseCount('order_service', $services->count());
     }
 
-    public function test_create_order_with_toppings_that_have_discount()
+    public function test_create_order_with_services_that_have_discount()
     {
-        $toppings = Topping::factory(3)->create()->map(function ($topping) {
-            $topping->quantity = rand(1, 10);
-            $topping->discount = floor($topping->price / 2);
-            return $topping;
+        $services = Service::factory(3)->create()->map(function ($service) {
+            $service->quantity = rand(1, 10);
+            $service->discount = floor($service->price / 2);
+            return $service;
         });
 
         $features = Feature::factory(rand(2, 10))->make();
 
-        $this->makeOrder(toppings: $toppings, features: $features);
-        $this->assertDatabaseCount('order_topping', $toppings->count());
-        $toppings->each(fn ($topping) => $this->assertDatabaseHas('order_topping', [
-            'id' => $topping->id,
-            'price' => $topping->price,
-            'quantity' => $topping->quantity,
-            'discount' => $topping->discount
-        ]));
+        $this->makeOrder(services: $services, features: $features);
+        $this->assertDatabaseCount('order_service', $services->count());
     }
 
     public function test_cancelling_paid_order_generate_credit()

@@ -21,7 +21,10 @@ namespace App\Models{
  * @property string|null $expired_on
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Correction[] $corrections
+ * @property-read int|null $corrections_count
  * @property-read \App\Models\Feature $feature
+ * @property-read \App\Models\Purchase $purchase
  * @method static \Database\Factories\BatchFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Batch newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Batch newQuery()
@@ -35,6 +38,31 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Batch whereUpdatedAt($value)
  */
 	class Batch extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\Correction
+ *
+ * @property int $id
+ * @property int $batch_id
+ * @property int $stock
+ * @property int $type
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Batch|null $batch
+ * @method static \Database\Factories\CorrectionFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Correction newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Correction newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Correction query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Correction whereBatchId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Correction whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Correction whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Correction whereStock($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Correction whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Correction whereUpdatedAt($value)
+ */
+	class Correction extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -101,6 +129,7 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Batch[] $batches
  * @property-read int|null $batches_count
  * @property-read \App\Models\Item $item
+ * @property-read \App\Models\Batch|null $latestBatch
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
@@ -138,6 +167,8 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
  * @property-read int|null $features_count
  * @property-read \App\Models\Feature|null $latestFeature
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
+ * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
  * @property-read int|null $pictures_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tag[] $tags
@@ -181,6 +212,8 @@ namespace App\Models{
  * @property-read int|null $payments_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Purchase[] $purchases
  * @property-read int|null $purchases_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Service[] $services
+ * @property-read int|null $services_count
  * @method static \Database\Factories\OrderFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Order newQuery()
@@ -211,6 +244,7 @@ namespace App\Models{
  * @property int $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\PaymentType $paymentType
  * @method static \Database\Factories\PaymentFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Payment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Payment newQuery()
@@ -225,6 +259,26 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Payment whereUpdatedAt($value)
  */
 	class Payment extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\PaymentType
+ *
+ * @property int $id
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Database\Factories\PaymentTypeFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereUpdatedAt($value)
+ */
+	class PaymentType extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -267,14 +321,19 @@ namespace App\Models{
  * @property string|null $note
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $name
+ * @property string|null $picture
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $purchasable
  * @method static \Database\Factories\PurchaseFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase query()
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase wherePicture($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase wherePurchasableId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase wherePurchasableType($value)
@@ -305,6 +364,32 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Role whereUpdatedAt($value)
  */
 	class Role extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\Service
+ *
+ * @property int $id
+ * @property string $name
+ * @property float $price
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property float $cost
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
+ * @property-read int|null $orders_count
+ * @method static \Database\Factories\ServiceFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Service newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Service newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Service query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Service whereCost($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Service whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Service whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Service whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Service wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Service whereUpdatedAt($value)
+ */
+	class Service extends \Eloquent {}
 }
 
 namespace App\Models{

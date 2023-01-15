@@ -7,7 +7,7 @@ use App\Enums\PurchaseStatus;
 use App\Models\Feature;
 use App\Models\Order;
 use App\Models\Purchase;
-use App\Models\Topping;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -16,11 +16,11 @@ class RouteController extends Controller
 {
     public function cart()
     {
-        $toppingSearch = request()->get('toppingSearch');
-        $query = Topping::take(5);
-        if ($toppingSearch) $query->where('name', 'like', '%' . $toppingSearch . '%');
-        $toppings = $query->get();
-        return Inertia::render('Cart', ['toppings' => $toppings, 'toppingSearch' => $toppingSearch]);
+        $serviceSearch = request()->get('serviceSearch');
+        $query = Service::take(5);
+        if ($serviceSearch) $query->where('name', 'like', '%' . $serviceSearch . '%');
+        $services = $query->get();
+        return Inertia::render('Cart', ['services' => $services, 'serviceSearch' => $serviceSearch]);
     }
 
     public function checkout()

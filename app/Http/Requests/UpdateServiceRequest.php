@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateToppingRequest extends FormRequest
+class UpdateServiceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,7 +25,7 @@ class UpdateToppingRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', Rule::unique('toppings', 'name')->ignore($this->topping->id, 'id')],
+            'name' => ['required', Rule::unique('services', 'name')->ignore($this->service->id, 'id')],
             'price' => ['required', 'numeric', 'gt:0'],
             'cost' => ['required', 'numeric']
         ];
