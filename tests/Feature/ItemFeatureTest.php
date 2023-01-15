@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Models\Batch;
 use App\Models\Feature;
 use App\Models\Item;
+use App\Models\Picture;
 use App\Models\Purchase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -27,6 +29,26 @@ class ItemFeatureTest extends TestCase
         $this->assertEquals($data['stock'], Purchase::first()->quantity);
         $this->assertDatabaseCount('batches', 1);
         $this->assertEquals($data['stock'], Batch::first()->stock);
+    }
+
+    public function test_add_feature_to_an_item_with_picture()
+    {
+        $data = Feature::factory()->make()->toArray();
+        $item = Item::factory()->create();
+        $data['item_id'] = $item->id;
+        $data['purchase_price'] = floor($data['price'] * 0.9);
+        $image = UploadedFile::fake()->image('foo.jpg');
+        $data['picture'] = $image;
+        $this->actingAs($this->user)->post(route('features.store'), $data);
+        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseHas('features', collect($data)->except('purchase_price', 'picture')->toArray());
+        $this->assertEquals($item->features()->first()->name, $data['name']);
+        $this->actingAs($this->user)->post(route('features.store'), $data)->assertSessionHasErrors(['name']);
+        $this->assertDatabaseCount('purchases', 1);
+        $this->assertEquals($data['stock'], Purchase::first()->quantity);
+        $this->assertDatabaseCount('batches', 1);
+        $this->assertEquals($data['stock'], Batch::first()->stock);
+        $this->assertTrue(Picture::deletePictureFromDisk($image->hashName(), 'purchases'));
     }
 
 

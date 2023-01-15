@@ -84,7 +84,7 @@ class FeatureController extends Controller
     {
         $attributes = $request->validated();
         $feature = DB::transaction(function () use ($attributes) {
-            $feature = Feature::create(collect($attributes)->except('purchase_price', 'expired_on')->toArray());
+            $feature = Feature::create(collect($attributes)->except('purchase_price', 'expired_on', 'picture')->toArray());
 
             $picture = array_key_exists('picture', $attributes) ? Picture::savePictureInDisk($attributes['picture'], 'purchases') : null;
 
