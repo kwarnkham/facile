@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Expense;
+use App\Models\Picture;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class ExpenseTest extends TestCase
@@ -29,6 +31,21 @@ class ExpenseTest extends TestCase
         );
 
         $this->assertDatabaseCount('purchases', 1);
+    }
+
+    public function test_record_expense_with_picture()
+    {
+        $image = UploadedFile::fake()->image('foo.jpg');
+        $this->actingAs($this->user)->post(
+            route(
+                'expenses.record',
+                ['expense' => Expense::factory()->create()->id]
+            ),
+            ['price' => rand(1000, 100000), 'note' => 'the note', 'picture' => $image]
+        );
+
+        $this->assertDatabaseCount('purchases', 1);
+        $this->assertTrue(Picture::deletePictureFromDisk($image->hashName(), 'purchases'));
     }
 
     public function test_update_an_expense()

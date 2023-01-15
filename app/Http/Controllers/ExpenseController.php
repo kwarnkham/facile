@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Expense;
+use App\Models\Picture;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -51,8 +52,15 @@ class ExpenseController extends Controller
         $attributes = request()->validate([
             'price' => ['required', 'numeric'],
             'note' => ['sometimes', 'required'],
+            'picture' => ['sometimes', 'required', 'image']
         ]);
         $attributes['name'] = $expense->name;
+        $picture = array_key_exists('picture', $attributes) ? Picture::savePictureInDisk($attributes['picture'], 'purchases') : null;
+
+        if ($picture) {
+            $attributes['picture'] = $picture;
+        }
+
         $purcahse = $expense->purchases()->create($attributes);
         if (request()->wantsJson()) return response()->json(['purchase' => $purcahse]);
         return Redirect::back()->with('message', 'Success');
