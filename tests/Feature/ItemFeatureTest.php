@@ -78,6 +78,7 @@ class ItemFeatureTest extends TestCase
         $this->assertEquals(Feature::first()->stock, $oldStock);
     }
 
+
     public function test_purchase_is_created_with_feature()
     {
         $data = Feature::factory()->make()->toArray();
@@ -125,9 +126,12 @@ class ItemFeatureTest extends TestCase
         $feature = Feature::first();
         $quantity = rand(1, 10);
         $price = rand(1000, 10000);
+
+        $image = UploadedFile::fake()->image('foo.jpg');
         $this->actingAs($this->user)->post(route('features.restock', ['feature' => $feature->id]), [
             'price' => $price,
             'quantity' => $quantity,
+            'picture' => $image
         ]);
         $this->assertEquals($feature->stock + $quantity, $feature->fresh()->stock);
         $this->assertDatabaseCount('purchases', 2);
@@ -135,5 +139,6 @@ class ItemFeatureTest extends TestCase
         $this->assertEquals($purchase->price, $price);
         $this->assertDatabaseCount('batches', 2);
         $this->assertEquals(Batch::orderBy('id', 'desc')->first()->stock, $purchase->quantity);
+        $this->assertTrue(Picture::deletePictureFromDisk($image->hashName(), 'purchases'));
     }
 }

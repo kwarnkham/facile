@@ -151,11 +151,18 @@ class FeatureController extends Controller
         $attributes = request()->validate([
             'price' => ['required', 'numeric', 'gt:0'],
             'quantity' => ['required', 'numeric', 'gt:0'],
-            'expired_on' => ['sometimes', 'required', 'date']
+            'expired_on' => ['sometimes', 'required', 'date'],
+            'picture' => ['sometimes', 'required', 'image']
         ]);
         $result = DB::transaction(function () use ($feature, $attributes) {
             $data = collect($attributes)->except('expired_on')->toArray();
             $data['name'] = $feature->name;
+
+            $picture = array_key_exists('picture', $attributes) ? Picture::savePictureInDisk($attributes['picture'], 'purchases') : null;
+            if ($picture) {
+                $data['picture'] = $picture;
+            }
+
             $purchase = $feature->purchases()->create($data);
             $feature->stock += $attributes['quantity'];
             $feature->save();
