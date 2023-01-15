@@ -6,6 +6,7 @@ use App\Http\Requests\StoreFeatureRequest;
 use App\Http\Requests\UpdateFeatureRequest;
 use App\Models\Feature;
 use App\Models\Item;
+use App\Models\Picture;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -84,11 +85,19 @@ class FeatureController extends Controller
         $attributes = $request->validated();
         $feature = DB::transaction(function () use ($attributes) {
             $feature = Feature::create(collect($attributes)->except('purchase_price', 'expired_on')->toArray());
-            $purchase = $feature->purchases()->create([
+
+            $picture = array_key_exists('picture', $attributes) ? Picture::savePictureInDisk($attributes['picture'], 'purchases') : null;
+
+            $data = [
                 'price' => $attributes['purchase_price'],
                 'quantity' => $attributes['stock'],
-                'name' => $feature->name
-            ]);
+                'name' => $feature->name,
+            ];
+
+            if ($picture) {
+                $data['picture'] = $picture;
+            }
+            $purchase = $feature->purchases()->create($data);
             $feature->batches()->create([
                 'purchase_id' => $purchase->id,
                 'expired_on' => $attributes['expired_on'] ?? null,

@@ -32,7 +32,8 @@ class StoreFeatureRequest extends FormRequest
             'note' => ['sometimes', 'required'],
             'purchase_price' => ['required', 'numeric'],
             'type' => ['sometimes', 'required', 'in:1,2'],
-            'expired_on' => ['sometimes', 'required', 'date']
+            'expired_on' => ['sometimes', 'required', 'date'],
+            'picture' => ['sometimes', 'required', 'image']
         ];
     }
 }
