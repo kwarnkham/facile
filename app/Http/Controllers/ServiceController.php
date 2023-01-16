@@ -18,7 +18,9 @@ class ServiceController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => Service::query()->paginate(request()->per_page ?? 20)
+            'data' => Service::query()
+                ->filter(request()->only(['search']))
+                ->paginate(request()->per_page ?? 20)
         ]);
     }
 
