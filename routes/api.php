@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\PurchaseController;
@@ -92,5 +93,18 @@ Route::controller(ServiceController::class)->prefix('/services')->group(function
         Route::post('', 'store');
         Route::get('', 'index');
         Route::put('{service}', 'update');
+    });
+});
+
+Route::controller(OrderController::class)->prefix('/orders')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('', 'store');
+        // Route::get('/create', 'create')->name('orders.create');
+        // Route::post('/pre-order', 'preOrder')->name('orders.preOrder');
+        // Route::get('', 'index')->name('orders.index');
+        // Route::get('{order}', 'show')->name('orders.show');
+        // Route::post('{order}/pay', 'pay')->name('orders.pay');
+        // Route::post('{order}/complete', 'complete')->name('orders.complete');
+        // Route::post('{order}/cancel', 'cancel')->name('orders.cancel');
     });
 });

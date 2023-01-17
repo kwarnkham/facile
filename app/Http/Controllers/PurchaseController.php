@@ -8,6 +8,7 @@ use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Batch;
 use App\Models\Feature;
+use App\Models\FeatureOrder;
 use App\Models\Purchase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -144,10 +145,12 @@ class PurchaseController extends Controller
 
         if ($purchase->purchasable instanceof Feature) {
             $batch = Batch::where('purchase_id', $purchase->id)->first();
-            $featureOrder = DB::table('feature_order')->where('batch_id', $batch->id)->first('order_id');
+            $featureOrderId = DB::table('batch_feature_order')->where('batch_id', $batch->id)->first('feature_order_id')->feature_order_id;
             if (
-                !is_null($featureOrder)
-                && DB::table('orders')->where('id', $featureOrder->order_id)->first('status')->status != OrderStatus::CANCELED->value
+                !is_null($featureOrderId)
+                && DB::table('orders')
+                ->where('id', FeatureOrder::find($featureOrderId)->order_id)
+                ->first('status')->status != OrderStatus::CANCELED->value
             )
                 return Redirect::back()->with('message', 'Non canceled order associated with this purchase exists');
 

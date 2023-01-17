@@ -7,7 +7,6 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
-use App\Models\Batch;
 use App\Models\Credit;
 use App\Models\Feature;
 use App\Models\Item;
@@ -107,13 +106,13 @@ class OrderController extends Controller
             DB::transaction(function () use ($order) {
                 $order->update(['status' => OrderStatus::CANCELED->value]);
                 $order->features->each(function ($feature) {
-                    if ($feature->type != FeatureType::UNSTOCKED->value) {
+                    if ($feature->type == FeatureType::STOCKED->value) {
                         $feature->stock += $feature->pivot->quantity;
                         $feature->save();
-
-                        $batch = Batch::find($feature->pivot->batch_id);
-                        $batch->stock += $feature->pivot->quantity;
-                        $batch->save();
+                        $feature->pivot->batches->each(function ($batch) {
+                            $batch->stock += $batch->pivot->quantity;
+                            $batch->save();
+                        });
                     }
                 });
 
@@ -228,14 +227,17 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         $attributes = $request->validated();
-        $outOfStock = Feature::outOfStock($attributes['features']);
-        if ($outOfStock) return Redirect::back()->with('message', $outOfStock);
+        $amount = 0;
+        if (array_key_exists('features', $attributes)) {
+            $outOfStock = Feature::outOfStock($attributes['features']);
+            if ($outOfStock) return Redirect::back()->with('message', $outOfStock);
 
-        $attributes['features'] = Feature::mapForOrder($attributes['features']);
+            $attributes['features'] = Feature::mapForOrder($attributes['features']);
 
-        $amount = floor((float) collect($attributes['features'])->reduce(
-            fn ($carry, $feature) => $carry + ($feature['price'] - ($feature['discount'] ?? 0)) * $feature['quantity']
-        ));
+            $amount += floor((float) collect($attributes['features'])->reduce(
+                fn ($carry, $feature) => $carry + ($feature['price'] - ($feature['discount'] ?? 0)) * $feature['quantity']
+            ));
+        }
 
         if (array_key_exists('services', $attributes)) {
             $attributes['services'] = Service::mapForOrder($attributes['services']);
@@ -259,15 +261,17 @@ class OrderController extends Controller
             );
             if ($remaining == 0) $order->update(['status' => 3]);
 
-            $order->features()->attach(
-                collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => [
-                    'quantity' => $feature['quantity'],
-                    'price' => $feature['price'],
-                    'discount' => $feature['discount'] ?? 0,
-                    'batch_id' => $feature['batch_id'],
-                    'name' => $feature['name']
-                ]])->toArray()
-            );
+            if (array_key_exists('features', $attributes)) {
+                $order->features()->attach(
+                    collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => [
+                        'quantity' => $feature['quantity'],
+                        'price' => $feature['price'],
+                        'discount' => $feature['discount'] ?? 0,
+                        'name' => $feature['name']
+                    ]])->toArray()
+                );
+            }
+
 
             if (array_key_exists('services', $attributes)) {
                 $order->services()->attach(
@@ -283,19 +287,40 @@ class OrderController extends Controller
                 );
             }
 
-            foreach ($attributes['features'] as $val) {
-                $feature = Feature::find($val['id']);
-                $feature->stock -= $val['quantity'];
-                $feature->save();
-
-                $batch = $val['batch'];
-                $batch->stock -= $val['quantity'];
-                $batch->save();
+            if (array_key_exists('features', $attributes)) {
+                $order->features->each(function ($feature) {
+                    $feature->stock -= $feature->pivot->quantity;
+                    $feature->save();
+                    $quantity = $feature->pivot->quantity;
+                    $feature->batches()
+                        ->where('stock', '>', 0)
+                        ->get()
+                        ->each(function ($batch) use (&$quantity, $feature) {
+                            if ($quantity > 0) {
+                                $feature->pivot->batches()->attach(
+                                    $batch->id,
+                                    [
+                                        'quantity' => $batch->stock < $quantity ? $batch->stock : $quantity
+                                    ]
+                                );
+                                if ($batch->stock < $quantity) {
+                                    $batch->stock = 0;
+                                    $batch->save();
+                                    $quantity -= $batch->stock;
+                                } else {
+                                    $batch->stock -= $quantity;
+                                    $batch->save();
+                                    $quantity = 0;
+                                }
+                            }
+                        });
+                });
             }
-
             return $order;
         });
-
+        if ($request->wantsJson()) return response()->json([
+            'order' => $createdOrder
+        ]);
         return Redirect::route('orders.show', ['order' => $createdOrder->id])->with('message', 'Success');
     }
 

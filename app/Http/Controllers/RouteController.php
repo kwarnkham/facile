@@ -20,7 +20,7 @@ class RouteController extends Controller
         $query = Service::take(5);
         if ($serviceSearch) $query->where('name', 'like', '%' . $serviceSearch . '%');
         $services = $query->get();
-        return Inertia::render('Cart', ['services' => $services, 'serviceSearch' => $serviceSearch]);
+        return Inertia::render('Cart', ['toppings' => $services, 'serviceSearch' => $serviceSearch]);
     }
 
     public function checkout()

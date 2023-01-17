@@ -15,13 +15,15 @@ class Feature extends Model
     public static function outOfStock(array $data)
     {
         $features = static::whereIn('id', array_map(fn ($val) => $val['id'], $data))->get(['id', 'stock', 'name']);
-        $features->each(function ($feat) use ($data) {
+        $message = null;
+        $features->each(function ($feat) use ($data, &$message) {
             foreach ($data as $val) {
                 if ($feat->id == $val['id']) {
-                    if ($feat->stock < $val['quantity']) return ($feat->name . ' is out of stock');
+                    if ($feat->stock < $val['quantity']) $message = ($feat->name . ' is out of stock');
                 }
             }
         });
+        return $message;
     }
 
     public static function mapForOrder(array $data)
@@ -32,8 +34,6 @@ class Feature extends Model
             $features->each(function ($val) use (&$feature) {
                 if ($val->id == $feature['id']) {
                     $feature['price'] = $val->price;
-                    $feature['batch'] = $val->batches()->where('stock', '>', 0)->first();
-                    $feature['batch_id'] = $feature['batch']->id;
                     $feature['name'] = $val->name;
                 }
             });
@@ -70,7 +70,9 @@ class Feature extends Model
     public function orders()
     {
         return $this->belongsToMany(Order::class)
-            ->withPivot(['quantity', 'price', 'discount', 'batch_id', 'name'])->withTimestamps();
+            ->using(FeatureOrder::class)
+            ->withPivot(['quantity', 'price', 'discount', 'name', 'id'])
+            ->withTimestamps();
     }
 
     public function scopeFilter(Builder $query, $filters)
