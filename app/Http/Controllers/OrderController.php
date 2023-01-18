@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\FeatureType;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Enums\ResponseStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Credit;
@@ -135,6 +136,9 @@ class OrderController extends Controller
                 });
             });
         }
+        if (request()->wantsJson()) return response()->json(['order' => $order->load([
+            'services', 'features', 'payments'
+        ])]);
         return Redirect::back()->with('message', 'Success');
     }
 
@@ -144,7 +148,8 @@ class OrderController extends Controller
             DB::transaction(function () use ($order) {
                 $order->update(['status' => OrderStatus::COMPLETED->value]);
             });
-        }
+        } else abort(ResponseStatus::BAD_REQUEST->value, 'Order has not been fully paid');
+        if (request()->wantsJson()) return response()->json(['order' => $order->load(['payments', 'features', 'services'])]);
         return Redirect::back()->with('message', 'Success');
     }
 

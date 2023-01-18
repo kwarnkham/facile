@@ -105,7 +105,7 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
         Route::get('status', 'status');
         Route::get('{order}', 'show');
         Route::post('{order}/pay', 'pay');
-        // Route::post('{order}/complete', 'complete')->name('orders.complete');
-        // Route::post('{order}/cancel', 'cancel')->name('orders.cancel');
+        Route::post('{order}/complete', 'complete');
+        Route::post('{order}/cancel', 'cancel');
     });
 });
