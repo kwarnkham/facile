@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -54,5 +56,33 @@ class Order extends Model
             ->withPivot([
                 'amount', 'number', 'note', 'picture', 'payment_name', 'account_name', 'id'
             ])->withTimestamps();
+    }
+
+    public function scopeFilter(Builder $query, $filters)
+    {
+        $query
+            ->when(
+                $filters['status'] ?? null,
+                fn (Builder $query) => $query->whereIn(
+                    'status',
+                    explode(',', $filters['status'])
+                )
+            )
+            ->when(
+                $filters['from'] ?? null,
+                fn (Builder $query, $from) => $query->whereDate(
+                    'updated_at',
+                    '>=',
+                    $from
+                )
+            )
+            ->when(
+                $filters['to'] ?? null,
+                fn (Builder $query, $to) => $query->whereDate(
+                    'updated_at',
+                    '<=',
+                    $to
+                )
+            );
     }
 }

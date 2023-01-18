@@ -30,27 +30,18 @@ class PurchaseController extends Controller
             'to' => ['date'],
             'search' => ['sometimes']
         ]);
-        if (!array_key_exists('from', $filters)) {
-            $filters['from'] = now()->startOfDay();
-        } else {
-            $filters['from'] = (new Carbon($filters['from']))->startOfDay();
-        }
-        if (!array_key_exists('to', $filters)) {
-            $filters['to'] = now()->endOfDay();
-        } else {
-            $filters['to'] = (new Carbon($filters['to']))->endOfDay();
-        }
 
-        $query = Purchase::query()->with(['purchasable' => function (MorphTo $morphTo) {
-                $morphTo->morphWith([
-                    Feature::class => ['item'],
-                ]);
-            }])
-            ->whereBetween('updated_at', [$filters['from'], $filters['to']])
+        $query = Purchase::query()
             ->where('status', PurchaseStatus::NORMAL->value)
-            ->filter(request()->only(['search']));
+            ->filter(request()->only(['search', 'from', 'to']));
         $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);
-        $data = $query->paginate(request()->per_page ?? 10);
+        $data = $query->with(['purchasable' => function (MorphTo $morphTo) {
+            $morphTo->morphWith([
+                Feature::class => ['item'],
+            ]);
+        }])
+            ->paginate(request()->per_page ?? 10);
+
         if (request()->wantsJson()) return response()->json([
             'data' => $data,
             'total' => $total

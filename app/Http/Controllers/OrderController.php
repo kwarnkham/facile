@@ -31,16 +31,19 @@ class OrderController extends Controller
     public function index()
     {
         $filters = request()->validate([
-            'status' => ['sometimes', 'required', 'array']
+            'status' => ['sometimes', 'required'],
+            'from' => ['date'],
+            'to' => ['date'],
         ]);
+        $query =  Order::query()->filter($filters);
+        $total = $query->get()->reduce(fn ($carry, $val) => $carry + $val->amount - $val->discount, 0);
 
-        $orders = Order::query()
-            ->whereIn('status', $filters['status'] ?? OrderStatus::all())
+        $orders = $query
             ->with(['payments'])
             ->latest()
             ->paginate(request()->per_page ?? 20);
 
-        if (request()->wantsJson()) return response()->json(['data' => $orders]);
+        if (request()->wantsJson()) return response()->json(['data' => $orders, 'total' => $total]);
 
         return Inertia::render('Orders', [
             'orders' => $orders,

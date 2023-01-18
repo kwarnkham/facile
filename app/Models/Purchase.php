@@ -39,6 +39,22 @@ class Purchase extends Model
                             $query->where('name', 'like', '%' . $search . '%');
                         });
                 })
+            )
+            ->when(
+                $filters['from'] ?? null,
+                fn (Builder $query, $from) => $query->whereDate(
+                    'updated_at',
+                    '>=',
+                    $from
+                )
+            )
+            ->when(
+                $filters['to'] ?? null,
+                fn (Builder $query, $to) => $query->whereDate(
+                    'updated_at',
+                    '<=',
+                    $to
+                )
             );
     }
 }
