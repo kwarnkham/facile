@@ -75,7 +75,7 @@ Route::controller(ExpenseController::class)->prefix('/expenses')->group(function
 
 Route::controller(PaymentController::class)->prefix('/payments')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-        // Route::post('/{payment}/toggle', 'toggle')->name('payments.toggle');
+        Route::post('/{payment}/toggle', 'toggle');
         Route::post('', 'store');
         Route::get('', 'index');
         Route::put('/{payment}', 'update');

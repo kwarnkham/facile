@@ -62,6 +62,7 @@ class PaymentController extends Controller
     {
         $payment->status = $payment->status == PaymentStatus::ENABLED->value ? PaymentStatus::DISABLED->value : PaymentStatus::ENABLED->value;
         $payment->save();
+        if (request()->wantsJson()) return response()->json(['payment' => $payment->load(['paymentType'])]);
     }
 
     /**
