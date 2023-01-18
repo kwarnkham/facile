@@ -41,11 +41,11 @@ class PurchaseController extends Controller
             $filters['to'] = (new Carbon($filters['to']))->endOfDay();
         }
 
-        $query = Purchase::with(['purchasable' => function (MorphTo $morphTo) {
-            $morphTo->morphWith([
-                Feature::class => ['item'],
-            ]);
-        }])
+        $query = Purchase::query()->with(['purchasable' => function (MorphTo $morphTo) {
+                $morphTo->morphWith([
+                    Feature::class => ['item'],
+                ]);
+            }])
             ->whereBetween('updated_at', [$filters['from'], $filters['to']])
             ->where('status', PurchaseStatus::NORMAL->value)
             ->filter(request()->only(['search']));

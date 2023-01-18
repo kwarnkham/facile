@@ -34,8 +34,10 @@ class OrderController extends Controller
             'status' => ['sometimes', 'required', 'array']
         ]);
 
-        $orders = Order::whereIn('status', $filters['status'] ?? OrderStatus::all())
+        $orders = Order::query()
+            ->whereIn('status', $filters['status'] ?? OrderStatus::all())
             ->with(['payments'])
+            ->latest()
             ->paginate(request()->per_page ?? 20);
 
         if (request()->wantsJson()) return response()->json(['data' => $orders]);
