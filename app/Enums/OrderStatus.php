@@ -20,4 +20,9 @@ enum OrderStatus: int
             5 => 'Completed'
         ];
     }
+
+    public static function all(): array
+    {
+        return [1, 2, 3, 4, 5];
+    }
 }

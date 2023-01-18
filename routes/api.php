@@ -51,7 +51,7 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
         // Route::get('{feature}/edit', 'edit')->name('features.edit');
         // Route::put('{feature}', 'update')->name('features.update');
         // Route::get('{feature}', 'show')->name('features.show');
-        Route::post('{feature}/restock', 'restock')->name('features.restock');
+        Route::post('{feature}/restock', 'restock');
     });
 });
 
@@ -101,9 +101,10 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
         Route::post('', 'store');
         // Route::get('/create', 'create')->name('orders.create');
         // Route::post('/pre-order', 'preOrder')->name('orders.preOrder');
-        // Route::get('', 'index')->name('orders.index');
-        // Route::get('{order}', 'show')->name('orders.show');
-        // Route::post('{order}/pay', 'pay')->name('orders.pay');
+        Route::get('', 'index');
+        Route::get('status', 'status');
+        Route::get('{order}', 'show');
+        Route::post('{order}/pay', 'pay');
         // Route::post('{order}/complete', 'complete')->name('orders.complete');
         // Route::post('{order}/cancel', 'cancel')->name('orders.cancel');
     });

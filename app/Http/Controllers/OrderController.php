@@ -30,16 +30,25 @@ class OrderController extends Controller
     public function index()
     {
         $filters = request()->validate([
-            'status' => ['in:1,2,3,4,5']
+            'status' => ['sometimes', 'required', 'array']
         ]);
-        if (!array_key_exists('status', $filters))
-            $filters['status'] = 1;
-        $order = Order::where('status', $filters['status'])->paginate(request()->per_page ?? 20);
+
+        $orders = Order::whereIn('status', $filters['status'] ?? OrderStatus::all())
+            ->with(['payments'])
+            ->paginate(request()->per_page ?? 20);
+
+        if (request()->wantsJson()) return response()->json(['data' => $orders]);
+
         return Inertia::render('Orders', [
-            'orders' => $order,
+            'orders' => $orders,
             'order_statuses' => OrderStatus::array(),
             'filters' => $filters
         ]);
+    }
+
+    public function status()
+    {
+        return response()->json(['status' => OrderStatus::array()]);
     }
 
     /**
@@ -96,6 +105,7 @@ class OrderController extends Controller
             throw $th;
         }
         DB::commit();
+        if (request()->wantsJson()) return response()->json(['order' => $order->load(['payments', 'features', 'services'])]);
         return Redirect::back()->with('message', 'Success');
     }
 
@@ -342,6 +352,9 @@ class OrderController extends Controller
                     $value->pivot->picture
             );
         });
+        if (request()->wantsJson()) return response()->json([
+            'order' => $order
+        ]);
         return Inertia::render('Order', [
             'order' => $order,
             'payments' => Payment::where('status', PaymentStatus::ENABLED->value)->get(),

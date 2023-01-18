@@ -54,7 +54,8 @@ class PaymentController extends Controller
             $attributes['qr'] = $qr;
         }
         $payment = Payment::create($attributes);
-        return response()->json(['payment' => $payment->load(['paymentType'])]);
+        if ($request->wantsJson())
+            return response()->json(['payment' => $payment->load(['paymentType'])]);
     }
 
     public function toggle(Payment $payment)
