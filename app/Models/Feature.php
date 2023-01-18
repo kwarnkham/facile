@@ -89,5 +89,10 @@ class Feature extends Model
         );
 
         $query->when($filters['stocked'] ?? null, fn (Builder $query) => $query->where('stock', '>', 0));
+
+        $query->when(
+            $filters['item'] ?? null,
+            fn (Builder $query, $item_id) => $query->whereRelation('item', 'id', '=', $item_id)
+        );
     }
 }

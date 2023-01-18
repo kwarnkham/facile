@@ -34,20 +34,21 @@ Route::middleware(['auth:sanctum'])
 
 
 Route::controller(ItemController::class)->prefix('/items')->group(function () {
+    Route::get('', 'index');
+    Route::get('{item}', 'show');
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('', 'store');
         Route::put('{item}', 'update');
-        Route::get('', 'index');
-        Route::get('{item}', 'show');
     });
 });
 
 Route::controller(FeatureController::class)->prefix('/features')->group(function () {
+    Route::get('', 'index');
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::get('all', 'all');
         Route::post('', 'store');
         // Route::get('create', 'create');
-        Route::get('', 'index');
+
         // Route::get('{feature}/edit', 'edit')->name('features.edit');
         // Route::put('{feature}', 'update')->name('features.update');
         // Route::get('{feature}', 'show')->name('features.show');
