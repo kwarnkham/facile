@@ -70,7 +70,7 @@ class OrderController extends Controller
         ])) {
             $message = 'Order cannot be paid anymore';
             if (request()->wantsJson()) abort(ResponseStatus::BAD_REQUEST->value, $message);
-            return Redirect::back()->with('message', '');
+            return Redirect::back()->with('message', $message);
         }
 
         $totalPaid = $order->paidAmount() + $order->discount;

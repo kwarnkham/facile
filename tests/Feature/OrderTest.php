@@ -311,7 +311,7 @@ class OrderTest extends TestCase
         $dataFeature = Feature::factory(2)->make();
         $this->makeOrder($dataFeature, 1);
         $order = Order::first();
-        $this->assertEquals($order->status, 3);
+        $this->assertEquals($order->status, OrderStatus::PAID->value);
         $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => 0
