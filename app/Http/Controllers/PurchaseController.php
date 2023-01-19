@@ -28,12 +28,12 @@ class PurchaseController extends Controller
         $filters = request()->validate([
             'from' => ['date'],
             'to' => ['date'],
-            'search' => ['sometimes']
+            'search' => ['sometimes'],
+            'status' => ['in:' . implode(',', PurchaseStatus::all())]
         ]);
 
         $query = Purchase::query()
-            ->where('status', PurchaseStatus::NORMAL->value)
-            ->filter(request()->only(['search', 'from', 'to']));
+            ->filter($filters);
         $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);
         $data = $query->with(['purchasable' => function (MorphTo $morphTo) {
             $morphTo->morphWith([
@@ -136,11 +136,11 @@ class PurchaseController extends Controller
 
         if ($purchase->purchasable instanceof Feature) {
             $batch = Batch::where('purchase_id', $purchase->id)->first();
-            $featureOrderId = DB::table('batch_feature_order')->where('batch_id', $batch->id)->first('feature_order_id')->feature_order_id;
+            $featureOrderId = DB::table('batch_feature_order')->where('batch_id', $batch->id)->first('feature_order_id');
             if (
                 !is_null($featureOrderId)
                 && DB::table('orders')
-                ->where('id', FeatureOrder::find($featureOrderId)->order_id)
+                ->where('id', FeatureOrder::find($featureOrderId->feature_order_id)->order_id)
                 ->first('status')->status != OrderStatus::CANCELED->value
             )
                 return Redirect::back()->with('message', 'Non canceled order associated with this purchase exists');

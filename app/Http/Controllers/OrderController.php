@@ -63,7 +63,16 @@ class OrderController extends Controller
      */
     public function pay(Order $order)
     {
-        if ($order->status == 3) return Redirect::back()->with('message', 'Order cannot be paid anymore');
+        if (in_array($order->status, [
+            OrderStatus::CANCELED->value,
+            OrderStatus::PAID->value,
+            OrderStatus::COMPLETED->value
+        ])) {
+            $message = 'Order cannot be paid anymore';
+            if (request()->wantsJson()) abort(ResponseStatus::BAD_REQUEST->value, $message);
+            return Redirect::back()->with('message', '');
+        }
+
         $totalPaid = $order->paidAmount() + $order->discount;
         $remaining = floor($order->amount - $totalPaid);
         $attributes = request()->validate([

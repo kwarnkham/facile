@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -43,5 +45,11 @@ class AppServiceProvider extends ServiceProvider
         if (Request::server('HTTP_X_FORWARDED_PROTO') == 'https') {
             URL::forceScheme('https');
         }
+
+        // DB::listen(function ($query) {
+        //     Log::info($query->sql);
+        //     Log::info($query->bindings);
+        //     // $query->time;
+        // });
     }
 }

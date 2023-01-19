@@ -28,33 +28,39 @@ class Purchase extends Model
 
     public function scopeFilter(Builder $query, $filters)
     {
-        $query
-            ->when(
-                $filters['search'] ?? null,
-                fn (Builder $query, $search) => $query->where(function (Builder $query) use ($search) {
-                    $query->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('price', 'like', '%' . $search . '%')
-                        ->orWhere('quantity', 'like', '%' . $search . '%')
-                        ->orWhereHas('purchasable', function ($query) use ($search) {
-                            $query->where('name', 'like', '%' . $search . '%');
-                        });
-                })
+        $query->when(
+            $filters['search'] ?? null,
+            fn (Builder $query, $search) => $query->where(function (Builder $query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('price', 'like', '%' . $search . '%')
+                    ->orWhere('quantity', 'like', '%' . $search . '%')
+                    ->orWhereHas('purchasable', function ($query) use ($search) {
+                        $query->where('name', 'like', '%' . $search . '%');
+                    });
+            })
+        );
+
+        $query->when(
+            $filters['from'] ?? null,
+            fn (Builder $query, $from) => $query->whereDate(
+                'updated_at',
+                '>=',
+                $from
             )
-            ->when(
-                $filters['from'] ?? null,
-                fn (Builder $query, $from) => $query->whereDate(
-                    'updated_at',
-                    '>=',
-                    $from
-                )
+        );
+
+        $query->when(
+            $filters['to'] ?? null,
+            fn (Builder $query, $to) => $query->whereDate(
+                'updated_at',
+                '<=',
+                $to
             )
-            ->when(
-                $filters['to'] ?? null,
-                fn (Builder $query, $to) => $query->whereDate(
-                    'updated_at',
-                    '<=',
-                    $to
-                )
-            );
+        );
+
+        $query->when(
+            $filters['status'] ?? null,
+            fn (Builder $query, $status) => $query->where('status', $status)
+        );
     }
 }
