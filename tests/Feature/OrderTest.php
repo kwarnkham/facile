@@ -7,7 +7,6 @@ use App\Enums\OrderStatus;
 use App\Enums\PurchaseStatus;
 use App\Enums\ResponseStatus;
 use App\Models\Batch;
-use App\Models\Credit;
 use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Order;
@@ -16,6 +15,7 @@ use App\Models\Purchase;
 use App\Models\Service;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -156,7 +156,7 @@ class OrderTest extends TestCase
         $this->assertDatabaseCount('order_service', $services->count());
     }
 
-    public function test_cancelling_paid_order_generate_credit()
+    public function test_cancelling_paid_order()
     {
         $features = Feature::factory(rand(2, 10))->make();
         $madeOrder = $this->makeOrder($features);
@@ -171,8 +171,15 @@ class OrderTest extends TestCase
 
         $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]));
 
-        $this->assertDatabaseCount('credits', 1);
-        $this->assertEquals(Credit::first()->amount, $madeOrder['amount']);
+        $paid = DB::table('order_payment')
+            ->join('orders', 'orders.id', '=', 'order_payment.order_id')
+            ->where('orders.status', '=', OrderStatus::CANCELED->value)
+            ->get(['orders.amount'])->reduce(fn ($carry, $val) => $carry + $val->amount, 0);
+
+        $this->assertEquals(
+            $madeOrder['amount'],
+            $paid
+        );
     }
 
     // public function test_cannot_cancel_a_completed_order_after_24_hours()
@@ -495,7 +502,6 @@ class OrderTest extends TestCase
         $this->assertDatabaseCount('order_payment', 1);
 
         $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]));
-        $this->assertDatabaseCount('credits', 1);
 
         $this->assertEquals(Purchase::where('quantity', 50)->first()->id, Batch::where('stock', 50)->first()->purchase_id);
     }

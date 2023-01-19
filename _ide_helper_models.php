@@ -67,32 +67,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * App\Models\Credit
- *
- * @property int $id
- * @property int $order_payment_id
- * @property float $amount
- * @property string|null $note
- * @property string|null $number
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Database\Factories\CreditFactory factory(...$parameters)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Credit newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Credit query()
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereNote($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereOrderPaymentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Credit whereUpdatedAt($value)
- */
-	class Credit extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
  * App\Models\Expense
  *
  * @property int $id
@@ -156,6 +130,37 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * App\Models\FeatureOrder
+ *
+ * @property int $id
+ * @property int $feature_id
+ * @property int $order_id
+ * @property int $quantity
+ * @property float $price
+ * @property float $discount
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $name
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Batch[] $batches
+ * @property-read int|null $batches_count
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder query()
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereFeatureId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereUpdatedAt($value)
+ */
+	class FeatureOrder extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\Item
  *
  * @property int $id
@@ -215,6 +220,7 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Service[] $services
  * @property-read int|null $services_count
  * @method static \Database\Factories\OrderFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Order filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Order newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Order query()
@@ -244,6 +250,8 @@ namespace App\Models{
  * @property int $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|Payment[] $orders
+ * @property-read int|null $orders_count
  * @property-read \App\Models\PaymentType $paymentType
  * @method static \Database\Factories\PaymentFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Payment newModelQuery()
@@ -379,6 +387,7 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
  * @method static \Database\Factories\ServiceFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Service filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Service newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Service newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Service query()

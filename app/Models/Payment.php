@@ -24,4 +24,12 @@ class Payment extends Model
     {
         return $this->belongsTo(PaymentType::class);
     }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Payment::class)
+            ->withPivot([
+                'amount', 'number', 'note', 'picture', 'payment_name', 'account_name', 'id'
+            ])->withTimestamps();
+    }
 }
