@@ -142,6 +142,10 @@ class FeatureController extends Controller
     {
         $attributes = $request->validated();
         $feature->update($attributes);
+        if ($request->wantsJson()) return response()->json(['feature' => $feature->load([
+            'item',
+            'latestBatch.purchase'
+        ])]);
         return Redirect::route('features.edit', ['feature' => $feature->id])->with('message', 'Success');
     }
 

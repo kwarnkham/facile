@@ -50,7 +50,7 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
         // Route::get('create', 'create');
 
         // Route::get('{feature}/edit', 'edit')->name('features.edit');
-        // Route::put('{feature}', 'update')->name('features.update');
+        Route::put('{feature}', 'update');
         // Route::get('{feature}', 'show')->name('features.show');
         Route::post('{feature}/restock', 'restock');
     });
