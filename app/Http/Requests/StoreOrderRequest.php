@@ -34,7 +34,7 @@ class StoreOrderRequest extends FormRequest
             'features.*' => ['required', 'array'],
             'features.*.id' => ['required', 'exists:features,id', 'distinct'],
             'features.*.quantity' => ['required', 'numeric', 'gt:0'],
-            'features.*.discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
+            'features.*.discount' => ['sometimes', 'required', 'numeric'],
             'services' => ['sometimes', 'required', 'array'],
             'services.*' => ['required_with:services', 'array'],
             'services.*.id' => ['required_with:services', 'exists:services,id', 'distinct'],
