@@ -24,9 +24,12 @@ class FeatureController extends Controller
             $filters = request()->validate([
                 'search' => ['sometimes', 'required'],
                 'stocked' => ['boolean'],
-                'item' => ['sometimes', 'numeric']
+                'item' => ['sometimes', 'numeric'],
+                'limit' => ['sometimes', 'numeric']
             ]);
-            $features = Feature::with(['item', 'latestBatch.purchase'])->latest()->filter($filters)->latest()->paginate(request()->per_page ?? 20);
+            $query = Feature::query()->with(['item', 'latestBatch.purchase'])->latest()->filter($filters)->latest();
+            if (request()->exists('limit')) $features = $query->get();
+            else $features = $query->paginate(request()->per_page ?? 20);
             return response()->json([
                 'data' => $features
             ]);
@@ -117,7 +120,11 @@ class FeatureController extends Controller
      */
     public function show(Feature $feature)
     {
-        return Inertia::render('Feature', ['feature' => $feature->load(['item', 'pictures'])]);
+        $feature->load(['item', 'pictures', 'batches', 'latestPurchase']);
+        if (request()->wantsJson()) return response()->json([
+            'feature' => $feature
+        ]);
+        return Inertia::render('Feature', ['feature' => $feature]);
     }
 
     /**

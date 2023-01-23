@@ -20,6 +20,19 @@ class Payment extends Model
         );
     }
 
+    public static function generatePaymentScreenshotUrl($order)
+    {
+        $order->payments->each(function (&$value) {
+            if ($value->pivot->picture) $value->pivot->picture = Storage::url(
+                config('app')['name'] .
+                    '/order_payments/' .
+                    config('app')['env'] .
+                    '/' .
+                    $value->pivot->picture
+            );
+        });
+    }
+
     public function paymentType()
     {
         return $this->belongsTo(PaymentType::class);

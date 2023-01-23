@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseStatus;
 use App\Http\Requests\StoreBatchRequest;
 use App\Http\Requests\UpdateBatchRequest;
 use App\Models\Batch;
@@ -27,10 +28,11 @@ class BatchController extends Controller
             'stock' => ['required', 'numeric'],
             'type' => ['required', 'in:1,2']
         ]);
-        DB::transaction(function () use ($batch, $attributes) {
+        $feature = DB::transaction(function () use ($batch, $attributes) {
             $batch->corrections()->create($attributes);
             $feature = $batch->feature;
             if ($attributes['type'] == 1) {
+                if ($attributes['stock'] > $batch->stock) abort(ResponseStatus::BAD_REQUEST->value, 'No enough stock to reduce');
                 $batch->stock -= $attributes['stock'];
                 $feature->stock -= $attributes['stock'];
             } else if ($attributes['type'] == 2) {
@@ -39,7 +41,10 @@ class BatchController extends Controller
             }
             $batch->save();
             $feature->save();
+            return $feature;
         });
+        $feature->load(['item', 'pictures', 'batches', 'latestPurchase']);
+        if (request()->wantsJson()) return response()->json(['feature' => $feature]);
 
         return Redirect::back()->with('message', 'Success');
     }

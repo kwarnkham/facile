@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
-use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Redirect;
@@ -27,7 +26,10 @@ class ItemController extends Controller
         $query = Item::query();
         $filters = $validator->safe()->only(['search']);
         $data = [
-            'items' => $query->filter($filters)->latest()->paginate(request()->per_page ?? 20),
+            'items' => $query
+                ->with(['latestFeature.latestPurchase'])
+                ->filter($filters)
+                ->latest()->paginate(request()->per_page ?? 20),
             'filters' => $filters,
         ];
         if (request()->wantsJson()) return response()->json([

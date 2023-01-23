@@ -119,7 +119,11 @@ class OrderController extends Controller
             throw $th;
         }
         DB::commit();
-        if (request()->wantsJson()) return response()->json(['order' => $order->load(['payments', 'features', 'services'])]);
+        if (request()->wantsJson()) {
+            $order->load(['payments', 'features', 'services']);
+            Payment::generatePaymentScreenshotUrl($order);
+            return response()->json(['order' => $order]);
+        }
         return Redirect::back()->with('message', 'Success');
     }
 
@@ -353,15 +357,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         $order->load(['features', 'payments', 'items', 'services']);
-        $order->payments->each(function (&$value) {
-            if ($value->pivot->picture) $value->pivot->picture = Storage::url(
-                config('app')['name'] .
-                    '/order_payments/' .
-                    config('app')['env'] .
-                    '/' .
-                    $value->pivot->picture
-            );
-        });
+        Payment::generatePaymentScreenshotUrl($order);
         if (request()->wantsJson()) return response()->json([
             'order' => $order
         ]);

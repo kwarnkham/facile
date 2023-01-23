@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\BatchController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Controllers\ItemController;
@@ -44,14 +45,10 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
 
 Route::controller(FeatureController::class)->prefix('/features')->group(function () {
     Route::get('', 'index');
+    Route::get('{feature}', 'show');
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-        Route::get('all', 'all');
         Route::post('', 'store');
-        // Route::get('create', 'create');
-
-        // Route::get('{feature}/edit', 'edit')->name('features.edit');
         Route::put('{feature}', 'update');
-        // Route::get('{feature}', 'show')->name('features.show');
         Route::post('{feature}/restock', 'restock');
     });
 });
@@ -61,6 +58,12 @@ Route::controller(PurchaseController::class)->prefix('/purchases')->group(functi
         // Route::post('', 'store')->name('purchases.store');
         Route::post('{purchase}/cancel', 'cancel');
         Route::get('', 'index');
+    });
+});
+
+Route::controller(BatchController::class)->prefix('/batches')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('{batch}/correct', 'correct');
     });
 });
 

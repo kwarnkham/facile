@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PurchaseStatus;
 use App\Traits\Spaceable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -57,6 +58,14 @@ class Feature extends Model
         return $this->hasMany(Batch::class)->orderBy('expired_on');
     }
 
+    public function latestPurchase()
+    {
+        return $this->morphOne(Purchase::class, 'purchasable')
+            ->latestOfMany()
+            ->where('status', PurchaseStatus::NORMAL->value);
+    }
+
+
     public function latestBatch()
     {
         return $this->hasOne(Batch::class)->latestOfMany();
@@ -93,6 +102,11 @@ class Feature extends Model
         $query->when(
             $filters['item'] ?? null,
             fn (Builder $query, $item_id) => $query->whereRelation('item', 'id', '=', $item_id)
+        );
+
+        $query->when(
+            $filters['limit'] ?? null,
+            fn (Builder $query, $limit) => $query->take($limit)
         );
     }
 }
