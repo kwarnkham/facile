@@ -140,7 +140,7 @@ class OrderController extends Controller
         }
         DB::commit();
         if (request()->wantsJson()) {
-            $order->load(['payments', 'features', 'services', 'items']);
+            $order->load(['features', 'payments', 'items', 'services']);
             Payment::generatePaymentScreenshotUrl($order);
             return response()->json(['order' => $order]);
         }
@@ -178,7 +178,8 @@ class OrderController extends Controller
                 $order->update(['status' => OrderStatus::COMPLETED->value]);
             });
         } else abort(ResponseStatus::BAD_REQUEST->value, 'Order has not been fully paid');
-        if (request()->wantsJson()) return response()->json(['order' => $order->load(['payments', 'features', 'services'])]);
+        if (request()->wantsJson()) return response()->json(['order' => $order
+            ->load(['features', 'payments', 'items', 'services'])]);
         return Redirect::back()->with('message', 'Success');
     }
 
