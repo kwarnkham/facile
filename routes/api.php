@@ -55,7 +55,6 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
 
 Route::controller(PurchaseController::class)->prefix('/purchases')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-        // Route::post('', 'store')->name('purchases.store');
         Route::post('{purchase}/cancel', 'cancel');
         Route::get('', 'index');
     });
@@ -103,8 +102,7 @@ Route::controller(ServiceController::class)->prefix('/services')->group(function
 Route::controller(OrderController::class)->prefix('/orders')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('', 'store');
-        // Route::get('/create', 'create')->name('orders.create');
-        // Route::post('/pre-order', 'preOrder')->name('orders.preOrder');
+        Route::post('/pre-order', 'preOrder');
         Route::get('', 'index');
         Route::get('status', 'status');
         Route::get('{order}', 'show');

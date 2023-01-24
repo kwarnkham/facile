@@ -44,7 +44,7 @@ class OrderTest extends TestCase
     public function test_create_unstocked_order()
     {
         $items = Item::factory(rand(1, 5))->create()->map(fn ($item) => [
-            'item_id' => $item->id,
+            'id' => $item->id,
             'price' => rand(1000, 5000),
             'quantity' => rand(1, 10)
         ]);
@@ -62,6 +62,6 @@ class OrderTest extends TestCase
         $this->assertDatabaseCount('orders', 1);
         $this->assertDatabaseHas('orders', collect([...$data, 'amount' => $amount])->except(['items'])->toArray());
         $this->assertDatabaseCount('item_order', $items->count());
-        $items->each(fn ($item) => $this->assertDatabaseHas('item_order', $item));
+        Order::first()->items->each(fn ($item) => $this->assertDatabaseHas('item_order', $item->pivot->toArray()));
     }
 }

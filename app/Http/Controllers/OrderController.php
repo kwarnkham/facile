@@ -119,7 +119,7 @@ class OrderController extends Controller
         }
         DB::commit();
         if (request()->wantsJson()) {
-            $order->load(['payments', 'features', 'services']);
+            $order->load(['payments', 'features', 'services', 'items']);
             Payment::generatePaymentScreenshotUrl($order);
             return response()->json(['order' => $order]);
         }
@@ -189,54 +189,57 @@ class OrderController extends Controller
             'customer' => ['required'],
             'phone' => ['required'],
             'address' => ['required'],
-            'discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
+            'discount' => ['sometimes', 'required', 'numeric'],
             'note' => ['sometimes', 'required'],
             'items' => ['required', 'array'],
             'items.*' => ['required', 'array'],
-            'items.*.item_id' => ['required', 'exists:items,id'],
+            'items.*.id' => ['required', 'exists:items,id'],
             'items.*.price' => ['required', 'numeric', 'gt:0'],
             'items.*.quantity' => ['required', 'numeric', 'gt:0'],
             'services' => ['sometimes', 'required', 'array'],
             'services.*' => ['required_with:services', 'array'],
-            'services.*.service_id' => ['required_with:services', 'exists:services,id', 'distinct'],
+            'services.*.id' => ['required_with:services', 'exists:services,id', 'distinct'],
             'services.*.quantity' => ['required_with:services', 'numeric', 'gt:0'],
-            'services.*.discount' => ['sometimes', 'required', 'numeric', 'gt:0'],
+            'services.*.discount' => ['sometimes', 'required', 'numeric'],
         ]);
 
-        $items = Item::whereIn('id', array_map(fn ($val) => $val['item_id'], $attributes['items']))->get();
+        $items = Item::whereIn('id', array_map(fn ($val) => $val['id'], $attributes['items']))->get();
         $order = DB::transaction(function () use ($attributes, $items) {
             $amount = array_reduce($attributes['items'], fn ($carry, $val) => $carry + $val['price'] * $val['quantity'], 0);
 
             if (array_key_exists('services', $attributes)) {
-                $services = Service::query()->whereIn('id', array_map(fn ($val) => $val['service_id'], $attributes['services']))->get(['id', 'price', 'name']);
+                $services = Service::query()->whereIn('id', array_map(fn ($val) => $val['id'], $attributes['services']))->get(['id', 'price', 'name', 'cost']);
 
-                $amount += array_reduce($attributes['services'], fn ($carry, $val) => $carry + ($services->first(fn ($v) => $v->id == $val['service_id'])->price) * $val['quantity'], 0);
+                $amount += array_reduce($attributes['services'], fn ($carry, $val) => $carry + ($services->first(fn ($v) => $v->id == $val['id'])->price) * $val['quantity'], 0);
             };
 
             $attributes['amount'] = $amount;
 
             $order = Order::create(collect($attributes)->except('items', 'services')->toArray());
             foreach ($attributes['items'] as $item) {
-                $order->items()->attach($item['item_id'], [
+                $order->items()->attach($item['id'], [
                     'price' => $item['price'],
                     'quantity' => $item['quantity'],
-                    'name' => $items->first(fn ($val) => $val->id == $item['item_id'])->id
+                    'name' => $items->first(fn ($val) => $val->id == $item['id'])->id
                 ]);
             }
             if (array_key_exists('services', $attributes))
                 foreach ($attributes['services'] as $service) {
                     $order_service_data = [
-                        'price' => $services->first(fn ($v) => $v->id == $service['service_id'])->price,
+                        'price' => $services->first(fn ($v) => $v->id == $service['id'])->price,
                         'quantity' => $service['quantity'],
-                        'name' => $services->first(fn ($val) => $val->id == $service['service_id'])->name
+                        'name' => $services->first(fn ($val) => $val->id == $service['id'])->name,
+                        'cost' => $services->first(fn ($val) => $val->id == $service['id'])->cost
                     ];
                     $order->services()->attach(
-                        $service['service_id'],
+                        $service['id'],
                         $order_service_data
                     );
                 }
             return $order;
         });
+
+        if (request()->wantsJson()) return response()->json(['order' => $order]);
 
         return Redirect::route('orders.show', ['order' => $order->id])->with('message', 'success');
     }
