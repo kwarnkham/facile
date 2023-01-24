@@ -50,6 +50,27 @@ class OrderController extends Controller
         ]);
     }
 
+    public function updateCustomer(Order $order)
+    {
+        if ($order->items->count() > 1)  $data = request()->validate([
+            'customer' => ['required'],
+            'phone' => ['required'],
+            'address' => ['required'],
+            'note' => ['required'],
+        ]);
+        else $data = request()->validate([
+            'customer' => ['sometimes'],
+            'phone' => ['sometimes'],
+            'address' => ['sometimes'],
+            'note' => ['sometimes'],
+        ]);
+
+        $order->update($data);
+        return response()->json([
+            'order' => $order
+        ]);
+    }
+
     public function status()
     {
         return response()->json(['status' => OrderStatus::array()]);

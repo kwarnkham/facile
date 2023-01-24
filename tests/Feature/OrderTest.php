@@ -318,6 +318,20 @@ class OrderTest extends TestCase
         ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value)->assertSessionHas('message', 'Order cannot be paid anymore');
     }
 
+    public function test_update_customer_info_of_order()
+    {
+        $this->makeOrder(Feature::factory(2)->make());
+        $data = [
+            'customer' => 'updated',
+            'phone' => 'updated',
+            'address' => 'updated',
+            'note' => 'updated',
+        ];
+        $this->actingAs($this->user)->put(route('orders.update.customer', ['order' => Order::first()->id]), $data);
+
+        $this->assertDatabaseHas('orders', $data);
+    }
+
     public function test_create_an_order_with_order_discount_and_feature_discount()
     {
         $dataFeature = Feature::factory(2)->make();

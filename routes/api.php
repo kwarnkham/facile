@@ -109,5 +109,6 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
         Route::post('{order}/pay', 'pay');
         Route::post('{order}/complete', 'complete');
         Route::post('{order}/cancel', 'cancel');
+        Route::put('{order}/customer', 'updateCustomer')->name('orders.update.customer');
     });
 });
