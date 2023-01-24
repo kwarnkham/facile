@@ -52,20 +52,27 @@ class Item extends Model
                 fn (Builder $query, $selected_tags) => $query->whereHas('tags', function ($q) use ($selected_tags) {
                     $q->whereIn('tags.id', explode(',', $selected_tags));
                 })
-            )
-            ->when(
-                $filters['status'] ?? null,
-                fn (Builder $query, $status) => $query->where('status', $status)
-            )
-            ->when(
-                $filters['search'] ?? null,
-                fn (Builder $query, $search) => $query->where(function (Builder $query) use ($search) {
-                    $query->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('description', 'like', '%' . $search . '%');
-                    // ->orWhereHas('organization', function ($query) use ($search) {
-                    //     $query->where('name', 'like', '%' . $search . '%');
-                    // });
-                })
             );
+
+        $query->when(
+            $filters['status'] ?? null,
+            fn (Builder $query, $status) => $query->where('status', $status)
+        );
+
+        $query->when(
+            $filters['search'] ?? null,
+            fn (Builder $query, $search) => $query->where(function (Builder $query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
+                // ->orWhereHas('organization', function ($query) use ($search) {
+                //     $query->where('name', 'like', '%' . $search . '%');
+                // });
+            })
+        );
+
+        $query->when(
+            $filters['limit'] ?? null,
+            fn (Builder $query, $limit) => $query->take($limit)
+        );
     }
 }

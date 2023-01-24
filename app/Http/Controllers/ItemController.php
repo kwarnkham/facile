@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class ItemController extends Controller
@@ -19,22 +18,27 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $validator = Validator::make(request()->only(['search']), [
-            'search' => ['']
+        $filters = request()->validate([
+            'search' => ['sometimes', 'required'],
+            'limit' => ['sometimes', 'numeric']
         ]);
+        $query = Item::query()
+            ->with(['latestFeature.latestPurchase'])
+            ->filter($filters)
+            ->latest();
 
-        $query = Item::query();
-        $filters = $validator->safe()->only(['search']);
+        if (request()->wantsJson()) {
+            if (request()->exists('limit')) $items = $query->get();
+            else $items = $query->paginate(request()->per_page ?? 20);
+            return response()->json([
+                'data' => $items
+            ]);
+        }
         $data = [
-            'items' => $query
-                ->with(['latestFeature.latestPurchase'])
-                ->filter($filters)
-                ->latest()->paginate(request()->per_page ?? 20),
+            'items' => $query->paginate(request()->per_page ?? 20),
             'filters' => $filters,
         ];
-        if (request()->wantsJson()) return response()->json([
-            'data' => $data['items']
-        ]);
+
         return Inertia::render('Items', $data);
     }
 
