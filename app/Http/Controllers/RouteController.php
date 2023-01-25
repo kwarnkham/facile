@@ -74,7 +74,8 @@ class RouteController extends Controller
         return response()->json([
             // spaces.madewithheart.tech/Facile/assets/production/print-logo.png
             'assets' => [
-                'print_logo' => Storage::url(config('app')['name']) . '/assets/' . config('app')['env'] . '/print-logo.png'
+                'print_logo' => Storage::url(config('app')['name']) . '/assets/' . config('app')['env'] . '/print-logo.png',
+                'delivery_logo' => Storage::url(config('app')['name']) . '/assets/' . config('app')['env'] . '/delivery-logo.png'
             ]
         ]);
     }
