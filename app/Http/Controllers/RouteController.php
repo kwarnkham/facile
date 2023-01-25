@@ -10,6 +10,7 @@ use App\Models\Purchase;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class RouteController extends Controller
@@ -66,5 +67,15 @@ class RouteController extends Controller
     {
         $features = Feature::orderBy('stock')->paginate(request()->per_page ?? 50);
         return Inertia::render('StockSummary', ['features' => $features]);
+    }
+
+    public function settings()
+    {
+        return response()->json([
+            // spaces.madewithheart.tech/Facile/assets/production/print-logo.png
+            'assets' => [
+                'print_logo' => Storage::url(config('app')['name']) . '/assets/' . config('app')['env'] . '/print-logo.png'
+            ]
+        ]);
     }
 }
