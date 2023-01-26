@@ -46,6 +46,9 @@ Route::controller(ItemController::class)->prefix('/items')->group(function () {
 
 Route::controller(RouteController::class)->group(function () {
     Route::get('settings', 'settings');
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::get('products/stock', 'productStocks');
+    });
 });
 
 Route::controller(FeatureController::class)->prefix('/features')->group(function () {

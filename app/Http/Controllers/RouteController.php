@@ -8,8 +8,8 @@ use App\Models\Feature;
 use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\Service;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -60,6 +60,19 @@ class RouteController extends Controller
                 'from' => $filters['from'],
                 'to' => $filters['to']->startOfDay(),
             ]
+        ]);
+    }
+
+    public function productStocks()
+    {
+        $data = request()->validate([
+            'max_stock' => ['sometimes', 'numeric']
+        ]);
+        return response()->json([
+            'data' => DB::select(
+                'SELECT a.feature_id,features.name as product,items.name as item,features.stock,a.sales FROM(SELECT feature_id,SUM(quantity)AS sales FROM feature_order GROUP BY feature_id)AS a CROSS JOIN features ON features.id=a.feature_id INNER JOIN items ON features.item_id=items.id WHERE features.stock<=? ORDER BY a.sales DESC',
+                [$data['max_stock'] ?? 10]
+            )
         ]);
     }
 
