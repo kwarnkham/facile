@@ -68,7 +68,7 @@ class Order extends Model
             OrderStatus::COMPLETED->value
         ])) {
             // if ($order->status == OrderStatus::PAID->value && now()->diffInHours($order->updated_at) >= 24) return Redirect::back()->with('message', 'Cannot cancel a paid order after 24 hours');
-            return DB::transaction(function () use ($this) {
+            return DB::transaction(function () {
                 $this->update(['status' => OrderStatus::CANCELED->value]);
                 $this->features->each(function ($feature) {
                     if ($feature->type == FeatureType::STOCKED->value) {
