@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\FeatureType;
 use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -56,6 +57,33 @@ class Order extends Model
             ->withPivot([
                 'amount', 'number', 'note', 'picture', 'payment_name', 'account_name', 'id'
             ])->withTimestamps();
+    }
+
+    public function cancel()
+    {
+        if (in_array($this->status, [
+            OrderStatus::PENDING->value,
+            OrderStatus::PARTIALLY_PAID->value,
+            OrderStatus::PAID->value,
+            OrderStatus::COMPLETED->value
+        ])) {
+            // if ($order->status == OrderStatus::PAID->value && now()->diffInHours($order->updated_at) >= 24) return Redirect::back()->with('message', 'Cannot cancel a paid order after 24 hours');
+            return DB::transaction(function () use ($this) {
+                $this->update(['status' => OrderStatus::CANCELED->value]);
+                $this->features->each(function ($feature) {
+                    if ($feature->type == FeatureType::STOCKED->value) {
+                        $feature->stock += $feature->pivot->quantity;
+                        $feature->save();
+                        $feature->pivot->batches->each(function ($batch) {
+                            $batch->stock += $batch->pivot->quantity;
+                            $batch->save();
+                        });
+                    }
+                });
+                return true;
+            });
+        }
+        return false;
     }
 
     public function scopeFilter(Builder $query, $filters)

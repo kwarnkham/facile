@@ -149,22 +149,7 @@ class OrderController extends Controller
 
     public function cancel(Order $order)
     {
-        if (in_array($order->status, [OrderStatus::PENDING->value, OrderStatus::PARTIALLY_PAID->value, OrderStatus::PAID->value])) {
-            // if ($order->status == OrderStatus::PAID->value && now()->diffInHours($order->updated_at) >= 24) return Redirect::back()->with('message', 'Cannot cancel a paid order after 24 hours');
-            DB::transaction(function () use ($order) {
-                $order->update(['status' => OrderStatus::CANCELED->value]);
-                $order->features->each(function ($feature) {
-                    if ($feature->type == FeatureType::STOCKED->value) {
-                        $feature->stock += $feature->pivot->quantity;
-                        $feature->save();
-                        $feature->pivot->batches->each(function ($batch) {
-                            $batch->stock += $batch->pivot->quantity;
-                            $batch->save();
-                        });
-                    }
-                });
-            });
-        }
+        if (!$order->cancel()) return response()->json(['message', 'Order cannot be canceled']);
         if (request()->wantsJson()) return response()->json(['order' => $order->load([
             'services', 'features', 'payments'
         ])]);
