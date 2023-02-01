@@ -67,6 +67,19 @@ class PurchaseController extends Controller
         //
     }
 
+    public function group(Purchase $purchase)
+    {
+        $data = request()->validate([
+            'group' => ['required', 'numeric']
+        ]);
+
+        $purchase->group = $data['group'];
+
+        $purchase->save();
+
+        return response()->json(['purchase' => $purchase]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *

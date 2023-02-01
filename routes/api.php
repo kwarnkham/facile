@@ -64,6 +64,7 @@ Route::controller(FeatureController::class)->prefix('/features')->group(function
 Route::controller(PurchaseController::class)->prefix('/purchases')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('{purchase}/cancel', 'cancel');
+        Route::post('{purchase}/group', 'group')->name('purchases.group');
         Route::get('', 'index');
     });
 });

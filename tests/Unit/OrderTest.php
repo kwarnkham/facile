@@ -20,7 +20,7 @@ class OrderTest extends TestCase
             'quantity' => $feature->stock,
             'name' => $feature->name
         ]);
-        $batch = $feature->batches()->create([
+        $feature->batches()->create([
             'purchase_id' => $purchase->id,
             'stock' => $feature->stock,
         ]);
@@ -32,7 +32,8 @@ class OrderTest extends TestCase
             'price' => $f->price,
             'quantity' => rand(1, 10),
             'discount' => floor($f->price * 0.1),
-            'name' => $f->name
+            'name' => $f->name,
+            'purchase_price' => $f->price * 0.8
         ]));
 
         $this->assertEquals(
