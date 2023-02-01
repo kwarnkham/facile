@@ -77,7 +77,7 @@ npm run build
 php artisan down
 git pull
 composer install --optimize-autoloader --no-dev
-php artisan migrate
+php artisan migrate --force
 npm i
 npm run build
 php artisan config:cache && php artisan optimize && php artisan route:cache && php artisan view:cache
