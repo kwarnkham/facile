@@ -62,5 +62,10 @@ class Purchase extends Model
             $filters['status'] ?? null,
             fn (Builder $query, $status) => $query->where('status', $status)
         );
+
+        $query->when(
+            $filters['type'] ?? null,
+            fn (Builder $query, $type) => $query->where('purchasable_type', $type)
+        );
     }
 }

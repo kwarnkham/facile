@@ -29,11 +29,12 @@ class PurchaseController extends Controller
             'from' => ['date'],
             'to' => ['date'],
             'search' => ['sometimes'],
-            'status' => ['in:' . implode(',', PurchaseStatus::all())]
+            'status' => ['in:' . implode(',', PurchaseStatus::all())],
+            'type' => ['sometimes']
         ]);
 
         $query = Purchase::query()
-            ->filter($filters)->where('purchasable_type', '!=', 'App\\Models\\Feature');
+            ->filter($filters);
         $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);
         $data = $query->with(['purchasable' => function (MorphTo $morphTo) {
             $morphTo->morphWith([
