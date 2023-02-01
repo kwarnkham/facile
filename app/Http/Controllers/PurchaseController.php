@@ -33,7 +33,7 @@ class PurchaseController extends Controller
         ]);
 
         $query = Purchase::query()
-            ->filter($filters);
+            ->filter($filters)->where('purchasable_type', '!=', 'App\\Models\\Feature');
         $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);
         $data = $query->with(['purchasable' => function (MorphTo $morphTo) {
             $morphTo->morphWith([
