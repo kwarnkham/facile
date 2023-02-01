@@ -29,13 +29,14 @@ class Feature extends Model
 
     public static function mapForOrder(array $data)
     {
-        $features = static::whereIn('id', array_map(fn ($v) => $v['id'], $data))->get();
+        $features = static::with(['latestPurchase'])->whereIn('id', array_map(fn ($v) => $v['id'], $data))->get();
 
         $mappedFeatures = collect($data)->map(function ($feature) use ($features) {
             $features->each(function ($val) use (&$feature) {
                 if ($val->id == $feature['id']) {
                     $feature['price'] = $val->price;
                     $feature['name'] = $val->name;
+                    $feature['purchase_price'] = $val->latestPurchase->price;
                 }
             });
             return $feature;

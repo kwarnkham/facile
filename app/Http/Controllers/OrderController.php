@@ -306,7 +306,8 @@ class OrderController extends Controller
                         'quantity' => $feature['quantity'],
                         'price' => $feature['price'],
                         'discount' => $feature['discount'] ?? 0,
-                        'name' => $feature['name']
+                        'name' => $feature['name'],
+                        'purchase_price' => $feature['purchase_price']
                     ]])->toArray()
                 );
             }
