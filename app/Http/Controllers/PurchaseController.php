@@ -30,7 +30,8 @@ class PurchaseController extends Controller
             'to' => ['date'],
             'search' => ['sometimes'],
             'status' => ['in:' . implode(',', PurchaseStatus::all())],
-            'type' => ['sometimes']
+            'type' => ['sometimes'],
+            'group' => ['sometimes', 'numeric']
         ]);
 
         $query = Purchase::query()

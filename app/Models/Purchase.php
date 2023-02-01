@@ -67,5 +67,10 @@ class Purchase extends Model
             $filters['type'] ?? null,
             fn (Builder $query, $type) => $query->where('purchasable_type', $type)
         );
+
+        $query->when(
+            $filters['group'] ?? null,
+            fn (Builder $query, $group) => $query->where('group', $group)
+        );
     }
 }
