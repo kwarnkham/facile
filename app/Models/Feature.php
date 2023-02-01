@@ -80,7 +80,7 @@ class Feature extends Model
     {
         return $this->belongsToMany(Order::class)
             ->using(FeatureOrder::class)
-            ->withPivot(['quantity', 'price', 'discount', 'name', 'id'])
+            ->withPivot(['quantity', 'price', 'discount', 'name', 'id', 'purchase_price'])
             ->withTimestamps();
     }
 

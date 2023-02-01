@@ -17,7 +17,7 @@ class Order extends Model
     {
         return $this->belongsToMany(Feature::class)
             ->using(FeatureOrder::class)
-            ->withPivot(['quantity', 'price', 'discount', 'name', 'id'])->withTimestamps();
+            ->withPivot(['quantity', 'price', 'discount', 'name', 'id', 'purchase_price'])->withTimestamps();
     }
 
     public function purchases()
@@ -84,6 +84,25 @@ class Order extends Model
             });
         }
         return false;
+    }
+
+    public static function setPurchasePrice()
+    {
+        $orders = Order::with('features')->get();
+
+        $orders->each(function ($order) {
+            $temp = $order->features->map(
+                fn ($v) => [
+                    ...$v->pivot->toArray(),
+                    'purchase_price' => $v->purchases()->latest()->first()->price
+                ]
+            );
+            $temp->each(function ($val) {
+                DB::table('feature_order')
+                    ->where('feature_id', $val['feature_id'])
+                    ->update(['purchase_price' => $val['purchase_price']]);
+            });
+        });
     }
 
     public function scopeFilter(Builder $query, $filters)

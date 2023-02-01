@@ -34,14 +34,20 @@ class OrderController extends Controller
             'to' => ['date'],
         ]);
         $query =  Order::query()->filter($filters);
-        $total = $query->get()->reduce(fn ($carry, $val) => $carry + $val->amount - $val->discount, 0);
+        $allOrders = $query->get();
+        $total = $allOrders->reduce(fn ($carry, $val) => $carry + $val->amount - $val->discount, 0);
+        $profit = $total  - DB::table('feature_order')->whereIn('order_id', $allOrders->pluck('id'))->sum('purchase_price');
 
         $orders = $query
             ->with(['payments'])
             ->latest()
             ->paginate(request()->per_page ?? 20);
 
-        if (request()->wantsJson()) return response()->json(['data' => $orders, 'total' => $total]);
+        if (request()->wantsJson()) return response()->json([
+            'data' => $orders,
+            'profit' => $profit,
+            'total' => $total
+        ]);
 
         return Inertia::render('Orders', [
             'orders' => $orders,
