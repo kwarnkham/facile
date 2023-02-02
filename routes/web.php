@@ -146,6 +146,6 @@ Route::controller(RouteController::class)->group(function () {
     });
 });
 
-Route::get('users', [UserController::class, 'index'])->name('users.index');
+Route::get('users', [UserController::class, 'index']);
 Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
 require __DIR__ . '/auth.php';

@@ -17,11 +17,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        $validator = Validator::make(request()->only(['search']), [
-            'search' => ['']
-        ]);
-        $filters = $validator->safe()->only(['search']);
-        $query = User::query()->filter($filters);
+        $filters = request()->validate(['search' => ['sometimes', 'required']]);
+        $query = User::query()->with(['roles'])->filter($filters)->latest();
+        if (request()->wantsJson())
+            return response()->json([
+                'data' => $query->paginate(request()->per_page ?? 20)
+            ]);
         return Inertia::render('Users', [
             'users' => $query->paginate(request()->per_page ?? 20),
             'filters' => $filters,
