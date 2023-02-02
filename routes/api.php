@@ -86,10 +86,10 @@ Route::controller(ExpenseController::class)->prefix('/expenses')->group(function
 });
 
 Route::controller(PaymentController::class)->prefix('/payments')->group(function () {
+    Route::get('', 'index');
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('/{payment}/toggle', 'toggle');
         Route::post('', 'store');
-        Route::get('', 'index');
         Route::put('/{payment}', 'update');
     });
 });
