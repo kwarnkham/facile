@@ -42,7 +42,7 @@ class AuthenticatedSessionController extends Controller
         if ($request->wantsJson()) {
             $user = User::where('email', $request->email)->first();
             $token = $user->createToken('');
-            return response()->json(['token' => $token->plainTextToken, 'user' => $user]);
+            return response()->json(['token' => $token->plainTextToken, 'user' => $user->load(['roles'])]);
         }
 
         $request->session()->regenerate();

@@ -105,24 +105,22 @@ Route::controller(PaymentController::class)->prefix('/payments')->group(function
 });
 
 Route::controller(PaymentTypeController::class)->prefix('/payment-types')->group(function () {
-    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-        Route::get('', 'index');
-    });
+    Route::get('', 'index');
 });
 
 Route::controller(ServiceController::class)->prefix('/services')->group(function () {
+    Route::get('', 'index');
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('', 'store');
-        Route::get('', 'index');
         Route::put('{service}', 'update');
     });
 });
 
 Route::controller(OrderController::class)->prefix('/orders')->group(function () {
+    Route::get('status', 'status');
     Route::middleware(['auth:sanctum', 'role:sale'])->group(function () {
         Route::post('', 'store');
         Route::get('', 'index');
-        Route::get('status', 'status');
         Route::get('{order}', 'show');
         Route::post('{order}/pay', 'pay');
         Route::put('{order}/customer', 'updateCustomer')->name('orders.update.customer');
