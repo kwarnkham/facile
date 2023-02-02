@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('purchases', function (Blueprint $table) {
-            $table->integer('group')->index()->nullable();
+            $table->integer('group')->index()->default(0);
         });
     }
 
