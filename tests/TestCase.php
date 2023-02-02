@@ -30,7 +30,10 @@ abstract class TestCase extends BaseTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->has(Role::factory()->state(['name' => 'admin']))->create();
+        $this->user = User::factory()
+            ->has(Role::factory()->state(['name' => 'admin']))
+            ->has(Role::factory()->state(['name' => 'sale']))
+            ->create();
         $this->tag = Tag::factory()->create();
 
         DB::table('payment_types')->insert([

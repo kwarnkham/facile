@@ -46,7 +46,15 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $attributes = $request->validate([
+            'name' => ['required'],
+            'email' => ['required', 'email', 'unique:users,email'],
+        ]);
+        $attributes['password'] = bcrypt('password');
+
+        $user = User::create($attributes);
+
+        return response()->json(['user' => $user]);
     }
 
     /**

@@ -11,6 +11,7 @@ use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,8 +27,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return response()->json(['user' => $request->user()]);
+    return response()->json(['user' => $request->user()->load(['roles'])]);
 });
+
+Route::controller(UserController::class)->prefix('/users')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('', 'store')->name('users.store');
+    });
+});
+
+
 
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
@@ -109,15 +118,17 @@ Route::controller(ServiceController::class)->prefix('/services')->group(function
 });
 
 Route::controller(OrderController::class)->prefix('/orders')->group(function () {
-    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::middleware(['auth:sanctum', 'role:sale'])->group(function () {
         Route::post('', 'store');
-        Route::post('/pre-order', 'preOrder');
         Route::get('', 'index');
         Route::get('status', 'status');
         Route::get('{order}', 'show');
         Route::post('{order}/pay', 'pay');
+        Route::put('{order}/customer', 'updateCustomer')->name('orders.update.customer');
+    });
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('/pre-order', 'preOrder');
         Route::post('{order}/complete', 'complete');
         Route::post('{order}/cancel', 'cancel');
-        Route::put('{order}/customer', 'updateCustomer')->name('orders.update.customer');
     });
 });
