@@ -34,7 +34,7 @@ class PurchaseTest extends TestCase
 
         $this->assertDatabaseCount('purchases', 1);
         $purchase = Purchase::first();
-        $this->assertNull($purchase->group);
+        $this->assertEquals($purchase->group, 0);
         $group = 1;
         $this->actingAs($this->user)->post(route('purchases.group', ['purchase' => $purchase->id]), [
             'group' => $group
