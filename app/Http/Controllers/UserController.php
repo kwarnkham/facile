@@ -55,7 +55,7 @@ class UserController extends Controller
 
         $user = User::create($attributes);
 
-        return response()->json(['user' => $user]);
+        return response()->json(['user' => $user->load(['roles'])]);
     }
 
     /**
