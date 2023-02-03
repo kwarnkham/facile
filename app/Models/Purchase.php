@@ -69,8 +69,8 @@ class Purchase extends Model
         );
 
         $query->when(
-            $filters['group'] ?? null,
-            fn (Builder $query, $group) => $query->where('group', $group)
+            array_key_exists('group', $filters),
+            fn (Builder $query) => $query->where('group', $filters['group'])
         );
     }
 }
