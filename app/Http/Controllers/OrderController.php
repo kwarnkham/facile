@@ -70,6 +70,8 @@ class OrderController extends Controller
             'note' => ['sometimes'],
         ]);
 
+        $data['updated_by'] = request()->user()->id;
+
         $order->update($data);
         return response()->json([
             'order' => $order
@@ -136,6 +138,7 @@ class OrderController extends Controller
             ) $order->status = 2;
             else if ($attributes['amount'] + $totalPaid == $order->amount)
                 $order->status = 3;
+            $order->updated_by = request()->user()->id;
             $order->save();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -165,7 +168,9 @@ class OrderController extends Controller
     {
         if (in_array($order->status, [OrderStatus::PAID->value])) {
             DB::transaction(function () use ($order) {
-                $order->update(['status' => OrderStatus::COMPLETED->value]);
+                $order->status = OrderStatus::COMPLETED->value;
+                $order->updated_by = request()->user()->id;
+                $order->save();
             });
         } else abort(ResponseStatus::BAD_REQUEST->value, 'Order has not been fully paid');
         if (request()->wantsJson()) return response()->json(['order' => $order
@@ -226,6 +231,9 @@ class OrderController extends Controller
             };
 
             $attributes['amount'] = $amount;
+            $attributes['updated_by'] = request()->user()->id;
+            $attributes['user_id'] = request()->user()->id;
+
 
             $order = Order::create(collect($attributes)->except('items', 'services')->toArray());
             foreach ($attributes['items'] as $item) {
@@ -290,6 +298,8 @@ class OrderController extends Controller
 
         if ($remaining < 0) return Redirect::back()->with('message', 'Total discount is greater than the amount');
 
+        $attributes['updated_by'] = $request->user()->id;
+        $attributes['user_id'] = $request->user()->id;
         $createdOrder = DB::transaction(function () use ($attributes, $amount, $remaining) {
             $order = Order::create(
                 collect([

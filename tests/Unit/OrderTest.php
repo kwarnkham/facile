@@ -5,12 +5,11 @@ namespace Tests\Unit;
 use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Order;
+use App\Models\User;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
 {
-
-
     public function test_get_feature_discounts()
     {
         $features = Feature::factory()->for(Item::factory())->create();
@@ -25,6 +24,8 @@ class OrderTest extends TestCase
             'stock' => $feature->stock,
         ]);
         $order = Order::factory()->create([
+            'user_id' => User::first()->id,
+            'updated_by' => User::first()->id,
             'amount' => Feature::all()->reduce(fn ($carry, $v) => $carry + $v->price, 0),
         ]);
 

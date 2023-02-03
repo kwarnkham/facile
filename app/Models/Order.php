@@ -69,7 +69,9 @@ class Order extends Model
         ])) {
             // if ($order->status == OrderStatus::PAID->value && now()->diffInHours($order->updated_at) >= 24) return Redirect::back()->with('message', 'Cannot cancel a paid order after 24 hours');
             return DB::transaction(function () {
-                $this->update(['status' => OrderStatus::CANCELED->value]);
+                $this->status = OrderStatus::CANCELED->value;
+                $this->updated_by = request()->user()->id;
+                $this->save();
                 $this->features->each(function ($feature) {
                     if ($feature->type == FeatureType::STOCKED->value) {
                         $feature->stock += $feature->pivot->quantity;
@@ -84,25 +86,6 @@ class Order extends Model
             });
         }
         return false;
-    }
-
-    public static function setPurchasePrice()
-    {
-        $orders = Order::with('features')->get();
-
-        $orders->each(function ($order) {
-            $temp = $order->features->map(
-                fn ($v) => [
-                    ...$v->pivot->toArray(),
-                    'purchase_price' => $v->purchases()->latest()->first()->price
-                ]
-            );
-            $temp->each(function ($val) {
-                DB::table('feature_order')
-                    ->where('feature_id', $val['feature_id'])
-                    ->update(['purchase_price' => $val['purchase_price']]);
-            });
-        });
     }
 
     public function scopeFilter(Builder $query, $filters)

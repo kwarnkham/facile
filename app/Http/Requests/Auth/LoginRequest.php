@@ -3,9 +3,11 @@
 namespace App\Http\Requests\Auth;
 
 use App\Enums\ResponseStatus;
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -46,16 +48,20 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
-
-            abort_if($this->wantsJson(), ResponseStatus::BAD_REQUEST->value, trans('auth.failed'));
-
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
+        if ($this->wantsJson()) {
+            $user = User::where('email', $this->email)->first();
+            if (!Hash::check($this->password, $user->password)) {
+                RateLimiter::hit($this->throttleKey());
+                abort(ResponseStatus::BAD_REQUEST->value, trans('auth.failed'));
+            }
+        } else if (!$this->wantsJson()) {
+            if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'email' => trans('auth.failed'),
+                ]);
+            }
         }
-
         RateLimiter::clear($this->throttleKey());
     }
 
