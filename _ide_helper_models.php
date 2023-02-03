@@ -104,6 +104,7 @@ namespace App\Models{
  * @property-read int|null $batches_count
  * @property-read \App\Models\Item $item
  * @property-read \App\Models\Batch|null $latestBatch
+ * @property-read \App\Models\Purchase|null $latestPurchase
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
@@ -141,6 +142,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string $name
+ * @property float $purchase_price
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Batch[] $batches
  * @property-read int|null $batches_count
  * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder newModelQuery()
@@ -153,6 +155,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder wherePurchasePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereUpdatedAt($value)
  */
@@ -209,6 +212,8 @@ namespace App\Models{
  * @property string|null $note
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $user_id
+ * @property int $updated_by
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
  * @property-read int|null $features_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Item[] $items
@@ -234,6 +239,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Order wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Order whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Order whereUserId($value)
  */
 	class Order extends \Eloquent {}
 }
@@ -250,7 +257,7 @@ namespace App\Models{
  * @property int $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|Payment[] $orders
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
  * @property-read \App\Models\PaymentType $paymentType
  * @method static \Database\Factories\PaymentFactory factory(...$parameters)
@@ -331,6 +338,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string $name
  * @property string|null $picture
+ * @property int $group
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $purchasable
  * @method static \Database\Factories\PurchaseFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase filter($filters)
@@ -338,6 +346,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase query()
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereGroup($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase whereNote($value)

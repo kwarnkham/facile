@@ -14,6 +14,6 @@ trait HasQR
 
     public function generateQR()
     {
-        return QrCode::generate(route(static::modelName() . 's.show', [static::modelName() => $this->id]));
+        return QrCode::size(340)->generate(route(static::modelName() . 's.show', [static::modelName() => $this->id]));
     }
 }
