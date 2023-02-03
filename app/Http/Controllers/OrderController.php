@@ -39,7 +39,7 @@ class OrderController extends Controller
 
         $orders = $query
             ->with(['payments'])
-            ->latest()
+            ->orderBy('id', 'desc')
             ->paginate(request()->per_page ?? 20);
 
         if (request()->wantsJson()) return response()->json([

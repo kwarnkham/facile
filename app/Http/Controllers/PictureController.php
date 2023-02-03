@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePictureRequest;
 use App\Http\Requests\UpdatePictureRequest;
+use App\Models\Feature;
 use App\Models\Picture;
 use Illuminate\Support\Facades\Redirect;
 
@@ -46,6 +47,16 @@ class PictureController extends Controller
                 'pictureable_type' => $model
             ]);
         }
+        if ($request->wantsJson())
+            return response()->json([
+                'feature' => Feature::find($attributes['type_id'])
+                    ->load([
+                        'item',
+                        'pictures',
+                        'batches',
+                        'latestPurchase'
+                    ])
+            ]);
         return redirect()->back()->with('message', 'Pictures uploaded');
     }
 
@@ -92,6 +103,7 @@ class PictureController extends Controller
     public function destroy(Picture $picture)
     {
         $picture->delete();
+        if (request()->wantsJson()) return response()->json(['message' => 'Finish']);
         return Redirect::back()->with('message', 'Deleted');
     }
 }

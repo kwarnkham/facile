@@ -8,6 +8,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentTypeController;
+use App\Http\Controllers\PictureController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\ServiceController;
@@ -34,6 +35,13 @@ Route::controller(UserController::class)->prefix('/users')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('', 'store')->name('users.store');
         Route::get('', 'index')->name('users.index');
+    });
+});
+
+Route::controller(PictureController::class)->prefix('/pictures')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('', 'store');
+        Route::delete('{picture}', 'destroy');
     });
 });
 

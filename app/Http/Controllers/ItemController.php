@@ -25,7 +25,7 @@ class ItemController extends Controller
         $query = Item::query()
             ->with(['latestFeature.latestPurchase'])
             ->filter($filters)
-            ->latest();
+            ->orderBy('id', 'desc');
 
         if (request()->wantsJson()) {
             if (request()->exists('limit')) $items = $query->get();

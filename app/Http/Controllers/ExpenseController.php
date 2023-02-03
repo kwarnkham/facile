@@ -18,7 +18,7 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        $data = Expense::query()->latest()->paginate(request()->per_page ?? 20);
+        $data = Expense::query()->orderBy('id', 'desc')->paginate(request()->per_page ?? 20);
         return response()->json([
             'data' => $data
         ]);

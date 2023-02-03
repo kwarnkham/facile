@@ -22,7 +22,7 @@ class PaymentController extends Controller
     public function index()
     {
         if (request()->wantsJson()) return response()->json(
-            ['data' => Payment::with('paymentType')->latest()->paginate(request()->per_page ?? 20)]
+            ['data' => Payment::with('paymentType')->orderBy('id', 'desc')->paginate(request()->per_page ?? 20)]
         );
         return Inertia::render('Payments', [
             'payment_types' => DB::table('payment_types')->get(),

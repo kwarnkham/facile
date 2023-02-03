@@ -51,7 +51,7 @@ class PaymentTest extends TestCase
 
         $this->actingAs($this->user)->post(route('payments.store'), $payment);
 
-        $payment = Payment::latest('id')->first();
+        $payment = Payment::orderBy('id', 'desc')->first();
 
 
         $updatedPayment = Payment::factory()->make()->toArray();

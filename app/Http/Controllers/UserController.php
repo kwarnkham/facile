@@ -18,7 +18,7 @@ class UserController extends Controller
     public function index()
     {
         $filters = request()->validate(['search' => ['sometimes', 'required']]);
-        $query = User::query()->with(['roles'])->filter($filters)->latest();
+        $query = User::query()->with(['roles'])->filter($filters)->orderBy('id', 'desc');
         if (request()->wantsJson())
             return response()->json([
                 'data' => $query->paginate(request()->per_page ?? 20)

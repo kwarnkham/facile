@@ -27,7 +27,9 @@ class FeatureController extends Controller
                 'item' => ['sometimes', 'numeric'],
                 'limit' => ['sometimes', 'numeric']
             ]);
-            $query = Feature::query()->with(['item', 'latestBatch.purchase'])->latest()->filter($filters)->latest();
+            $query = Feature::query()->with(['item', 'latestBatch.purchase'])
+                ->filter($filters)
+                ->orderBy('id', 'desc');
             if (request()->exists('limit')) $features = $query->get();
             else $features = $query->paginate(request()->per_page ?? 20);
             return response()->json([
