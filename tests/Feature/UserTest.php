@@ -17,4 +17,18 @@ class UserTest extends TestCase
 
         $this->assertDatabaseCount('users', 2);
     }
+
+    public function test_user_change_password()
+    {
+        $this->actingAs($this->user)->post(route('users.changePassword'), [
+            'password' => 'password',
+            'new_password' => 'new_password',
+            'new_password_confirmation' => 'new_password',
+        ]);
+
+        $this->postJson('api/login', [
+            'email' => 'admin@gmail.com',
+            'password' => 'new_password'
+        ])->assertOk();
+    }
 }

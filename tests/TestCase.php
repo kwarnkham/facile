@@ -33,7 +33,9 @@ abstract class TestCase extends BaseTestCase
         $this->user = User::factory()
             ->has(Role::factory()->state(['name' => 'admin']))
             ->has(Role::factory()->state(['name' => 'sale']))
-            ->create();
+            ->create([
+                'email' => 'admin@gmail.com'
+            ]);
         $this->tag = Tag::factory()->create();
 
         DB::table('payment_types')->insert([

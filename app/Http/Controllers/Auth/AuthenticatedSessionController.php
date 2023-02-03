@@ -87,6 +87,9 @@ class AuthenticatedSessionController extends Controller
             $user->save();
             $message = 'Success';
         }
+        if (request()->wantsJson()) return response()->json([
+            'message' => $message
+        ]);
         return Redirect::back()->with('message', $message);
     }
 

@@ -41,6 +41,13 @@ Route::controller(UserController::class)->prefix('/users')->group(function () {
 
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
+Route::controller(AuthenticatedSessionController::class)->group(function () {
+    Route::post('login', 'store');
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('change-password', 'changePassword')->name('users.changePassword');
+    });
+});
+
 Route::middleware(['auth:sanctum'])
     ->post('logout', [AuthenticatedSessionController::class, 'destroy']);
 
