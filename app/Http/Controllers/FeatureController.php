@@ -161,7 +161,7 @@ class FeatureController extends Controller
     public function restock(Feature $feature)
     {
         $attributes = request()->validate([
-            'price' => ['required', 'numeric', 'gt:0'],
+            'price' => ['required', 'numeric'],
             'quantity' => ['required', 'numeric', 'gt:0'],
             'expired_on' => ['sometimes', 'required', 'date'],
             'picture' => ['sometimes', 'required', 'image']
