@@ -197,6 +197,27 @@ class OrderTest extends TestCase
     //     $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
     // }
 
+    public function test_pack_an_order()
+    {
+        $madeOrder = $this->makeOrder(Feature::factory(2)->make());
+        $order = Order::first();
+
+        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->payment->id,
+            'amount' => floor($madeOrder['amount'] / 2)
+        ]);
+        $this->assertEquals($order->fresh()->status, OrderStatus::PARTIALLY_PAID->value);
+
+        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+            'payment_id' => $this->payment->id,
+            'amount' => $madeOrder['amount'] - floor($madeOrder['amount'] / 2)
+        ]);
+        $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
+
+        $this->actingAs($this->user)->post(route('orders.pack', ['order' => $order->id]));
+        $this->assertEquals($order->fresh()->status, OrderStatus::PACKED->value);
+    }
+
     public function test_complete_an_order()
     {
         $madeOrder = $this->makeOrder(Feature::factory(2)->make());

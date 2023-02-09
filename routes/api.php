@@ -139,6 +139,7 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
         Route::get('{order}', 'show');
         Route::post('{order}/pay', 'pay');
         Route::put('{order}/customer', 'updateCustomer')->name('orders.update.customer');
+        Route::post('{order}/pack', 'pack')->name('orders.pack');
     });
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('/pre-order', 'preOrder');

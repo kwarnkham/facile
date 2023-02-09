@@ -166,9 +166,28 @@ class OrderController extends Controller
 
     public function complete(Order $order)
     {
-        if (in_array($order->status, [OrderStatus::PAID->value])) {
+        if (in_array($order->status, [
+            OrderStatus::PAID->value,
+            OrderStatus::PACKED->value
+        ])) {
             DB::transaction(function () use ($order) {
                 $order->status = OrderStatus::COMPLETED->value;
+                $order->updated_by = request()->user()->id;
+                $order->save();
+            });
+        } else abort(ResponseStatus::BAD_REQUEST->value, 'Order has not been fully paid');
+        if (request()->wantsJson()) return response()->json(['order' => $order
+            ->load(['features', 'payments', 'items', 'services'])]);
+        return Redirect::back()->with('message', 'Success');
+    }
+
+    public function pack(Order $order)
+    {
+        if (in_array($order->status, [
+            OrderStatus::PAID->value,
+        ])) {
+            DB::transaction(function () use ($order) {
+                $order->status = OrderStatus::PACKED->value;
                 $order->updated_by = request()->user()->id;
                 $order->save();
             });
