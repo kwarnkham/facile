@@ -27,7 +27,7 @@ class StorePictureRequest extends FormRequest
     {
         return [
             'pictures' => ['required', 'array'],
-            'pictures.*' => ['required', 'image'],
+            'pictures.*' => ['required'],
             'type' => [
                 'required',
                 function ($attribute, $value, $fail) {
