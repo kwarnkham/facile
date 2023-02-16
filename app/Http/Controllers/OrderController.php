@@ -31,6 +31,7 @@ class OrderController extends Controller
             'status' => ['sometimes', 'required'],
             'from' => ['date'],
             'to' => ['date'],
+            'search' => ['sometimes', 'required'],
         ]);
         $query =  Order::query()->filter($filters);
         $allOrders = $query->get();

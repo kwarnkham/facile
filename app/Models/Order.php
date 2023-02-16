@@ -113,6 +113,13 @@ class Order extends Model
                     '<=',
                     $to
                 )
+            )
+            ->when(
+                $filters['search'] ?? null,
+                fn (Builder $query, $search) => $query->where(function ($q) use ($search) {
+                    $q->where('id', $search)
+                        ->orWhere('phone', 'like',  '%' . $search . '%');
+                })
             );
     }
 }
