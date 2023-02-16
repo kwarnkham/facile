@@ -39,7 +39,7 @@ Route::controller(UserController::class)->prefix('/users')->group(function () {
 });
 
 Route::controller(PictureController::class)->prefix('/pictures')->group(function () {
-    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::middleware(['auth:sanctum', 'role:sale'])->group(function () {
         Route::post('', 'store');
         Route::delete('{picture}', 'destroy');
     });
