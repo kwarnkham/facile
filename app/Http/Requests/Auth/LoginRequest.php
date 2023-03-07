@@ -50,7 +50,7 @@ class LoginRequest extends FormRequest
 
         if ($this->wantsJson()) {
             $user = User::where('email', $this->email)->first();
-            if (!Hash::check($this->password, $user->password)) {
+            if (!$user || !Hash::check($this->password, $user->password)) {
                 RateLimiter::hit($this->throttleKey());
                 abort(ResponseStatus::BAD_REQUEST->value, trans('auth.failed'));
             }
