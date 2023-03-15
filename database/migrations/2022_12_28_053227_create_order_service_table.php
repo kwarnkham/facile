@@ -17,12 +17,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained();
             $table->foreignId('service_id')->constrained();
-            $table->string('name');
             $table->double('price');
-            $table->double('cost');
             $table->unsignedInteger('quantity');
             $table->double('discount')->default(0);
             $table->timestamps();
+            $table->double('cost');
+            $table->string('name');
         });
     }
 
