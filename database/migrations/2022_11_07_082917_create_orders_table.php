@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->default(1)->constrained();
+            $table->foreignId('updated_by')->default(1)->constrained('users', 'id');
             $table->double('amount');
             $table->double('discount')->default(0);
             $table->tinyInteger('status')->default(1)->index();

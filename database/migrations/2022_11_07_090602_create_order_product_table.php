@@ -17,10 +17,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained();
             $table->foreignId('order_id')->constrained();
+            $table->string('name');
             $table->unsignedInteger('quantity');
+            $table->double('purchase_price');
             $table->double('price');
             $table->double('discount')->default(0);
-            $table->foreignId('batch_id')->constrained();
             $table->timestamps();
         });
     }

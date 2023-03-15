@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('stock');
+            $table->integer('stock')->index();
             $table->double('price');
             $table->string('note')->nullable();
             $table->foreignId('item_id')->constrained();

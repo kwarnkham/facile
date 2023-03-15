@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained();
             $table->foreignId('item_id')->constrained();
+            $table->string('name');
             $table->double('price');
             $table->unsignedInteger('quantity');
             $table->unique(['order_id', 'item_id', 'price']);

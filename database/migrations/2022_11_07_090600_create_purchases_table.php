@@ -17,10 +17,13 @@ return new class extends Migration
             $table->id();
             $table->integer('purchasable_id');
             $table->string('purchasable_type');
+            $table->string('name');
             $table->double('price');
             $table->integer('quantity')->default(1);
             $table->tinyInteger('status')->default(1);
             $table->string('note')->nullable();
+            $table->integer('group')->index()->default(0);
+            $table->string('picture')->nullable();
             $table->timestamps();
         });
     }

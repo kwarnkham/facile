@@ -13,8 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('order_topping', function (Blueprint $table) {
-            $table->string('name');
+        Schema::create('services', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->unique();
+            $table->double('price');
+            $table->double('cost');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('order_topping', function (Blueprint $table) {
-            $table->dropColumn('name');
-        });
+        Schema::dropIfExists('toppings');
     }
 };
