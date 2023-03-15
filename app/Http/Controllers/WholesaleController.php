@@ -74,7 +74,7 @@ class WholesaleController extends Controller
     public function update(UpdateWholesaleRequest $request, Wholesale $wholesale)
     {
         $wholesale->update($request->validated());
-        return Redirect::route('items.edit', ['item' => $wholesale->item_id, 'edit' => 'wholesales'])->with('message', 'Updated');
+        return response()->json();
     }
 
     /**

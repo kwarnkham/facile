@@ -13,13 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('batches', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained();
-            $table->foreignId('purchase_id')->constrained();
-            $table->unsignedInteger('stock');
-            $table->date('expired_on')->index()->nullable();
-            $table->timestamps();
+        Schema::table('order_product', function (Blueprint $table) {
+            $table->double('purchase_price');
         });
     }
 
@@ -30,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('batches');
+        Schema::table('order_product', function (Blueprint $table) {
+            $table->dropColumn('purchase_price');
+        });
     }
 };

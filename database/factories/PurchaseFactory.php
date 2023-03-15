@@ -17,7 +17,7 @@ class PurchaseFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'price' => fake()->numberBetween(1, 100)
         ];
     }
 }

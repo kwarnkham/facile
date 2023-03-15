@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Product;
 
 use App\Enums\PaymentStatus;
 use App\Models\Payment;
@@ -19,26 +19,26 @@ class PaymentTest extends TestCase
         $payment['payment_type_id'] = $this->payment_type_id_2;
         $payment['qr'] = UploadedFile::fake()->image('qr.jpg');
 
-        $this->actingAs($this->user)->post(route('payments.store'), $payment);
+        $this->actingAs($this->user)->postJson(route('payments.store'), $payment);
         $this->assertTrue(Picture::deletePictureFromDisk($payment['qr']->hashName(), 'payments'));
         $this->assertDatabaseCount('payments', $existed + 1);
 
-        $this->actingAs($this->user)->post(route('payments.store'), $payment)->assertSessionHasErrors(['number']);
+        $this->actingAs($this->user)->postJson(route('payments.store'), $payment)->assertUnprocessable();
     }
 
     public function test_toggle_a_payment()
     {
-        $this->actingAs($this->user)->post(route('payments.store'), [
+        $this->actingAs($this->user)->postJson(route('payments.store'), [
             'number' => '123',
             'payment_type_id' => $this->payment_type_id
         ]);
         $payment = Payment::first();
 
-        $this->actingAs($this->user)->post(route('payments.toggle', ['payment' => $payment->id]));
+        $this->actingAs($this->user)->postJson(route('payments.toggle', ['payment' => $payment->id]));
 
         $this->assertEquals($payment->fresh()->status, PaymentStatus::DISABLED->value);
 
-        $this->actingAs($this->user)->post(route('payments.toggle', ['payment' => $payment->id]));
+        $this->actingAs($this->user)->postJson(route('payments.toggle', ['payment' => $payment->id]));
 
         $this->assertEquals($payment->fresh()->status, PaymentStatus::ENABLED->value);
     }
@@ -49,7 +49,7 @@ class PaymentTest extends TestCase
         $payment['payment_type_id'] = $this->payment_type_id_2;
         $payment['qr'] = UploadedFile::fake()->image('qr.jpg');
 
-        $this->actingAs($this->user)->post(route('payments.store'), $payment);
+        $this->actingAs($this->user)->postJson(route('payments.store'), $payment);
 
         $payment = Payment::orderBy('id', 'desc')->first();
 

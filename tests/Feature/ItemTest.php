@@ -1,24 +1,22 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Product;
 
 use App\Models\Item;
 use App\Models\User;
 use Tests\TestCase;
-use Inertia\Testing\AssertableInertia as Assert;
 
 class ItemTest extends TestCase
 {
     public function test_admin_can_add_item()
     {
         $data = Item::factory()->make()->toArray();
-        $this->actingAs($this->user)->post(route('items.store'), $data)
-            ->assertSessionHas('message', 'success');
+        $this->actingAs($this->user)->postJson(route('items.store'), $data);
 
         $this->assertDatabaseCount('items', 1);
         $this->assertDatabaseHas('items', $data);
 
-        $this->actingAs($this->user)->post(route('items.store'), $data)->assertSessionHasErrors(['name']);
+        $this->actingAs($this->user)->postJson(route('items.store'), $data)->assertUnprocessable();
     }
 
     public function test_admin_can_update_item()
@@ -27,8 +25,7 @@ class ItemTest extends TestCase
 
         $data = Item::factory()->make(['name' => 'updated'])->toArray();
 
-        $this->actingAs($this->user)->put(route('items.update', ['item' => $item->id]), $data)
-            ->assertSessionHas('message', 'success');
+        $this->actingAs($this->user)->putJson(route('items.update', ['item' => $item->id]), $data);
 
         $this->assertDatabaseHas('items', $data);
 
@@ -36,11 +33,11 @@ class ItemTest extends TestCase
             'name' => 'dupe',
         ]);
 
-        $this->actingAs($this->user)->put(route('items.update', ['item' => $item->id]), Item::factory()->make(['name' => 'updated'])->toArray())
-            ->assertSessionHas('message', 'success');
+        $this->actingAs($this->user)->putJson(route('items.update', ['item' => $item->id]), Item::factory()->make(['name' => 'updated'])->toArray())
+            ->assertOk();
 
-        $this->actingAs($this->user)->put(route('items.update', ['item' => $item->id]), Item::factory()->make(['name' => 'dupe'])->toArray())
-            ->assertSessionHasErrors(['name']);
+        $this->actingAs($this->user)->putJson(route('items.update', ['item' => $item->id]), Item::factory()->make(['name' => 'dupe'])->toArray())
+            ->assertUnprocessable();
     }
 
     public function test_non_admin_user_cannot_add_item()
@@ -51,9 +48,7 @@ class ItemTest extends TestCase
             'description' => 'item description'
         ];
 
-        $this->actingAs(User::factory()->create())->post(route('items.store'), $data)
-            ->assertStatus(302)
-            ->assertSessionHas('error', 'unauthorized');
+        $this->actingAs(User::factory()->create())->postJson(route('items.store'), $data)->assertForbidden();
 
         $this->assertDatabaseCount('items', 0);
     }
@@ -88,11 +83,6 @@ class ItemTest extends TestCase
     public function test_item_screen_can_be_rendered()
     {
         $item = Item::factory()->create();
-        $this->get(route('items.show', ['item' => $item->id]))->assertOk()->assertInertia(
-            fn (Assert $page) => $page->component('Item')->has(
-                'item',
-                fn (Assert $page) => $page->where('id', $item->id)->etc()
-            )
-        );
+        $this->getJson(route('items.show', ['item' => $item->id]))->assertOk();
     }
 }

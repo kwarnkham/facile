@@ -7,10 +7,9 @@ use App\Enums\PurchaseStatus;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Batch;
-use App\Models\Feature;
-use App\Models\FeatureOrder;
+use App\Models\Product;
+use App\Models\OrderProduct;
 use App\Models\Purchase;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -39,7 +38,7 @@ class PurchaseController extends Controller
         $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);
         $data = $query->with(['purchasable' => function (MorphTo $morphTo) {
             $morphTo->morphWith([
-                Feature::class => ['item'],
+                Product::class => ['item'],
             ]);
         }])
             ->paginate(request()->per_page ?? 10);
@@ -149,13 +148,13 @@ class PurchaseController extends Controller
     {
         if ($purchase->status == 2) return Redirect::back()->with('message', 'Already canceled');
 
-        if ($purchase->purchasable instanceof Feature) {
+        if ($purchase->purchasable instanceof Product) {
             $batch = Batch::where('purchase_id', $purchase->id)->first();
-            $featureOrderId = DB::table('batch_feature_order')->where('batch_id', $batch->id)->first('feature_order_id');
+            $OrderProductId = DB::table('batch_order_product')->where('batch_id', $batch->id)->first('order_product_id');
             if (
-                !is_null($featureOrderId)
+                !is_null($OrderProductId)
                 && DB::table('orders')
-                ->where('id', FeatureOrder::find($featureOrderId->feature_order_id)->order_id)
+                ->where('id', OrderProduct::find($OrderProductId->order_product_id)->order_id)
                 ->first('status')->status != OrderStatus::CANCELED->value
             )
                 return Redirect::back()->with('message', 'Non canceled order associated with this purchase exists');
@@ -164,9 +163,9 @@ class PurchaseController extends Controller
                 $purchase->status = 2;
                 $purchase->save();
 
-                $feature = $purchase->purchasable;
-                $feature->stock -= $purchase->quantity;
-                $feature->save();
+                $product = $purchase->purchasable;
+                $product->stock -= $purchase->quantity;
+                $product->save();
 
 
                 $batch->stock -= $purchase->quantity;

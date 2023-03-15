@@ -1,16 +1,16 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Product;
 
-use App\Enums\FeatureType;
+use App\Enums\ProductType;
 use App\Enums\OrderStatus;
 use App\Enums\PurchaseStatus;
 use App\Enums\ResponseStatus;
 use App\Models\Batch;
-use App\Models\Feature;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\Picture;
+use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Service;
 use Illuminate\Database\Eloquent\Collection;
@@ -29,27 +29,27 @@ class OrderTest extends TestCase
         $this->item = Item::factory()->create();
     }
 
-    public function makeFeature(array $data)
+    public function makeProduct(array $data)
     {
         $data['item_id'] = $this->item->id;
-        $feature = Feature::create($data);
+        $product = Product::create($data);
 
-        $purchase = $feature->purchases()->create([
-            'quantity' => $feature->stock,
-            'price' => $feature->price * 0.9,
-            'name' => $feature->name
+        $purchase = $product->purchases()->create([
+            'quantity' => $product->stock,
+            'price' => $product->price * 0.9,
+            'name' => $product->name
         ]);
 
-        $feature->batches()->create(['purchase_id' => $purchase->id, 'stock' => $feature->stock]);
+        $product->batches()->create(['purchase_id' => $purchase->id, 'stock' => $product->stock]);
 
-        return $feature;
+        return $product;
     }
 
-    public function featureAmount(array $features)
+    public function productAmount(array $products)
     {
-        return array_reduce($features, function ($carry, $dataFeature) {
-            $feature = Feature::find($dataFeature['id']);
-            return $carry + (($feature->price - ($dataFeature['discount'] ?? 0)) * $dataFeature['quantity']);
+        return array_reduce($products, function ($carry, $dataProduct) {
+            $product = Product::find($dataProduct['id']);
+            return $carry + (($product->price - ($dataProduct['discount'] ?? 0)) * $dataProduct['quantity']);
         }, 0);
     }
 
@@ -61,23 +61,23 @@ class OrderTest extends TestCase
         }, 0);
     }
 
-    public function makeOrder(Collection $features, $discountFactor = 0, $featureDisountFactor = 0, Collection $services = null)
+    public function makeOrder(Collection $products, $discountFactor = 0, $productDiscountFactor = 0, Collection $services = null)
     {
-        $features = $features->map(function ($dataFeature) {
-            return $this->makeFeature($dataFeature->toArray());
+        $products = $products->map(function ($dataProduct) {
+            return $this->makeProduct($dataProduct->toArray());
         });
 
-        $dataFeatures = $features->map(function ($feature) use ($featureDisountFactor) {
-            $dataFeature = [
-                'id' => $feature->id,
-                'quantity' => $feature->stock,
+        $dataProducts = $products->map(function ($product) use ($productDiscountFactor) {
+            $dataProduct = [
+                'id' => $product->id,
+                'quantity' => $product->stock,
             ];
-            if ($featureDisountFactor) $dataFeature['discount'] = floor($feature->price * $featureDisountFactor);
-            return $dataFeature;
+            if ($productDiscountFactor) $dataProduct['discount'] = floor($product->price * $productDiscountFactor);
+            return $dataProduct;
         })->toArray();
 
         $data = [
-            ...['features' => $dataFeatures],
+            ...['products' => $dataProducts],
             ...Order::factory()->make()->toArray()
         ];
 
@@ -92,40 +92,40 @@ class OrderTest extends TestCase
             })->toArray();
         }
 
-        if ($discountFactor) $data['discount'] = floor($this->featureAmount($dataFeatures) * $discountFactor);
-        $this->actingAs($this->user)->post(route('orders.store'), $data);
+        if ($discountFactor) $data['discount'] = floor($this->productAmount($dataProducts) * $discountFactor);
+        $this->actingAs($this->user)->postJson(route('orders.store'), $data);
 
         $this->assertDatabaseCount('orders', 1);
         $this->assertEquals(floor(Order::first()->amount), floor(
-            $this->featureAmount($dataFeatures) + (array_key_exists('services', $data) ? $this->serviceAmount($data['services']) : 0)
+            $this->productAmount($dataProducts) + (array_key_exists('services', $data) ? $this->serviceAmount($data['services']) : 0)
         ));
         return [
-            'amount' => $this->featureAmount($dataFeatures)
+            'amount' => $this->productAmount($dataProducts)
         ];
     }
 
     public function test_create_order()
     {
-        $this->makeOrder(Feature::factory(2)->make());
+        $this->makeOrder(Product::factory(2)->make());
     }
 
     public function test_cancelling_unstocked_order_does_not_refill_stocks()
     {
-        $features = Feature::factory(rand(2, 10))->make([
-            'type' => FeatureType::UNSTOCKED->value
+        $products = Product::factory(rand(2, 10))->make([
+            'type' => ProductType::UNSTOCKED->value
         ]);
-        $madeOrder = $this->makeOrder($features);
+        $madeOrder = $this->makeOrder($products);
         $order = Order::first();
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => floor($madeOrder['amount'] / 2)
         ]);
 
-        $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]));
+        $this->actingAs($this->user)->postJson(route('orders.cancel', ['order' => $order->id]));
 
-        $order->features->each(function ($feature) {
-            $this->assertEquals($feature->fresh()->stock, 0);
+        $order->products->each(function ($product) {
+            $this->assertEquals($product->fresh()->stock, 0);
         });
     }
 
@@ -136,9 +136,9 @@ class OrderTest extends TestCase
             return $service;
         });
 
-        $features = Feature::factory(rand(2, 10))->make();
+        $products = Product::factory(rand(2, 10))->make();
 
-        $this->makeOrder(services: $services, features: $features);
+        $this->makeOrder(services: $services, products: $products);
         $this->assertDatabaseCount('order_service', $services->count());
     }
 
@@ -150,26 +150,26 @@ class OrderTest extends TestCase
             return $service;
         });
 
-        $features = Feature::factory(rand(2, 10))->make();
+        $products = Product::factory(rand(2, 10))->make();
 
-        $this->makeOrder(services: $services, features: $features);
+        $this->makeOrder(services: $services, products: $products);
         $this->assertDatabaseCount('order_service', $services->count());
     }
 
     public function test_cancelling_paid_order()
     {
-        $features = Feature::factory(rand(2, 10))->make();
-        $madeOrder = $this->makeOrder($features);
+        $products = Product::factory(rand(2, 10))->make();
+        $madeOrder = $this->makeOrder($products);
         $order = Order::first();
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $madeOrder['amount']
         ]);
 
         $this->assertDatabaseCount('order_payment', 1);
 
-        $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]));
+        $this->actingAs($this->user)->postJson(route('orders.cancel', ['order' => $order->id]));
 
         $paid = DB::table('order_payment')
             ->join('orders', 'orders.id', '=', 'order_payment.order_id')
@@ -184,66 +184,66 @@ class OrderTest extends TestCase
 
     // public function test_cannot_cancel_a_completed_order_after_24_hours()
     // {
-    //     $madeOrder = $this->makeOrder(Feature::factory(2)->make());
+    //     $madeOrder = $this->makeOrder(Product::factory(2)->make());
     //     $order = Order::first();
-    //     $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+    //     $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
     //         'payment_id' => $this->payment->id,
     //         'amount' => $madeOrder['amount']
     //     ]);
 
     //     $time = (clone $order->updated_at)->addHours(25);
     //     $this->travelTo($time);
-    //     $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]))->assertSessionHas('message', 'Cannot cancel a paid order after 24 hours');
+    //     $this->actingAs($this->user)->postJson(route('orders.cancel', ['order' => $order->id]))->assertSessionHas('message', 'Cannot cancel a paid order after 24 hours');
     //     $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
     // }
 
     public function test_pack_an_order()
     {
-        $madeOrder = $this->makeOrder(Feature::factory(2)->make());
+        $madeOrder = $this->makeOrder(Product::factory(2)->make());
         $order = Order::first();
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => floor($madeOrder['amount'] / 2)
         ]);
         $this->assertEquals($order->fresh()->status, OrderStatus::PARTIALLY_PAID->value);
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $madeOrder['amount'] - floor($madeOrder['amount'] / 2)
         ]);
         $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
 
-        $this->actingAs($this->user)->post(route('orders.pack', ['order' => $order->id]));
+        $this->actingAs($this->user)->postJson(route('orders.pack', ['order' => $order->id]));
         $this->assertEquals($order->fresh()->status, OrderStatus::PACKED->value);
     }
 
     public function test_complete_an_order()
     {
-        $madeOrder = $this->makeOrder(Feature::factory(2)->make());
+        $madeOrder = $this->makeOrder(Product::factory(2)->make());
         $order = Order::first();
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => floor($madeOrder['amount'] / 2)
         ]);
         $this->assertEquals($order->fresh()->status, OrderStatus::PARTIALLY_PAID->value);
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $madeOrder['amount'] - floor($madeOrder['amount'] / 2)
         ]);
         $this->assertEquals($order->fresh()->status, OrderStatus::PAID->value);
 
-        $this->actingAs($this->user)->post(route('orders.complete', ['order' => $order->id]));
+        $this->actingAs($this->user)->postJson(route('orders.complete', ['order' => $order->id]));
         $this->assertEquals($order->fresh()->status, OrderStatus::COMPLETED->value);
     }
 
     public function test_pay_order_with_picture()
     {
-        $madeOrder = $this->makeOrder(Feature::factory(2)->make());
+        $madeOrder = $this->makeOrder(Product::factory(2)->make());
         $order = Order::first();
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => floor($madeOrder['amount'] / 5),
             'picture' => UploadedFile::fake()->image('screenshot.jpg')
@@ -253,16 +253,16 @@ class OrderTest extends TestCase
         $this->assertTrue(Storage::exists(Picture::picturePath($picture, 'order_payments')));
         $this->assertTrue(Picture::deletePictureFromDisk($picture, 'order_payments'));
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => floor($madeOrder['amount'] / 5),
             'picture' => 'picture.jpg'
-        ])->assertSessionHasErrors(['picture']);
+        ])->assertUnprocessable();
     }
 
     public function test_batch_is_reduced_with_order_created()
     {
-        $this->makeOrder(Feature::factory(2)->make());
+        $this->makeOrder(Product::factory(2)->make());
         $this->assertDatabaseCount('batches', 2);
         Batch::all()->each(function ($batch) {
             $this->assertEquals($batch->stock, 0);
@@ -271,14 +271,14 @@ class OrderTest extends TestCase
 
     public function test_batch_is_restocked_with_order_canceled()
     {
-        $this->makeOrder(Feature::factory(2)->make());
+        $this->makeOrder(Product::factory(2)->make());
         $order = Order::first();
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $order->amount,
         ]);
 
-        $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]));
+        $this->actingAs($this->user)->postJson(route('orders.cancel', ['order' => $order->id]));
 
         $this->assertDatabaseCount('batches', 2);
         // Batch::all()->each(function ($batch) {
@@ -290,58 +290,58 @@ class OrderTest extends TestCase
     public function test_stock_is_restocked_when_order_is_canceled()
     {
         $stock = rand(20, 30);
-        $this->makeOrder(Feature::factory(2)->make(['stock' => $stock]));
+        $this->makeOrder(Product::factory(2)->make(['stock' => $stock]));
         $order = Order::first();
-        $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]));
+        $this->actingAs($this->user)->postJson(route('orders.cancel', ['order' => $order->id]));
         $this->assertEquals(OrderStatus::CANCELED->value, $order->fresh()->status);
 
-        Feature::all()->each(fn ($feature) => $this->assertEquals($feature->stock, $stock));
+        Product::all()->each(fn ($product) => $this->assertEquals($product->stock, $stock));
     }
 
     public function test_create_an_order_with_order_discount_only()
     {
-        $dateFeatures = Feature::factory(2)->make();
-        $this->makeOrder($dateFeatures, 0.5);
+        $dataProducts = Product::factory(2)->make();
+        $this->makeOrder($dataProducts, 0.5);
         $order = Order::first();
         $this->assertEquals(floor(Order::first()->amount * 0.5), $order->discount);
     }
 
-    public function test_out_of_stock_feature_cannot_be_created_for_order()
+    public function test_out_of_stock_product_cannot_be_created_for_order()
     {
-        $this->makeOrder(Feature::factory(2)->make());
-        $features = Feature::all();
-        $this->actingAs($this->user)->post(route('orders.store'), [
+        $this->makeOrder(Product::factory(2)->make());
+        $products = Product::all();
+        $this->actingAs($this->user)->postJson(route('orders.store'), [
             ...[
-                'features' => $features->map(fn ($feature) => ['id' => $feature->id, 'quantity' => 1])->toArray(),
+                'products' => $products->map(fn ($product) => ['id' => $product->id, 'quantity' => 1])->toArray(),
             ],
             ...Order::factory()->make()->toArray()
         ]);
 
         $this->assertDatabaseCount('orders', 1);
-        $features->each(fn ($feature) => $this->assertEquals($feature->stock, 0));
+        $products->each(fn ($product) => $this->assertEquals($product->stock, 0));
     }
 
     public function test_stock_is_reduced_properly()
     {
-        $this->makeOrder(Feature::factory(2)->make());
-        Feature::all()->each(fn ($feature) => $this->assertEquals($feature->stock, 0));
+        $this->makeOrder(Product::factory(2)->make());
+        Product::all()->each(fn ($product) => $this->assertEquals($product->stock, 0));
     }
 
     public function test_create_an_order_with_full_order_discount()
     {
-        $dataFeature = Feature::factory(2)->make();
-        $this->makeOrder($dataFeature, 1);
+        $dataProduct = Product::factory(2)->make();
+        $this->makeOrder($dataProduct, 1);
         $order = Order::first();
         $this->assertEquals($order->status, OrderStatus::PAID->value);
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => 0
-        ])->assertStatus(ResponseStatus::REDIRECTED_BACK->value)->assertSessionHas('message', 'Order cannot be paid anymore');
+        ])->assertStatus(ResponseStatus::BAD_REQUEST->value);
     }
 
     public function test_update_customer_info_of_order()
     {
-        $this->makeOrder(Feature::factory(2)->make());
+        $this->makeOrder(Product::factory(2)->make());
         $data = [
             'customer' => 'updated',
             'phone' => 'updated',
@@ -353,56 +353,56 @@ class OrderTest extends TestCase
         $this->assertDatabaseHas('orders', $data);
     }
 
-    public function test_create_an_order_with_order_discount_and_feature_discount()
+    public function test_create_an_order_with_order_discount_and_product_discount()
     {
-        $dataFeature = Feature::factory(2)->make();
-        $this->makeOrder($dataFeature, 0.5, 0.3);
+        $dataProduct = Product::factory(2)->make();
+        $this->makeOrder($dataProduct, 0.5, 0.3);
         $order = Order::first();
         $this->assertEquals(floor($order->amount * 0.5), floor($order->discount));
         $this->assertEquals(
             $order->amount,
-            (int)$order->features->reduce(
-                fn ($carry, $feature) => ($feature->price - floor($feature->price * 0.3)) * $feature->pivot->quantity + $carry,
+            (int)$order->products->reduce(
+                fn ($carry, $product) => ($product->price - floor($product->price * 0.3)) * $product->pivot->quantity + $carry,
                 0
             )
         );
     }
 
-    public function test_features_in_order_must_be_distinct()
+    public function test_products_in_order_must_be_distinct()
     {
         $item = Item::factory()->create();
         $stock = rand(2, 14);
-        $features = Feature::factory(rand(1, 10))->create(['item_id' => $item->id, 'stock' => $stock])->map(
-            fn ($feature) =>
-            ['id' => $feature->id, 'quantity' => $stock]
+        $products = Product::factory(rand(1, 10))->create(['item_id' => $item->id, 'stock' => $stock])->map(
+            fn ($product) =>
+            ['id' => $product->id, 'quantity' => $stock]
         )->toArray();
-        $features_b = $features;
-        $this->actingAs($this->user)->post(route('orders.store'), [
-            ...['features' => [...$features, ...$features_b]],
+        $products_b = $products;
+        $this->actingAs($this->user)->postJson(route('orders.store'), [
+            ...['products' => [...$products, ...$products_b]],
             ...Order::factory()->make()->toArray()
-        ])->assertSessionHasErrors(['features.0.id']);
+        ])->assertUnprocessable();
     }
 
     public function test_pay_order_using_payment()
     {
-        $madeOrder = $this->makeOrder(Feature::factory(2)->make());
+        $madeOrder = $this->makeOrder(Product::factory(2)->make());
         $order = Order::first();
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => floor($madeOrder['amount'] / 2)
         ]);
         $this->assertDatabaseCount('order_payment', 1);
         $this->assertEquals($order->fresh()->status,  2);
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => floor($madeOrder['amount'] / 4)
         ]);
         $this->assertDatabaseCount('order_payment', 2);
         $this->assertEquals($order->fresh()->status,  2);
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $madeOrder['amount'] - (float)$order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
         ]);
@@ -412,11 +412,11 @@ class OrderTest extends TestCase
 
     public function test_pay_order_fully()
     {
-        $this->makeOrder(Feature::factory(2)->make());
+        $this->makeOrder(Product::factory(2)->make());
 
         $order = Order::first();
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $order->amount
         ]);
@@ -426,27 +426,27 @@ class OrderTest extends TestCase
 
     public function test_cannot_pay_more_than_order_amount()
     {
-        $this->makeOrder(Feature::factory(2)->make());
+        $this->makeOrder(Product::factory(2)->make());
         $order = Order::first();
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => floor($order->amount / 2)
         ]);
         $this->assertEquals($order->fresh()->status, 2);
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => floor($order->amount / 4)
         ]);
         $this->assertEquals($order->fresh()->status, 2);
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $order->amount * 2
-        ])->assertSessionHasErrors(['amount']);
+        ])->assertUnprocessable();
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $order->amount - (float)$order->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry)
         ]);
@@ -457,11 +457,11 @@ class OrderTest extends TestCase
 
     public function test_pay_order_with_discount()
     {
-        $this->makeOrder(Feature::factory(2)->make(), 0.5);
+        $this->makeOrder(Product::factory(2)->make(), 0.5);
         $order = Order::first();
         $this->assertEquals(floor($order->amount * 0.5), $order->discount);
 
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $order->amount - $order->discount
         ]);
@@ -472,88 +472,88 @@ class OrderTest extends TestCase
 
     public function test_batch_stock_is_reduced_from_expired_on_order()
     {
-        $dataFeature = Feature::factory()->make([
+        $dataProduct = Product::factory()->make([
             'item_id' => Item::factory()->create()->id
         ])->toArray();
-        $this->actingAs($this->user)->post(route('features.store'), [
-            ...$dataFeature,
-            ...['purchase_price' => floor($dataFeature['price'] * 0.9), 'expired_on' => now()->addDays(10)]
+        $this->actingAs($this->user)->postJson(route('products.store'), [
+            ...$dataProduct,
+            ...['purchase_price' => floor($dataProduct['price'] * 0.9), 'expired_on' => now()->addDays(10)->format('Y-m-d')]
         ]);
 
-        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseCount('products', 1);
         $this->assertDatabaseCount('batches', 1);
         $this->assertDatabaseCount('purchases', 1);
 
-        $feature = Feature::first();
-        $this->actingAs($this->user)->post(route('features.restock', ['feature' => $feature->id]), [
-            'price' => $feature->price,
+        $product = Product::first();
+        $this->actingAs($this->user)->postJson(route('products.restock', ['product' => $product->id]), [
+            'price' => $product->price,
             'quantity' => 50,
-            'expired_on' => now()->addDays(5)
+            'expired_on' => now()->addDays(5)->format('Y-m-d')
         ]);
 
-        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseCount('products', 1);
         $this->assertDatabaseCount('batches', 2);
         $this->assertDatabaseCount('purchases', 2);
 
-        $this->actingAs($this->user)->post(route('features.restock', ['feature' => $feature->id]), [
-            'price' => $feature->price,
+        $this->actingAs($this->user)->postJson(route('products.restock', ['product' => $product->id]), [
+            'price' => $product->price,
             'quantity' => 20,
-            'expired_on' => now()->addDays(20)
+            'expired_on' => now()->addDays(20)->format('Y-m-d')
         ]);
 
-        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseCount('products', 1);
         $this->assertDatabaseCount('batches', 3);
         $this->assertDatabaseCount('purchases', 3);
 
-        $dataFeatures = Feature::all()->map(function ($feature) {
+        $dataProducts = Product::all()->map(function ($product) {
             return [
-                'id' => $feature->id,
+                'id' => $product->id,
                 'quantity' => 50
             ];
         })->toArray();
 
-        $this->actingAs($this->user)->post(route('orders.store'), [
+        $this->actingAs($this->user)->postJson(route('orders.store'), [
             ...Order::factory()->make()->toArray(),
-            ...['features' => $dataFeatures]
+            ...['products' => $dataProducts]
         ]);
         $this->assertDatabaseCount('orders', 1);
 
         $this->assertEquals(Purchase::where('quantity', 50)->first()->id, Batch::where('stock', 0)->first()->purchase_id);
 
-        $this->actingAs($this->user)->post(route('features.restock', ['feature' => $feature->id]), [
-            'price' => $feature->price,
+        $this->actingAs($this->user)->postJson(route('products.restock', ['product' => $product->id]), [
+            'price' => $product->price,
             'quantity' => 10,
-            'expired_on' => now()->addDays(4)
+            'expired_on' => now()->addDays(4)->format('Y-m-d')
         ]);
 
-        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseCount('products', 1);
         $this->assertDatabaseCount('batches', 4);
         $this->assertDatabaseCount('purchases', 4);
         $order = Order::first();
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $order->amount
         ]);
         $this->assertDatabaseCount('order_payment', 1);
 
-        $this->actingAs($this->user)->post(route('orders.cancel', ['order' => $order->id]));
+        $this->actingAs($this->user)->postJson(route('orders.cancel', ['order' => $order->id]));
 
         $this->assertEquals(Purchase::where('quantity', 50)->first()->id, Batch::where('stock', 50)->first()->purchase_id);
     }
 
-    public function test_pay_order_that_has_discount_features()
+    public function test_pay_order_that_has_discount_products()
     {
-        $madeOrder = $this->makeOrder(Feature::factory(2)->make(), featureDisountFactor: 0.2);
+        $madeOrder = $this->makeOrder(Product::factory(2)->make(), productDiscountFactor: 0.2);
         $order = Order::first();
         if ($order->status != 3) {
-            $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+            $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
                 'payment_id' => $this->payment->id,
                 'amount' => floor($madeOrder['amount']  / 2)
             ]);
 
             $this->assertEquals($order->fresh()->status, 2);
 
-            $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+            $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
                 'payment_id' => $this->payment->id,
                 'amount' => $madeOrder['amount'] - floor($madeOrder['amount'] / 2)
             ]);
@@ -568,42 +568,42 @@ class OrderTest extends TestCase
         $item = Item::factory()->create();
         $stock = rand(1, 10);
         $discount = 0.5;
-        $features = Feature::factory(rand(1, 10))->create(['item_id' => $item->id, 'price' => rand(1, 100) * 10, 'stock' => $stock])->map(
-            fn ($feature) =>
+        $products = Product::factory(rand(1, 10))->create(['item_id' => $item->id, 'price' => rand(1, 100) * 10, 'stock' => $stock])->map(
+            fn ($product) =>
             [
-                'id' => $feature->id,
+                'id' => $product->id,
                 'quantity' => $stock,
-                'discount' => $feature->price * $discount
+                'discount' => $product->price * $discount
             ]
         )->toArray();
 
-        foreach ($features as $v) {
-            $feature = Feature::find($v['id']);
-            $purchase = $feature->purchases()->create([
-                'price' => $feature->price * 0.9,
-                'quantity' => $feature->stock,
-                'name' => $feature->name
+        foreach ($products as $v) {
+            $product = Product::find($v['id']);
+            $purchase = $product->purchases()->create([
+                'price' => $product->price * 0.9,
+                'quantity' => $product->stock,
+                'name' => $product->name
             ]);
-            $feature->batches()->create([
+            $product->batches()->create([
                 'purchase_id' => $purchase->id,
-                'stock' => $feature->stock,
+                'stock' => $product->stock,
             ]);
         }
 
-        $halfDiscount = (float)(Feature::all()->reduce(
-            fn ($carry, $v) => $v->price * $discount * collect($features)->first(fn ($f) => $f['id'] == $v->id)['quantity'] + $carry,
+        $halfDiscount = (float)(Product::all()->reduce(
+            fn ($carry, $v) => $v->price * $discount * collect($products)->first(fn ($f) => $f['id'] == $v->id)['quantity'] + $carry,
             0
         ));
 
-        $this->actingAs($this->user)->post(route('orders.store'), [
-            ...['features' => $features, 'discount' => $halfDiscount + 1],
+        $this->actingAs($this->user)->postJson(route('orders.store'), [
+            ...['products' => $products, 'discount' => $halfDiscount + 1],
             ...Order::factory()->make()->toArray()
         ]);
 
         $this->assertDatabaseCount('orders', 0);
 
-        $this->actingAs($this->user)->post(route('orders.store'), [
-            ...['features' => $features, 'discount' => $halfDiscount],
+        $this->actingAs($this->user)->postJson(route('orders.store'), [
+            ...['products' => $products, 'discount' => $halfDiscount],
             ...Order::factory()->make()->toArray()
         ]);
 
@@ -613,10 +613,10 @@ class OrderTest extends TestCase
 
     public function test_pay_order_with_note()
     {
-        $madeOrder = $this->makeOrder(Feature::factory(2)->make());
+        $madeOrder = $this->makeOrder(Product::factory(2)->make());
         $order = Order::first();
         $note = 'payment note';
-        $this->actingAs($this->user)->post(route('orders.pay', ['order' => $order->id]), [
+        $this->actingAs($this->user)->postJson(route('orders.pay', ['order' => $order->id]), [
             'payment_id' => $this->payment->id,
             'amount' => $madeOrder['amount'],
             'note' => $note
@@ -628,42 +628,42 @@ class OrderTest extends TestCase
 
     public function test_purchase_can_be_canceled_only_if_no_non_canceled_order_associted()
     {
-        $dataFeature = Feature::factory()->make(['item_id' => $this->item->id]);
-        $this->actingAs($this->user)->post(route('features.store'), [
-            ...$dataFeature->toArray(),
-            'purchase_price' => floor($dataFeature->price * 0.5),
-            'expired_on' => now()->addDays(10)
+        $dataProduct = Product::factory()->make(['item_id' => $this->item->id]);
+        $this->actingAs($this->user)->postJson(route('products.store'), [
+            ...$dataProduct->toArray(),
+            'purchase_price' => floor($dataProduct->price * 0.5),
+            'expired_on' => now()->addDays(10)->format('Y-m-d')
         ]);
 
-        $this->assertDatabaseCount('features', 1);
+        $this->assertDatabaseCount('products', 1);
 
-        $this->actingAs($this->user)->post(route('orders.store'), [
+        $this->actingAs($this->user)->postJson(route('orders.store'), [
             ...Order::factory()->make()->toArray(),
-            'features' => Feature::all()->map(fn ($feature) => [
-                'id' => $feature->id,
-                'quantity' => $feature->stock
+            'products' => Product::all()->map(fn ($product) => [
+                'id' => $product->id,
+                'quantity' => $product->stock
             ])->toArray()
         ]);
         $this->assertDatabaseCount('orders', 1);
 
         $purchase = Purchase::first();
-        $this->actingAs($this->user)->post(route('purchases.cancel', [
+        $this->actingAs($this->user)->postJson(route('purchases.cancel', [
             'purchase' => $purchase->id
         ]));
 
         $this->assertEquals($purchase->fresh()->status, PurchaseStatus::NORMAL->value);
         $order = Order::first();
-        $this->actingAs($this->user)->post(route('orders.cancel', [
+        $this->actingAs($this->user)->postJson(route('orders.cancel', [
             'order' => $order->id
         ]));
         $this->assertEquals($order->fresh()->status, OrderStatus::CANCELED->value);
 
-        $this->actingAs($this->user)->post(route('purchases.cancel', [
+        $this->actingAs($this->user)->postJson(route('purchases.cancel', [
             'purchase' => $purchase->id
         ]));
 
         $this->assertEquals($purchase->fresh()->status, PurchaseStatus::CANCELED->value);
-        $this->assertEquals(Feature::first()->stock, 0);
+        $this->assertEquals(Product::first()->stock, 0);
         $this->assertEquals(Batch::first()->stock, 0);
     }
 }

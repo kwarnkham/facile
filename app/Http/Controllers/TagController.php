@@ -47,7 +47,7 @@ class TagController extends Controller
             }
         ))
             $item->tags()->attach(Tag::firstOrCreate(['name' => strtolower($attributes['name'])])->id);
-        return Redirect::route('items.edit', ['item' => $item->id]);
+        return response()->json(['item' => $item]);
     }
 
     /**
@@ -62,7 +62,7 @@ class TagController extends Controller
             'item_id' => ['required', 'exists:items,id']
         ]);
         $tag->items()->toggle($attributes['item_id']);
-        return Redirect::route('items.edit', ['item' => $attributes['item_id']]);
+        return response()->json();
     }
 
     /**

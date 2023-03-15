@@ -28,23 +28,23 @@ class BatchController extends Controller
             'stock' => ['required', 'numeric'],
             'type' => ['required', 'in:1,2']
         ]);
-        $feature = DB::transaction(function () use ($batch, $attributes) {
+        $product = DB::transaction(function () use ($batch, $attributes) {
             $batch->corrections()->create($attributes);
-            $feature = $batch->feature;
+            $product = $batch->product;
             if ($attributes['type'] == 1) {
                 if ($attributes['stock'] > $batch->stock) abort(ResponseStatus::BAD_REQUEST->value, 'No enough stock to reduce');
                 $batch->stock -= $attributes['stock'];
-                $feature->stock -= $attributes['stock'];
+                $product->stock -= $attributes['stock'];
             } else if ($attributes['type'] == 2) {
                 $batch->stock += $attributes['stock'];
-                $feature->stock += $attributes['stock'];
+                $product->stock += $attributes['stock'];
             }
             $batch->save();
-            $feature->save();
-            return $feature;
+            $product->save();
+            return $product;
         });
-        $feature->load(['item', 'pictures', 'batches', 'latestPurchase']);
-        if (request()->wantsJson()) return response()->json(['feature' => $feature]);
+        $product->load(['item', 'pictures', 'batches', 'latestPurchase']);
+        if (request()->wantsJson()) return response()->json(['product' => $product]);
 
         return Redirect::back()->with('message', 'Success');
     }
@@ -78,7 +78,7 @@ class BatchController extends Controller
      */
     public function show(Batch $batch)
     {
-        return Inertia::render('Batch', ['batch' => $batch->load(['feature'])]);
+        return Inertia::render('Batch', ['batch' => $batch->load(['product'])]);
     }
 
     /**

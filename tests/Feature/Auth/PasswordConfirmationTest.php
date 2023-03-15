@@ -1,14 +1,12 @@
 <?php
 
-namespace Tests\Feature\Auth;
+namespace Tests\Product\Auth;
 
 use App\Models\User;
 use Tests\TestCase;
 
 class PasswordConfirmationTest extends TestCase
 {
-
-
     public function test_confirm_password_screen_can_be_rendered()
     {
         $user = User::factory()->create();

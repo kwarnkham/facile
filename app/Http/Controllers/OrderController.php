@@ -7,7 +7,7 @@ use App\Enums\PaymentStatus;
 use App\Enums\ResponseStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
-use App\Models\Feature;
+use App\Models\Product;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\Payment;
@@ -36,7 +36,7 @@ class OrderController extends Controller
         $query =  Order::query()->filter($filters);
         $allOrders = $query->get();
         $total = $allOrders->reduce(fn ($carry, $val) => $carry + $val->amount - $val->discount, 0);
-        $profit = $total  - DB::table('feature_order')->whereIn('order_id', $allOrders->pluck('id'))->sum('purchase_price');
+        $profit = $total  - DB::table('order_product')->whereIn('order_id', $allOrders->pluck('id'))->sum('purchase_price');
 
         $orders = $query
             ->with(['payments'])
@@ -149,7 +149,7 @@ class OrderController extends Controller
         }
         DB::commit();
         if (request()->wantsJson()) {
-            $order->load(['features', 'payments', 'items', 'services']);
+            $order->load(['products', 'payments', 'items', 'services']);
             Payment::generatePaymentScreenshotUrl($order);
             return response()->json(['order' => $order]);
         }
@@ -160,7 +160,7 @@ class OrderController extends Controller
     {
         if (!$order->cancel()) return response()->json(['message', 'Order cannot be canceled']);
         if (request()->wantsJson()) return response()->json(['order' => $order->load([
-            'services', 'features', 'payments'
+            'services', 'products', 'payments', 'items'
         ])]);
         return Redirect::back()->with('message', 'Success');
     }
@@ -178,7 +178,7 @@ class OrderController extends Controller
             });
         } else abort(ResponseStatus::BAD_REQUEST->value, 'Order has not been fully paid');
         if (request()->wantsJson()) return response()->json(['order' => $order
-            ->load(['features', 'payments', 'items', 'services'])]);
+            ->load(['products', 'payments', 'items', 'services'])]);
         return Redirect::back()->with('message', 'Success');
     }
 
@@ -194,7 +194,7 @@ class OrderController extends Controller
             });
         } else abort(ResponseStatus::BAD_REQUEST->value, 'Order has not been fully paid');
         if (request()->wantsJson()) return response()->json(['order' => $order
-            ->load(['features', 'payments', 'items', 'services'])]);
+            ->load(['products', 'payments', 'items', 'services'])]);
         return Redirect::back()->with('message', 'Success');
     }
 
@@ -207,7 +207,7 @@ class OrderController extends Controller
     {
         $search = request()->get('search');
         $serviceSearch = request()->get('serviceSearch');
-        $query = Item::with(['latestFeature'])->take(5);
+        $query = Item::with(['latestProduct'])->take(5);
         $items = $search ? $query->filter(['search' => $search])->get() : $query->get();
 
         $query = Service::take(5);
@@ -294,14 +294,14 @@ class OrderController extends Controller
     {
         $attributes = $request->validated();
         $amount = 0;
-        if (array_key_exists('features', $attributes)) {
-            $outOfStock = Feature::outOfStock($attributes['features']);
+        if (array_key_exists('products', $attributes)) {
+            $outOfStock = Product::outOfStock($attributes['products']);
             if ($outOfStock) return Redirect::back()->with('message', $outOfStock);
 
-            $attributes['features'] = Feature::mapForOrder($attributes['features']);
+            $attributes['products'] = Product::mapForOrder($attributes['products']);
 
-            $amount += floor((float) collect($attributes['features'])->reduce(
-                fn ($carry, $feature) => $carry + ($feature['price'] - ($feature['discount'] ?? 0)) * $feature['quantity']
+            $amount += floor((float) collect($attributes['products'])->reduce(
+                fn ($carry, $product) => $carry + ($product['price'] - ($product['discount'] ?? 0)) * $product['quantity']
             ));
         }
 
@@ -325,18 +325,18 @@ class OrderController extends Controller
                 collect([
                     'amount' => $amount,
                     ...$attributes
-                ])->except(['features', 'services'])->toArray()
+                ])->except(['products', 'services'])->toArray()
             );
             if ($remaining == 0) $order->update(['status' => 3]);
 
-            if (array_key_exists('features', $attributes)) {
-                $order->features()->attach(
-                    collect($attributes['features'])->mapWithKeys(fn ($feature) => [$feature['id'] => [
-                        'quantity' => $feature['quantity'],
-                        'price' => $feature['price'],
-                        'discount' => $feature['discount'] ?? 0,
-                        'name' => $feature['name'],
-                        'purchase_price' => $feature['purchase_price']
+            if (array_key_exists('products', $attributes)) {
+                $order->products()->attach(
+                    collect($attributes['products'])->mapWithKeys(fn ($product) => [$product['id'] => [
+                        'quantity' => $product['quantity'],
+                        'price' => $product['price'],
+                        'discount' => $product['discount'] ?? 0,
+                        'name' => $product['name'],
+                        'purchase_price' => $product['purchase_price']
                     ]])->toArray()
                 );
             }
@@ -356,17 +356,17 @@ class OrderController extends Controller
                 );
             }
 
-            if (array_key_exists('features', $attributes)) {
-                $order->features->each(function ($feature) {
-                    $feature->stock -= $feature->pivot->quantity;
-                    $feature->save();
-                    $quantity = $feature->pivot->quantity;
-                    $feature->batches()
+            if (array_key_exists('products', $attributes)) {
+                $order->products->each(function ($product) {
+                    $product->stock -= $product->pivot->quantity;
+                    $product->save();
+                    $quantity = $product->pivot->quantity;
+                    $product->batches()
                         ->where('stock', '>', 0)
                         ->get()
-                        ->each(function ($batch) use (&$quantity, $feature) {
+                        ->each(function ($batch) use (&$quantity, $product) {
                             if ($quantity > 0) {
-                                $feature->pivot->batches()->attach(
+                                $product->pivot->batches()->attach(
                                     $batch->id,
                                     [
                                         'quantity' => $batch->stock < $quantity ? $batch->stock : $quantity
@@ -401,7 +401,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['features', 'payments', 'items', 'services']);
+        $order->load(['products', 'payments', 'items', 'services']);
         Payment::generatePaymentScreenshotUrl($order);
         if (request()->wantsJson()) return response()->json([
             'order' => $order

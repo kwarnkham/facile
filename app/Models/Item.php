@@ -22,14 +22,14 @@ class Item extends Model
         return $this->hasMany(Wholesale::class)->orderBy('quantity');
     }
 
-    public function features()
+    public function products()
     {
-        return $this->hasMany(Feature::class);
+        return $this->hasMany(Product::class);
     }
 
-    public function latestFeature()
+    public function latestProduct()
     {
-        return $this->hasOne(Feature::class)->latestOfMany();
+        return $this->hasOne(Product::class)->latestOfMany();
     }
 
     public function orders()

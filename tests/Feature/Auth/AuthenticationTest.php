@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Auth;
+namespace Tests\Product\Auth;
 
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
@@ -46,7 +46,7 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post(route('changePassword'), [
+        $response = $this->actingAs($user)->postJson(route('changePassword'), [
             'password' => 'password',
             'new_password' => 'new_password',
             'new_password_confirmation' => 'new_password',

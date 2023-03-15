@@ -9,9 +9,9 @@ class Batch extends Model
 {
     use HasFactory;
 
-    public function feature()
+    public function product()
     {
-        return $this->belongsTo(Feature::class);
+        return $this->belongsTo(Product::class);
     }
 
     public function corrections()

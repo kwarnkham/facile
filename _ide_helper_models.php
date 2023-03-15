@@ -15,7 +15,7 @@ namespace App\Models{
  * App\Models\Batch
  *
  * @property int $id
- * @property int $feature_id
+ * @property int $product_id
  * @property int $purchase_id
  * @property int $stock
  * @property string|null $expired_on
@@ -23,7 +23,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Correction[] $corrections
  * @property-read int|null $corrections_count
- * @property-read \App\Models\Feature $feature
+ * @property-read \App\Models\Product $product
  * @property-read \App\Models\Purchase $purchase
  * @method static \Database\Factories\BatchFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Batch newModelQuery()
@@ -31,8 +31,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Batch query()
  * @method static \Illuminate\Database\Eloquent\Builder|Batch whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Batch whereExpiredOn($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Batch whereFeatureId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Batch whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Batch whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Batch wherePurchaseId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Batch whereStock($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Batch whereUpdatedAt($value)
@@ -89,81 +89,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * App\Models\Feature
- *
- * @property int $id
- * @property string $name
- * @property int $stock
- * @property float $price
- * @property string|null $note
- * @property int $item_id
- * @property int $type
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Batch[] $batches
- * @property-read int|null $batches_count
- * @property-read \App\Models\Item $item
- * @property-read \App\Models\Batch|null $latestBatch
- * @property-read \App\Models\Purchase|null $latestPurchase
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
- * @property-read int|null $orders_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
- * @property-read int|null $pictures_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Purchase[] $purchases
- * @property-read int|null $purchases_count
- * @method static \Database\Factories\FeatureFactory factory(...$parameters)
- * @method static \Illuminate\Database\Eloquent\Builder|Feature filter($filters)
- * @method static \Illuminate\Database\Eloquent\Builder|Feature newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Feature newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Feature query()
- * @method static \Illuminate\Database\Eloquent\Builder|Feature whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Feature whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Feature whereItemId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Feature whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Feature whereNote($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Feature wherePrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Feature whereStock($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Feature whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Feature whereUpdatedAt($value)
- */
-	class Feature extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
- * App\Models\FeatureOrder
- *
- * @property int $id
- * @property int $feature_id
- * @property int $order_id
- * @property int $quantity
- * @property float $price
- * @property float $discount
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string $name
- * @property float $purchase_price
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Batch[] $batches
- * @property-read int|null $batches_count
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder query()
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereFeatureId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereOrderId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder wherePrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder wherePurchasePrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereQuantity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FeatureOrder whereUpdatedAt($value)
- */
-	class FeatureOrder extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
  * App\Models\Item
  *
  * @property int $id
@@ -172,13 +97,13 @@ namespace App\Models{
  * @property int $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
- * @property-read int|null $features_count
- * @property-read \App\Models\Feature|null $latestFeature
+ * @property-read \App\Models\Product|null $latestProduct
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
  * @property-read int|null $orders_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
  * @property-read int|null $pictures_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Product[] $products
+ * @property-read int|null $products_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tag[] $tags
  * @property-read int|null $tags_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Wholesale[] $wholesales
@@ -214,12 +139,12 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int $user_id
  * @property int $updated_by
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feature[] $features
- * @property-read int|null $features_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Item[] $items
  * @property-read int|null $items_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Payment[] $payments
  * @property-read int|null $payments_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Product[] $products
+ * @property-read int|null $products_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Purchase[] $purchases
  * @property-read int|null $purchases_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Service[] $services
@@ -243,6 +168,39 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereUserId($value)
  */
 	class Order extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\OrderProduct
+ *
+ * @property int $id
+ * @property int $product_id
+ * @property int $order_id
+ * @property int $quantity
+ * @property float $price
+ * @property float $discount
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $name
+ * @property float $purchase_price
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Batch[] $batches
+ * @property-read int|null $batches_count
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct query()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct whereDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct wherePurchasePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct whereUpdatedAt($value)
+ */
+	class OrderProduct extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -321,6 +279,48 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Picture whereUpdatedAt($value)
  */
 	class Picture extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\Product
+ *
+ * @property int $id
+ * @property string $name
+ * @property int $stock
+ * @property float $price
+ * @property string|null $note
+ * @property int $item_id
+ * @property int $type
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Batch[] $batches
+ * @property-read int|null $batches_count
+ * @property-read \App\Models\Item $item
+ * @property-read \App\Models\Batch|null $latestBatch
+ * @property-read \App\Models\Purchase|null $latestPurchase
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Order[] $orders
+ * @property-read int|null $orders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Picture[] $pictures
+ * @property-read int|null $pictures_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Purchase[] $purchases
+ * @property-read int|null $purchases_count
+ * @method static \Database\Factories\ProductFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product filter($filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereStock($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereUpdatedAt($value)
+ */
+	class Product extends \Eloquent {}
 }
 
 namespace App\Models{

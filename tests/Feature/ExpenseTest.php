@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Product;
 
 use App\Models\Expense;
 use App\Models\Picture;
@@ -13,7 +13,7 @@ class ExpenseTest extends TestCase
     {
         $dataExpense = Expense::factory()->make();
 
-        $this->actingAs($this->user)->post(
+        $this->actingAs($this->user)->postJson(
             route('expenses.store'),
             $dataExpense->toArray()
         );
@@ -22,7 +22,7 @@ class ExpenseTest extends TestCase
 
     public function test_record_expense()
     {
-        $this->actingAs($this->user)->post(
+        $this->actingAs($this->user)->postJson(
             route(
                 'expenses.record',
                 ['expense' => Expense::factory()->create()->id]
@@ -36,7 +36,7 @@ class ExpenseTest extends TestCase
     public function test_record_expense_with_picture()
     {
         $image = UploadedFile::fake()->image('foo.jpg');
-        $this->actingAs($this->user)->post(
+        $this->actingAs($this->user)->postJson(
             route(
                 'expenses.record',
                 ['expense' => Expense::factory()->create()->id]
@@ -52,7 +52,7 @@ class ExpenseTest extends TestCase
     {
         $dataExpense = Expense::factory()->make();
 
-        $this->actingAs($this->user)->post(
+        $this->actingAs($this->user)->postJson(
             route('expenses.store'),
             $dataExpense->toArray()
         );

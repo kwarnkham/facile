@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Models\Feature;
+use App\Models\Product;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\User;
@@ -10,26 +10,26 @@ use Tests\TestCase;
 
 class OrderTest extends TestCase
 {
-    public function test_get_feature_discounts()
+    public function test_get_product_discounts()
     {
-        $features = Feature::factory()->for(Item::factory())->create();
-        $feature = Feature::first();
-        $purchase = $feature->purchases()->create([
-            'price' => $feature->price * 0.9,
-            'quantity' => $feature->stock,
-            'name' => $feature->name
+        $products = Product::factory()->for(Item::factory())->create();
+        $product = Product::first();
+        $purchase = $product->purchases()->create([
+            'price' => $product->price * 0.9,
+            'quantity' => $product->stock,
+            'name' => $product->name
         ]);
-        $feature->batches()->create([
+        $product->batches()->create([
             'purchase_id' => $purchase->id,
-            'stock' => $feature->stock,
+            'stock' => $product->stock,
         ]);
         $order = Order::factory()->create([
             'user_id' => User::first()->id,
             'updated_by' => User::first()->id,
-            'amount' => Feature::all()->reduce(fn ($carry, $v) => $carry + $v->price, 0),
+            'amount' => Product::all()->reduce(fn ($carry, $v) => $carry + $v->price, 0),
         ]);
 
-        $features->each(fn ($f) => $order->features()->attach($f->id, [
+        $products->each(fn ($f) => $order->products()->attach($f->id, [
             'price' => $f->price,
             'quantity' => rand(1, 10),
             'discount' => floor($f->price * 0.1),
@@ -38,8 +38,8 @@ class OrderTest extends TestCase
         ]));
 
         $this->assertEquals(
-            $order->getFeatureDiscounts(),
-            $order->features->reduce(fn ($carry, $val) => $carry + ($val->pivot->discount * $val->pivot->quantity), 0)
+            $order->getProductDiscounts(),
+            $order->products->reduce(fn ($carry, $val) => $carry + ($val->pivot->discount * $val->pivot->quantity), 0)
         );
     }
 
@@ -59,7 +59,7 @@ class OrderTest extends TestCase
             'note' => 'note',
             'items' => $items->toArray()
         ];
-        $this->actingAs($this->user)->post(route('orders.preOrder'), $data);
+        $this->actingAs($this->user)->postJson(route('orders.preOrder'), $data);
 
         $this->assertDatabaseCount('orders', 1);
         $this->assertDatabaseHas('orders', collect([...$data, 'amount' => $amount])->except(['items'])->toArray());

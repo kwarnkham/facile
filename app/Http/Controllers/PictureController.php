@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePictureRequest;
 use App\Http\Requests\UpdatePictureRequest;
-use App\Models\Feature;
 use App\Models\Picture;
+use App\Models\Product;
 use Illuminate\Support\Facades\Redirect;
 
 class PictureController extends Controller
@@ -49,7 +49,7 @@ class PictureController extends Controller
         }
         if ($request->wantsJson())
             return response()->json([
-                'feature' => Feature::find($attributes['type_id'])
+                'product' => Product::find($attributes['type_id'])
                     ->load([
                         'item',
                         'pictures',

@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Product;
 
 use App\Enums\ResponseStatus;
-use App\Models\Feature;
+use App\Models\Product;
 use App\Models\Item;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
@@ -15,7 +15,7 @@ class PictureTest extends TestCase
     public function test_store_pictures_item()
     {
         $item = Item::factory()->create();
-        $this->actingAs($this->user)->post(route('pictures.store'), [
+        $this->actingAs($this->user)->postJson(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
             'type' => 'item',
             'type_id' => $item->id
@@ -31,20 +31,20 @@ class PictureTest extends TestCase
         }));
     }
 
-    public function test_store_pictures_feature()
+    public function test_store_pictures_product()
     {
-        $feature = Feature::factory()->for(Item::factory())->create();
-        $this->actingAs($this->user)->post(route('pictures.store'), [
+        $product = Product::factory()->for(Item::factory())->create();
+        $this->actingAs($this->user)->postJson(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
-            'type' => 'feature',
-            'type_id' => $feature->id
+            'type' => 'product',
+            'type_id' => $product->id
         ]);
 
         $this->assertDatabaseCount('pictures', 2);
 
-        $this->assertTrue($feature->pictures->every(fn ($picture) => $picture->exists()));
+        $this->assertTrue($product->pictures->every(fn ($picture) => $picture->exists()));
 
-        $this->assertTrue($feature->pictures->every(function ($picture) {
+        $this->assertTrue($product->pictures->every(function ($picture) {
             $picture->delete();
             return $picture->fileDeleted();
         }));
@@ -52,50 +52,50 @@ class PictureTest extends TestCase
 
     public function test_picture_type()
     {
-        $this->actingAs($this->user)->post(route('pictures.store'), [
+        $this->actingAs($this->user)->postJson(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
             'type' => 'iten',
             'type_id' => 1
-        ])->assertSessionHasErrors(['type', 'type_id']);
+        ])->assertUnprocessable();
 
         $item = Item::factory()->create();
-        $this->actingAs($this->user)->post(route('pictures.store'), [
+        $this->actingAs($this->user)->postJson(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
             'type' => 'role',
             'type_id' => $item->id
-        ])->assertSessionHasErrors(['type']);
+        ])->assertUnprocessable();
     }
 
     public function test_picture_type_id()
     {
         $item = Item::factory()->create();
-        $this->actingAs($this->user)->post(route('pictures.store'), [
+        $this->actingAs($this->user)->postJson(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
             'type' => 'item',
             'type_id' => $item->id + 1
-        ])->assertSessionHasErrors(['type_id']);
+        ])->assertUnprocessable();
 
-        $this->actingAs($this->user)->post(route('pictures.store'), [
+        $this->actingAs($this->user)->postJson(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg'), UploadedFile::fake()->image('bar.jpg')],
-            'type' => 'feature',
+            'type' => 'product',
             'type_id' => $item->id + 1
-        ])->assertSessionHasErrors(['type_id']);
+        ])->assertUnprocessable();
     }
 
     public function test_pictures_are_image_type()
     {
         $item = Item::factory()->create();
-        $this->actingAs($this->user)->post(route('pictures.store'), [
+        $this->actingAs($this->user)->postJson(route('pictures.store'), [
             'pictures' => ['foo.jpg', 'bar.jpg'],
             'type' => 'item',
             'type_id' => $item->id
-        ])->assertSessionHasErrors(['pictures.0']);
+        ])->assertUnprocessable();
     }
 
     public function test_delete_picture()
     {
         $item = Item::factory()->create();
-        $this->actingAs($this->user)->post(route('pictures.store'), [
+        $this->actingAs($this->user)->postJson(route('pictures.store'), [
             'pictures' => [UploadedFile::fake()->image('foo.jpg')],
             'type' => 'item',
             'type_id' => $item->id

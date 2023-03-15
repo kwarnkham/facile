@@ -23,7 +23,7 @@ class ItemController extends Controller
             'limit' => ['sometimes', 'numeric']
         ]);
         $query = Item::query()
-            ->with(['latestFeature.latestPurchase'])
+            ->with(['latestProduct.latestPurchase'])
             ->filter($filters)
             ->orderBy('id', 'desc');
 
@@ -62,8 +62,7 @@ class ItemController extends Controller
     {
         $attributes = $request->validated();
         $item = Item::create($attributes);
-        if ($request->wantsJson()) return response()->json(['item' => $item]);
-        return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'success');
+        return response()->json(['item' => $item]);
     }
 
     /**
@@ -108,10 +107,9 @@ class ItemController extends Controller
     public function update(UpdateItemRequest $request, Item $item)
     {
         $item->update($request->validated());
-        if ($request->wantsJson()) return response()->json([
+        return response()->json([
             'item' => $item
         ]);
-        return Redirect::route('items.edit', ['item' => $item->id])->with('message', 'success');
     }
 
     /**

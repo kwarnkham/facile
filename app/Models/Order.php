@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\FeatureType;
+use App\Enums\ProductType;
 use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,10 +13,10 @@ class Order extends Model
 {
     use HasFactory;
 
-    public function features()
+    public function products()
     {
-        return $this->belongsToMany(Feature::class)
-            ->using(FeatureOrder::class)
+        return $this->belongsToMany(Product::class)
+            ->using(OrderProduct::class)
             ->withPivot(['quantity', 'price', 'discount', 'name', 'id', 'purchase_price'])->withTimestamps();
     }
 
@@ -39,10 +39,10 @@ class Order extends Model
             ->withTimestamps();
     }
 
-    public function getFeatureDiscounts()
+    public function getProductDiscounts()
     {
-        return floor((float)$this->features->reduce(function ($carry, $feature) {
-            return $feature->pivot->discount * $feature->pivot->quantity + $carry;
+        return floor((float)$this->products->reduce(function ($carry, $product) {
+            return $product->pivot->discount * $product->pivot->quantity + $carry;
         }, 0));
     }
 
@@ -72,11 +72,11 @@ class Order extends Model
                 $this->status = OrderStatus::CANCELED->value;
                 $this->updated_by = request()->user()->id;
                 $this->save();
-                $this->features->each(function ($feature) {
-                    if ($feature->type == FeatureType::STOCKED->value) {
-                        $feature->stock += $feature->pivot->quantity;
-                        $feature->save();
-                        $feature->pivot->batches->each(function ($batch) {
+                $this->products->each(function ($product) {
+                    if ($product->type == ProductType::STOCKED->value) {
+                        $product->stock += $product->pivot->quantity;
+                        $product->save();
+                        $product->pivot->batches->each(function ($batch) {
                             $batch->stock += $batch->pivot->quantity;
                             $batch->save();
                         });

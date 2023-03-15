@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Auth;
+namespace Tests\Product\Auth;
 
 use App\Providers\RouteServiceProvider;
 
@@ -8,8 +8,6 @@ use Tests\TestCase;
 
 class RegistrationTest extends TestCase
 {
-
-
     public function test_registration_screen_can_be_rendered()
     {
         $response = $this->get(route('register'));
@@ -32,25 +30,25 @@ class RegistrationTest extends TestCase
 
     public function test_cannot_register_with_invalid_role()
     {
-        $response = $this->post(route('register'), [
+        $response = $this->postJson(route('register'), [
             'name' => 'Test admin',
             'email' => 'admin@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
             'role_id' => 0
         ]);
-        $response->assertSessionHasErrors(['role_id']);
+        $response->assertUnprocessable();
     }
 
     public function test_admin_role_cannot_be_used_to_register()
     {
-        $response = $this->post(route('register'), [
+        $response = $this->postJson(route('register'), [
             'name' => 'Test admin',
             'email' => 'admin@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
             'role_id' => 1
         ]);
-        $response->assertSessionHasErrors(['role_id']);
+        $response->assertUnprocessable();
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Product;
 
 use App\Models\User;
 use Tests\TestCase;
@@ -10,7 +10,7 @@ class UserTest extends TestCase
 {
     public function test_admin_add_a_user()
     {
-        $this->actingAs($this->user)->post(route('users.store'), [
+        $this->actingAs($this->user)->postJson(route('users.store'), [
             'name' => 'name',
             'email' => 'email@email.com',
         ]);
@@ -20,7 +20,7 @@ class UserTest extends TestCase
 
     public function test_user_change_password()
     {
-        $this->actingAs($this->user)->post(route('users.changePassword'), [
+        $this->actingAs($this->user)->postJson(route('users.changePassword'), [
             'password' => 'password',
             'new_password' => 'new_password',
             'new_password_confirmation' => 'new_password',
