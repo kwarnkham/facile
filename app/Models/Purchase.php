@@ -43,7 +43,7 @@ class Purchase extends Model
         $query->when(
             $filters['from'] ?? null,
             fn (Builder $query, $from) => $query->whereDate(
-                'updated_at',
+                'created_at',
                 '>=',
                 $from
             )
@@ -52,7 +52,7 @@ class Purchase extends Model
         $query->when(
             $filters['to'] ?? null,
             fn (Builder $query, $to) => $query->whereDate(
-                'updated_at',
+                'created_at',
                 '<=',
                 $to
             )
