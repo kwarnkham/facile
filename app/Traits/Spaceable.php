@@ -14,8 +14,6 @@ trait Spaceable
     {
         $path = config('app')['name'] . '/pictures/' . static::spaceDir() . '/' . config('app')['env'];
         $name = Storage::putFile($path, $file, 'public');
-        Log::info($path);
-        Log::info($name);
         return basename($name);
     }
 
