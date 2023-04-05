@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 trait Spaceable
@@ -11,7 +12,9 @@ trait Spaceable
 
     public static function saveFile(File|UploadedFile $file)
     {
-        return basename(Storage::putFile(config('app')['name'] . '/pictures/' . static::spaceDir() . '/' . config('app')['env'], $file, 'public'));
+        $name = Storage::putFile(config('app')['name'] . '/pictures/' . static::spaceDir() . '/' . config('app')['env'], $file, 'public');
+        Log::info($name);
+        return basename($name);
     }
 
     public static function spaceDir()
