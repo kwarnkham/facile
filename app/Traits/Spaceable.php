@@ -12,7 +12,10 @@ trait Spaceable
 
     public static function saveFile(File|UploadedFile $file)
     {
-        $name = Storage::putFile(config('app')['name'] . '/pictures/' . static::spaceDir() . '/' . config('app')['env'], $file, 'public');
+        $path = config('app')['name'] . '/pictures/' . static::spaceDir() . '/' . config('app')['env'];
+        $name = Storage::putFile($path, $file, 'public');
+        Log::info($path);
+        Log::info($name);
         return basename($name);
     }
 
