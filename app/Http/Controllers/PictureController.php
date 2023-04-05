@@ -41,11 +41,13 @@ class PictureController extends Controller
         $attributes = $request->safe()->only(['pictures', 'type_id', 'type']);
         $model = 'App\\Models\\' . ucfirst(strtolower($attributes['type']));
         foreach ($attributes['pictures'] as $picture) {
-            Picture::create([
-                'name' => $model::saveFile($picture),
-                'pictureable_id' => $attributes['type_id'],
-                'pictureable_type' => $model
-            ]);
+            $name = $model::saveFile($picture);
+            if ($name)
+                Picture::create([
+                    'name' => $name,
+                    'pictureable_id' => $attributes['type_id'],
+                    'pictureable_type' => $model
+                ]);
         }
         if ($request->wantsJson())
             return response()->json([
