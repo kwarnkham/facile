@@ -6,7 +6,6 @@ use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
 use App\Models\Tag;
-use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class ItemController extends Controller
@@ -27,19 +26,12 @@ class ItemController extends Controller
             ->filter($filters)
             ->orderBy('id', 'desc');
 
-        if (request()->wantsJson()) {
-            if (request()->exists('limit')) $items = $query->get();
-            else $items = $query->paginate(request()->per_page ?? 20);
-            return response()->json([
-                'data' => $items
-            ]);
-        }
-        $data = [
-            'items' => $query->paginate(request()->per_page ?? 20),
-            'filters' => $filters,
-        ];
 
-        return Inertia::render('Items', $data);
+        if (request()->exists('limit')) $items = $query->get();
+        else $items = $query->paginate(request()->per_page ?? 20);
+        return response()->json([
+            'data' => $items
+        ]);
     }
 
     /**
@@ -62,7 +54,7 @@ class ItemController extends Controller
     {
         $attributes = $request->validated();
         $item = Item::create($attributes);
-        return response()->json(['item' => $item]);
+        return response()->json(['item' => $item->load(['latestProduct.latestPurchase'])]);
     }
 
     /**

@@ -29,8 +29,6 @@ systemctl restart nginx
 # Move server
 
 ```
-backup db
-
 cd /etc/nginx/html/
 git clone https://github.com/kwarnkham/facile.git
 cd facile
@@ -42,9 +40,6 @@ php artisan storage:link
 cd storage/app/public/
 
 move the files
-
-scp facile.dump root@coffee.book-mm.com:/root/
-mysql taetaetin < /root/facile.dump
 
 create vh file for nginx
 
@@ -58,6 +53,14 @@ for centos
 chown -R nginx:nginx /etc/nginx/html/facile/storage /etc/nginx/html/facile/bootstrap/cache
 chmod -R 0777 /etc/nginx/html/facile/storage
 chmod -R 0775 /etc/nginx/html/facile/bootstrap/cache
+
+
+backup db
+
+scp receipt.dump root@coffee.book-mm.com:/root/
+mysql receipt < /root/receipt.dump
+
+php artisan optimize && php artisan view:cache
 
 systemctl restart nginx
 

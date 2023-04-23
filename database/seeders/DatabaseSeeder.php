@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $now = now();
         DB::table('roles')->insert([
             ['name' => 'admin', 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'sale', 'created_at' => $now, 'updated_at' => $now],
         ]);
 
 
@@ -56,6 +57,12 @@ class DatabaseSeeder extends Seeder
         DB::table('role_user')->insert([
             [
                 'role_id' => 1,
+                'user_id' => 1,
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
+            [
+                'role_id' => 2,
                 'user_id' => 1,
                 'created_at' => $now,
                 'updated_at' => $now
