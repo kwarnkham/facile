@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OrderStatus;
+use App\Enums\ProductType;
 use App\Enums\PurchaseStatus;
+use App\Enums\ResponseStatus;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
+use App\Models\AItem;
 use App\Models\Batch;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\OrderProduct;
 use App\Models\Purchase;
@@ -146,35 +150,15 @@ class PurchaseController extends Controller
 
     public function cancel(Purchase $purchase)
     {
-        if ($purchase->status == 2) return Redirect::back()->with('message', 'Already canceled');
+        abort_if($purchase->status == PurchaseStatus::CANCELED->value, ResponseStatus::BAD_REQUEST->value, 'Already canceled');
 
-        if ($purchase->purchasable instanceof Product) {
-            $batch = Batch::where('purchase_id', $purchase->id)->first();
-            $OrderProductId = DB::table('batch_order_product')->where('batch_id', $batch->id)->first('order_product_id');
-            if (
-                !is_null($OrderProductId)
-                && DB::table('orders')
-                ->where('id', OrderProduct::find($OrderProductId->order_product_id)->order_id)
-                ->first('status')->status != OrderStatus::CANCELED->value
-            )
-                return Redirect::back()->with('message', 'Non canceled order associated with this purchase exists');
-
-            else {
-                $purchase->status = 2;
-                $purchase->save();
-
-                $product = $purchase->purchasable;
-                $product->stock -= $purchase->quantity;
-                $product->save();
-
-
-                $batch->stock -= $purchase->quantity;
-                $batch->save();
-            }
-        } else {
-            $purchase->status = 2;
-            $purchase->save();
+        if ($purchase->purchasable instanceof AItem && $purchase->purchasable->type == ProductType::STOCKED->value) {
+            abort_if($purchase->purchasable->stock < $purchase->quantity, ResponseStatus::BAD_REQUEST->value, 'Cannot cancel. Order existed');
+            $purchase->purchasable->update(['stock' => $purchase->purchasable->stock - $purchase->quantity]);
         }
+        $purchase->status = 2;
+        $purchase->save();
+
 
         if (request()->wantsJson()) return response()->json(['message' => 'Success']);
         return Redirect::back()->with('message', 'success');

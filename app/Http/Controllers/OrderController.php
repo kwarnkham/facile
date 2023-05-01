@@ -557,7 +557,7 @@ class OrderController extends Controller
                     'type' => ProductType::STOCKED->value
                 ])->decrement('stock', $item->pivot->quantity);
             });
-            return $order->load(['aItems']);
+            return $order->load(['aItems', 'purchases']);
         });
         return response()->json([
             'order' => $data

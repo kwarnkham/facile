@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ProductType;
 use App\Enums\OrderStatus;
+use App\Enums\PurchaseStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +32,7 @@ class Order extends Model
 
     public function purchases()
     {
-        return $this->morphMany(Purchase::class, 'purchasable');
+        return $this->morphMany(Purchase::class, 'purchasable')->where('status', PurchaseStatus::NORMAL->value);
     }
 
     public function services()

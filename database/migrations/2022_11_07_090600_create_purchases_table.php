@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('purchasable_id');
             $table->string('purchasable_type');
             $table->double('price');
+            $table->text('note')->nullable();
             $table->integer('quantity')->default(1);
             $table->tinyInteger('status')->default(PurchaseStatus::NORMAL->value);
             $table->timestamps();
