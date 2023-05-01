@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ProductType;
 use App\Enums\OrderStatus;
+use App\Enums\ResponseStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,14 @@ use Illuminate\Support\Facades\DB;
 class Order extends Model
 {
     use HasFactory;
+
+    public function reverseStock()
+    {
+        $this->aItems->each(function ($aItem) {
+            DB::table('a_items')->where('id', $aItem->id)->increment('stock', $aItem->pivot->quantity);
+        });
+        $this->aItems()->detach();
+    }
 
     public function products()
     {
@@ -36,6 +45,13 @@ class Order extends Model
     {
         return $this->belongsToMany(Item::class)
             ->withPivot(['price', 'quantity', 'name'])
+            ->withTimestamps();
+    }
+
+    public function aItems()
+    {
+        return $this->belongsToMany(AItem::class)
+            ->withPivot(['price', 'quantity', 'name', 'discount', 'purchase_price'])
             ->withTimestamps();
     }
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\PictureController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RouteController;
+use App\Http\Controllers\AItemController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -85,6 +86,16 @@ Route::controller(ProductController::class)->prefix('/products')->group(function
     });
 });
 
+Route::controller(AItemController::class)->prefix('/a-items')->group(function () {
+    Route::get('', 'index');
+    Route::get('{aItem}', 'show');
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('', 'store');
+        Route::put('{aItem}', 'update');
+        Route::post('{aItem}/restock', 'restock');
+    });
+});
+
 Route::controller(PurchaseController::class)->prefix('/purchases')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('{purchase}/cancel', 'cancel')->name('purchases.cancel');
@@ -139,6 +150,7 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
         Route::post('{order}/pay', 'pay')->name('orders.pay');
         Route::put('{order}/customer', 'updateCustomer')->name('orders.update.customer');
         Route::post('{order}/pack', 'pack')->name('orders.pack');
+        Route::post('record/{order?}', 'record');
     });
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('/pre-order', 'preOrder')->name('orders.preOrder');

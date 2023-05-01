@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-
             $table->double('amount');
             $table->double('discount')->default(0);
             $table->tinyInteger('status')->default(1)->index();
@@ -23,6 +22,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->string('note')->nullable();
+            $table->double('paid');
             $table->timestamps();
             $table->foreignId('user_id')->default(1)->constrained();
             $table->foreignId('updated_by')->default(1)->constrained('users', 'id');

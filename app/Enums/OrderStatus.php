@@ -10,6 +10,7 @@ enum OrderStatus: int
     case CANCELED = 4;
     case COMPLETED = 5;
     case PACKED = 6;
+    case ON_DELIVERY = 7;
 
     public static function array(): array
     {
@@ -19,12 +20,13 @@ enum OrderStatus: int
             3 => 'Paid',
             4 => 'Canceled',
             5 => 'Completed',
-            6 => 'Packed'
+            6 => 'Packed',
+            7 => 'On Delivery'
         ];
     }
 
     public static function all(): array
     {
-        return [1, 2, 3, 4, 5, 6];
+        return [1, 2, 3, 4, 5, 6, 7];
     }
 }
