@@ -493,6 +493,7 @@ class OrderController extends Controller
                 $order->update([
                     'paid' => 0
                 ]);
+                $order->purchases()->update(['status' => PurchaseStatus::CANCELED->value]);
                 $order->reverseStock();
             }
             return response()->json([
