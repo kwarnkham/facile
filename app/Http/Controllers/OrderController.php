@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ProductType;
+use App\Enums\PurchaseStatus;
 use App\Enums\ResponseStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
@@ -30,6 +31,7 @@ class OrderController extends Controller
      */
     public function index()
     {
+
         $filters = request()->validate([
             'status' => ['sometimes', 'required'],
             'from' => ['date'],
@@ -37,19 +39,43 @@ class OrderController extends Controller
             'search' => ['sometimes', 'required'],
         ]);
         $query =  Order::query()->filter($filters);
-        $allOrders = $query->get();
-        $total = $allOrders->reduce(fn ($carry, $val) => $carry + $val->amount - $val->discount, 0);
-        $profit = $total  - DB::table('order_product')->whereIn('order_id', $allOrders->pluck('id'))->sum('purchase_price');
 
         $orders = $query
-            ->with(['payments'])
+            ->with(['purchases'])
             ->orderBy('id', 'desc')
             ->paginate(request()->per_page ?? 20);
 
+        $allOrders = $query->get(['paid']);
+
         return response()->json([
             'data' => $orders,
-            'profit' => $profit,
-            'total' => $total
+            'total' => $allOrders->reduce(
+                fn ($carry, $order) => $carry + ($order->paid - $order->purchases
+                    ->filter(fn ($v) => $v->status == PurchaseStatus::NORMAL->value)->reduce(
+                        fn ($accumulated, $purchase) => $accumulated + $purchase->price * $purchase->quantity,
+                        0
+                    )),
+                0
+            )
+        ]);
+    }
+
+    public function purchase(Order $order)
+    {
+        abort_if(
+            in_array($order->value, [OrderStatus::COMPLETED->value, OrderStatus::CANCELED->value]),
+            ResponseStatus::BAD_REQUEST->value,
+            'Cannot purchase a canceled or completed order'
+        );
+        $attributes = request()->validate([
+            'price' => ['required', 'gt:0', 'numeric'],
+            'quantity' => ['required', 'gt:0', 'numeric'],
+            'name' => ['required']
+        ]);
+
+        $order->purchases()->create($attributes);
+        return response()->json([
+            'order' => $order->load(['purchases', 'aItems'])
         ]);
     }
 
@@ -463,7 +489,12 @@ class OrderController extends Controller
             );
 
             $order->update(['status' => $attributes['status']]);
-            if ($attributes['status'] == OrderStatus::CANCELED->value) $order->reverseStock();
+            if ($attributes['status'] == OrderStatus::CANCELED->value) {
+                $order->update([
+                    'paid' => 0
+                ]);
+                $order->reverseStock();
+            }
             return response()->json([
                 'order' => $order->load(['aItems'])
             ]);
@@ -540,7 +571,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['products', 'payments', 'items', 'services', 'aItems']);
+        $order->load(['aItems', 'purchases']);
         Payment::generatePaymentScreenshotUrl($order);
         if (request()->wantsJson()) return response()->json([
             'order' => $order

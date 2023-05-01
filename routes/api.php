@@ -156,5 +156,6 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
         Route::post('/pre-order', 'preOrder')->name('orders.preOrder');
         Route::post('{order}/complete', 'complete')->name('orders.complete');
         Route::post('{order}/cancel', 'cancel')->name('orders.cancel');
+        Route::post('{order}/purchase', 'purchase');
     });
 });
