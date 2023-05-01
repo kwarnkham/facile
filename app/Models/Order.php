@@ -17,7 +17,8 @@ class Order extends Model
     public function reverseStock()
     {
         $this->aItems->each(function ($aItem) {
-            DB::table('a_items')->where('id', $aItem->id)->increment('stock', $aItem->pivot->quantity);
+            if ($aItem->type == ProductType::STOCKED->value)
+                DB::table('a_items')->where('id', $aItem->id)->increment('stock', $aItem->pivot->quantity);
         });
         $this->aItems()->detach();
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Enums\ProductType;
 use App\Enums\ResponseStatus;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
@@ -413,10 +414,11 @@ class OrderController extends Controller
         ]);
 
         abort_if(
-            in_array($order->status, [
-                OrderStatus::CANCELED->value,
-                OrderStatus::COMPLETED->value,
-            ]),
+            $order != null &&
+                in_array($order->status, [
+                    OrderStatus::CANCELED->value,
+                    OrderStatus::COMPLETED->value,
+                ]),
             ResponseStatus::BAD_REQUEST->value,
             'Order is already completed or canceled'
         );
@@ -467,30 +469,31 @@ class OrderController extends Controller
             ]);
         }
 
-        if ($order != null) $order->reverseStock();
+        $data = DB::transaction(function () use ($attributes, $order) {
+            if ($order != null) $order->reverseStock();
 
-        AItem::checkStock($attributes['a_items']);
+            AItem::checkStock($attributes['a_items']);
 
-        $attributes['a_items'] = AItem::mapForOrder($attributes['a_items']);
+            $attributes['a_items'] = AItem::mapForOrder($attributes['a_items']);
 
-        $amount =  collect($attributes['a_items'])->reduce(
-            fn ($carry, $product) => $carry + ($product['price'] - ($product['discount'] ?? 0)) * $product['quantity']
-        );
+            $amount =  collect($attributes['a_items'])->reduce(
+                fn ($carry, $product) => $carry + ($product['price'] - ($product['discount'] ?? 0)) * $product['quantity']
+            );
 
-        $remaining = $amount - ($attributes['discount'] ?? 0) - ($attributes['paid'] ?? 0);
+            $remaining = $amount - ($attributes['discount'] ?? 0) - ($attributes['paid'] ?? 0);
 
-        abort_if($remaining < 0, ResponseStatus::BAD_REQUEST->value, 'Cannot pay(or discount) more than the order amount');
+            abort_if($remaining < 0, ResponseStatus::BAD_REQUEST->value, 'Cannot pay(or discount) more than the order amount');
 
-        $attributes['updated_by'] = request()->user()->id;
-        $attributes['user_id'] = request()->user()->id;
-        $createdAt = new Carbon($attributes['created_at']);
-        $now = now();
-        $createdAt->addHour($now->hour);
-        $createdAt->addMinute($now->minute);
-        $createdAt->second($now->second);
-        $attributes['created_at'] = $createdAt;
+            $attributes['updated_by'] = request()->user()->id;
+            $attributes['user_id'] = request()->user()->id;
+            $createdAt = new Carbon($attributes['created_at']);
+            $now = now();
+            $createdAt->addHour($now->hour);
+            $createdAt->addMinute($now->minute);
+            $createdAt->second($now->second);
+            $attributes['created_at'] = $createdAt;
 
-        $data = DB::transaction(function () use ($attributes, $amount, $remaining, $order) {
+
             $status = OrderStatus::PENDING->value;
             if ($remaining == 0) $status = OrderStatus::PAID->value;
             else if ($attributes['paid'] ?? false) $status = OrderStatus::PARTIALLY_PAID->value;
@@ -517,7 +520,10 @@ class OrderController extends Controller
             }, $attributes['a_items']));
 
             $order->fresh()->aItems->each(function ($item) {
-                DB::table('a_items')->where('id', $item->id)->decrement('stock', $item->pivot->quantity);
+                DB::table('a_items')->where([
+                    'id' => $item->id,
+                    'type' => ProductType::STOCKED->value
+                ])->decrement('stock', $item->pivot->quantity);
             });
             return $order->load(['aItems']);
         });

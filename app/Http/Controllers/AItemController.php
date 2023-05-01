@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrderStatus;
+use App\Enums\ProductType;
+use App\Enums\ResponseStatus;
 use App\Models\AItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -49,12 +52,12 @@ class AItemController extends Controller
                     'picture'
                 )->toArray()
             );
-
-            $aItem->recordPurchase($attributes);
+            if ($aItem->type == ProductType::STOCKED->value)
+                $aItem->recordPurchase($attributes);
 
             return $aItem;
         });
-        return response()->json(['a_item' => $aItem]);
+        return response()->json(['a_item' => $aItem->fresh(['latestPurchase'])]);
     }
 
     public function show(AItem $aItem)
@@ -73,6 +76,13 @@ class AItemController extends Controller
             'price' => ['required', 'numeric'],
             'note' => ['']
         ]);
+        abort_if($aItem->orders()->whereIn('orders.status', [
+            OrderStatus::PENDING->value,
+            OrderStatus::PARTIALLY_PAID->value,
+            OrderStatus::PAID->value,
+            OrderStatus::PACKED->value,
+            OrderStatus::ON_DELIVERY->value,
+        ])->count() > 0, ResponseStatus::BAD_REQUEST->value, 'Please finish orders to update item info');
         $aItem->update($attributes);
         return response()->json(['a_item' => $aItem->load([
             'latestPurchase'

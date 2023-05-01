@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductType;
 use App\Enums\PurchaseStatus;
 use App\Enums\ResponseStatus;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,7 +36,7 @@ class AItem extends Model
         $aItems->each(function ($item) use ($data) {
             foreach ($data as $val) {
                 if ($item->id == $val['id'])
-                    abort_if($item->stock < $val['quantity'], ResponseStatus::BAD_REQUEST->value, $item->name . ' is out of stock');
+                    abort_if($item->stock < $val['quantity'] && $item->type == ProductType::STOCKED->value, ResponseStatus::BAD_REQUEST->value, $item->name . ' is out of stock');
             }
         });
     }
@@ -49,7 +50,7 @@ class AItem extends Model
                 if ($val->id == $item['id']) {
                     $item['price'] = $val->price;
                     $item['name'] = $val->name;
-                    $item['purchase_price'] = $val->latestPurchase->price;
+                    $item['purchase_price'] = $val->type == ProductType::STOCKED->value ? $val->latestPurchase->price : $val->price;
                 }
             });
             return $item;
@@ -59,6 +60,13 @@ class AItem extends Model
     public function pictures()
     {
         return $this->morphMany(Picture::class, 'pictureable')->orderBy('id', 'desc');
+    }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class)
+            ->withPivot(['price', 'quantity', 'name', 'discount', 'purchase_price'])
+            ->withTimestamps();
     }
 
     public function purchases()
