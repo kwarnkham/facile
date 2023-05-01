@@ -62,20 +62,19 @@ class AItemController extends Controller
         $aItem->load(['pictures', 'latestPurchase']);
 
         return response()->json([
-            'AItem' => $aItem
+            'a_item' => $aItem
         ]);
     }
 
     public function update(AItem $aItem)
     {
         $attributes = request()->validate([
-            'name' => ['required', Rule::unique('sale_items', 'name')->ignore($aItem->id)],
+            'name' => ['required', Rule::unique('a_items', 'name')->ignore($aItem->id)],
             'price' => ['required', 'numeric'],
             'note' => ['']
         ]);
         $aItem->update($attributes);
-        return response()->json(['product' => $aItem->load([
-            'item',
+        return response()->json(['a_item' => $aItem->load([
             'latestPurchase'
         ])]);
     }
@@ -92,6 +91,6 @@ class AItemController extends Controller
             $aItem->update(['stock' => $aItem->stock + $attributes['quantity']]);
             return $aItem;
         });
-        return response()->json(['aItem' => $result->load(['latestPurchase'])]);
+        return response()->json(['a_item' => $result->load(['latestPurchase'])]);
     }
 }
