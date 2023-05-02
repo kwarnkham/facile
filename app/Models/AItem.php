@@ -50,7 +50,7 @@ class AItem extends Model
                 if ($val->id == $item['id']) {
                     $item['price'] = $val->price;
                     $item['name'] = $val->name;
-                    $item['purchase_price'] = $val->type == ProductType::STOCKED->value ? $val->latestPurchase->price : $val->price;
+                    $item['purchase_price'] = $val->type == ProductType::STOCKED->value ? $val->latestPurchase->price ?? $val->purchases()->latest()->first()->price : $val->price;
                 }
             });
             return $item;
@@ -78,8 +78,11 @@ class AItem extends Model
     public function latestPurchase()
     {
         return $this->morphOne(Purchase::class, 'purchasable')
-            ->latestOfMany()
-            ->where('status', PurchaseStatus::NORMAL->value);
+            ->ofMany([
+                'id' => 'max',
+            ], function (Builder $query) {
+                $query->where('status', '=', PurchaseStatus::NORMAL->value);
+            });
     }
 
     public function scopeFilter(Builder $query, $filters)
