@@ -17,12 +17,13 @@ return new class extends Migration
     {
         Schema::create('a_items', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name');
             $table->integer('stock')->index();
             $table->double('price');
             $table->string('note')->nullable();
             $table->tinyInteger('type')->default(ProductType::STOCKED->value);
             $table->tinyInteger('status')->default(ProductStatus::NORMAL->value);
+            $table->unique(['name', 'type']);
             $table->timestamps();
         });
     }

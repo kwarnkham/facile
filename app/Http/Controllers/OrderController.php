@@ -45,18 +45,10 @@ class OrderController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(request()->per_page ?? 20);
 
-        $allOrders = $query->get(['paid']);
 
         return response()->json([
             'data' => $orders,
-            'total' => $allOrders->reduce(
-                fn ($carry, $order) => $carry + ($order->paid - $order->purchases
-                    ->filter(fn ($v) => $v->status == PurchaseStatus::NORMAL->value)->reduce(
-                        fn ($accumulated, $purchase) => $accumulated + $purchase->price * $purchase->quantity,
-                        0
-                    )),
-                0
-            )
+            'total' => $query->sum('paid')
         ]);
     }
 

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->double('price');
             $table->double('discount')->default(0);
             $table->string('name');
-            $table->double('purchase_price');
+            $table->double('purchase_price')->nullable();
             $table->timestamps();
         });
     }

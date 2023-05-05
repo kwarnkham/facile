@@ -35,7 +35,9 @@ class AItemController extends Controller
     public function store()
     {
         $attributes = request()->validate([
-            'name' => ['required', 'unique:a_items,name'],
+            'name' => ['required', Rule::unique('a_items', 'name')->where([
+                'type' => request()->type ?? ProductType::STOCKED->value,
+            ])],
             'stock' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],
             'note' => ['sometimes', 'required'],
