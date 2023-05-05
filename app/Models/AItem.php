@@ -92,7 +92,6 @@ class AItem extends Model
             fn (Builder $query, $search) => $query->where(function (Builder $query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%')
                     ->orWhere('stock', 'like', '%' . $search . '%')
-                    ->orWhere('note', 'like', '%' . $search . '%')
                     ->orWhere('price', 'like', '%' . $search . '%');
             })
         );

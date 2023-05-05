@@ -7,6 +7,7 @@ use App\Enums\ProductType;
 use App\Enums\ResponseStatus;
 use App\Models\AItem;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class AItemController extends Controller
@@ -22,7 +23,7 @@ class AItemController extends Controller
         $query = AItem::query()
             ->filter($filters)
             ->with(['latestPurchase'])
-            ->orderBy('id', 'desc');
+            ->orderBy('stock', 'asc');
 
         if (request()->exists('limit')) $aItems = $query->get();
         else $aItems = $query->paginate(request()->per_page ?? 20);
@@ -35,14 +36,12 @@ class AItemController extends Controller
     public function store()
     {
         $attributes = request()->validate([
-            'name' => ['required', Rule::unique('a_items', 'name')->where([
-                'type' => request()->type ?? ProductType::STOCKED->value,
-            ])],
+            'name' => ['required', Rule::unique('a_items', 'name')->where('type', request()->type)],
             'stock' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],
             'note' => ['sometimes', 'required'],
             'purchase_price' => ['required', 'numeric'],
-            'type' => ['sometimes', 'required', 'in:1,2'],
+            'type' => ['required', 'in:1,2'],
             'expired_on' => ['sometimes', 'required', 'date'],
             'picture' => ['sometimes', 'required', 'image']
         ]);
@@ -64,7 +63,12 @@ class AItemController extends Controller
 
     public function show(AItem $aItem)
     {
-        $aItem->load(['pictures', 'latestPurchase']);
+        $aItem->load(['purchases', 'latestPurchase']);
+        $aItem->ordered_quantity = DB::table('a_item_order')
+            ->where([
+                ['a_item_id', '=', $aItem->id,]
+            ])
+            ->sum('quantity');
 
         return response()->json([
             'a_item' => $aItem
