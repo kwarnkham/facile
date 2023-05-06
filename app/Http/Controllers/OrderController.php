@@ -489,7 +489,7 @@ class OrderController extends Controller
                 $order->reverseStock();
             }
             return response()->json([
-                'order' => $order->load(['aItems'])
+                'order' => $order->load(['aItems', 'purchases'])
             ]);
         }
 
