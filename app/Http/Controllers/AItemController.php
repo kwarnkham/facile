@@ -85,7 +85,7 @@ class AItemController extends Controller
                         $query->where('type', $aItem->type)
                     )->ignoreModel($aItem)
             ],
-            'price' => ['required', 'numeric'],
+            'price' => ['required', 'numeric', 'gte:0'],
             'note' => ['']
         ]);
         abort_if($aItem->orders()->whereIn('orders.status', [
