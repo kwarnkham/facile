@@ -6,8 +6,8 @@ use App\Enums\OrderStatus;
 use App\Enums\ProductType;
 use App\Enums\ResponseStatus;
 use App\Models\AItem;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class AItemController extends Controller
@@ -78,7 +78,13 @@ class AItemController extends Controller
     public function update(AItem $aItem)
     {
         $attributes = request()->validate([
-            'name' => ['required', Rule::unique('a_items', 'name')->ignore($aItem->id)],
+            'name' => [
+                'required', Rule::unique('a_items', 'name')
+                    ->where(
+                        fn (Builder $query) =>
+                        $query->where('type', $aItem->type)
+                    )->ignoreModel($aItem)
+            ],
             'price' => ['required', 'numeric'],
             'note' => ['']
         ]);
