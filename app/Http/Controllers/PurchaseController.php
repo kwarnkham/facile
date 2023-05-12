@@ -18,15 +18,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Http\JsonResponse;
 
 class PurchaseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function index(): JsonResponse
     {
         $filters = request()->validate([
             'from' => ['date'],
@@ -38,26 +34,16 @@ class PurchaseController extends Controller
         ]);
 
         $query = Purchase::query()
-            ->filter($filters);
-        $total = $query->get(['price', 'quantity'])->reduce(fn ($carry, $value) => $carry + $value->price * $value->quantity, 0);
-        $data = $query->with(['purchasable' => function (MorphTo $morphTo) {
-            $morphTo->morphWith([
-                Product::class => ['item'],
-            ]);
-        }])
-            ->paginate(request()->per_page ?? 10);
+            ->filter($filters)
+            ->with(['purchasable' => function (MorphTo $morphTo) {
+                $morphTo->morphWith([
+                    Product::class => ['item'],
+                ]);
+            }]);
 
-        if (request()->wantsJson()) return response()->json([
-            'data' => $data,
-            'total' => $total
-        ]);
-        return Inertia::render('Purchases', [
-            'purchases' => $data,
-            'filters' => [
-                'from' => $filters['from'],
-                'to' => $filters['to']->startOfDay(),
-            ],
-            'total' => $total
+        return response()->json([
+            'data' => $query->paginate(request()->per_page ?? 10),
+            'total' => $query->sum(DB::raw('price * quantity'))
         ]);
     }
 
@@ -160,7 +146,10 @@ class PurchaseController extends Controller
         $purchase->save();
 
 
-        if (request()->wantsJson()) return response()->json(['message' => 'Success']);
-        return Redirect::back()->with('message', 'success');
+        return response()->json(['purchase' => $purchase->fresh(['purchasable' => function (MorphTo $morphTo) {
+            $morphTo->morphWith([
+                Product::class => ['item'],
+            ]);
+        }])]);
     }
 }

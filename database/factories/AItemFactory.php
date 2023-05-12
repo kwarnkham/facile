@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Purchase>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\AItem>
  */
-class PurchaseFactory extends Factory
+class AItemFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -16,6 +16,8 @@ class PurchaseFactory extends Factory
      */
     public function definition()
     {
-        return [];
+        return [
+            'name' => fake()->unique()->name()
+        ];
     }
 }
