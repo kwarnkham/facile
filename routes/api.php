@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ItemController;
@@ -12,6 +11,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\AItemController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -46,19 +46,13 @@ Route::controller(PictureController::class)->prefix('/pictures')->group(function
     });
 });
 
-
-Route::post('login', [AuthenticatedSessionController::class, 'store']);
-
-Route::controller(AuthenticatedSessionController::class)->group(function () {
-    Route::post('login', 'store');
+Route::controller(AuthController::class)->group(function () {
+    Route::post('login', 'login');
     Route::middleware(['auth:sanctum'])->group(function () {
-        Route::post('change-password', 'changePassword')->name('users.changePassword');
+        Route::post('change-password', 'changePassword');
+        Route::post('logout', 'logout');
     });
 });
-
-Route::middleware(['auth:sanctum'])
-    ->post('logout', [AuthenticatedSessionController::class, 'destroy']);
-
 
 Route::controller(ItemController::class)->prefix('/items')->group(function () {
     Route::get('', 'index')->name('items.index');

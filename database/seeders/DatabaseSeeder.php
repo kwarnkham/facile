@@ -24,19 +24,14 @@ class DatabaseSeeder extends Seeder
 
         DB::table('users')->insert([
             [
+                'username' => 'admin',
                 'name' => 'admin',
-                'email' => 'admin@gmail.com',
                 'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
                 'created_at' => $now,
                 'updated_at' => $now
             ],
         ]);
         DB::table('expenses')->insert([
-            [
-                'name' => 'Pre-order',
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
             [
                 'name' => 'Electric Bill',
                 'created_at' => $now,
