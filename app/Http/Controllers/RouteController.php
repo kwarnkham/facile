@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\Service;
+use App\Models\Setting;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -84,12 +85,7 @@ class RouteController extends Controller
 
     public function settings()
     {
-        return response()->json([
-            // spaces.madewithheart.tech/Facile/assets/production/print-logo.png
-            'assets' => [
-                'print_logo' => Storage::url(config('app')['name']) . '/assets/' . config('app')['env'] . '/print-logo.png',
-                'delivery_logo' => Storage::url(config('app')['name']) . '/assets/' . config('app')['env'] . '/delivery-logo.png'
-            ]
-        ]);
+        $setting = Setting::first();
+        return response()->json(['setting' => $setting]);
     }
 }

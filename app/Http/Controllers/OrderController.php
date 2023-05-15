@@ -96,7 +96,7 @@ class OrderController extends Controller
 
     public function status()
     {
-        return response()->json(['status' => OrderStatus::array()]);
+        return response()->json(['statuses' => OrderStatus::array()]);
     }
 
     /**
