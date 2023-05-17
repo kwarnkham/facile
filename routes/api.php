@@ -12,6 +12,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\AItemController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
@@ -36,8 +37,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::controller(UserController::class)->prefix('/users')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('', 'store')->name('users.store');
+        Route::post('{user}/reset-password', 'resetPassword');
         Route::get('', 'index')->name('users.index');
+        Route::post('{user}/roles/{role}/toggle', 'toggleRole');
     });
+});
+
+Route::controller(RoleController::class)->prefix('/roles')->group(function () {
+    Route::get('', 'index');
 });
 
 Route::controller(SettingController::class)->prefix('/settings')->group(function () {
@@ -149,6 +156,7 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
         Route::get('{order}', 'show')->name('orders.show');
         Route::post('{order}/pay', 'pay')->name('orders.pay');
         Route::put('{order}/customer', 'updateCustomer')->name('orders.update.customer');
+        Route::put('{order}', 'update');
         Route::post('{order}/pack', 'pack')->name('orders.pack');
         Route::post('record/{order?}', 'record');
     });

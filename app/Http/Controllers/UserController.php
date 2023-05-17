@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseStatus;
+use App\Models\Role;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -49,13 +51,34 @@ class UserController extends Controller
     {
         $attributes = $request->validate([
             'name' => ['required'],
-            'email' => ['required', 'email', 'unique:users,email'],
+            'username' => ['required', 'unique:users,username'],
         ]);
+
         $attributes['password'] = bcrypt('password');
 
         $user = User::create($attributes);
 
         return response()->json(['user' => $user->load(['roles'])]);
+    }
+
+    public function toggleRole(User $user, Role $role)
+    {
+        abort_if($role->name == 'admin', ResponseStatus::BAD_REQUEST->value, 'Cannot modify admin role');
+        $user->roles()->toggle($role->id);
+        return response()->json([
+            'user' => $user->load(['roles'])
+        ]);
+    }
+
+    public function resetPassword(User $user)
+    {
+        $password = rand(100000, 999999);
+
+        $user->update(['password' => bcrypt($password)]);
+
+        return response()->json([
+            'password' => $password
+        ]);
     }
 
     /**

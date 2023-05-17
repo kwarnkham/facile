@@ -13,7 +13,7 @@ class UpdateOrderRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,10 @@ class UpdateOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'customer' => [''],
+            'phone' => [''],
+            'address' => [''],
+            'note' => [''],
         ];
     }
 }
