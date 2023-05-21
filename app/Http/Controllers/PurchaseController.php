@@ -142,6 +142,9 @@ class PurchaseController extends Controller
             abort_if($purchase->purchasable->stock < $purchase->quantity, ResponseStatus::BAD_REQUEST->value, 'Cannot cancel. Order existed');
             $purchase->purchasable->update(['stock' => $purchase->purchasable->stock - $purchase->quantity]);
         }
+        if ($purchase->purchasable instanceof Order && $purchase->purchasable->status == OrderStatus::COMPLETED->value) {
+            abort(ResponseStatus::BAD_REQUEST->value, 'Order is already completed');
+        }
         $purchase->status = 2;
         $purchase->save();
 
