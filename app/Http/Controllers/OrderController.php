@@ -432,6 +432,20 @@ class OrderController extends Controller
         ]);
 
         abort_if(
+            ($attributes['discount'] ?? 0) > 0 && !request()->user()->hasRole('admin'),
+            ResponseStatus::UNAUTHORIZED->value,
+            'You cannot give order discount'
+        );
+
+        abort_if(
+            count(array_filter($attributes['a_items'], function ($aItem) {
+                return ($aItem['discount'] ?? 0) > 0;
+            })) && !request()->user()->hasRole('admin'),
+            ResponseStatus::UNAUTHORIZED->value,
+            'You cannot give product discount'
+        );
+
+        abort_if(
             $order != null &&
                 in_array($order->status, [
                     OrderStatus::CANCELED->value,
