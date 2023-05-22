@@ -39,12 +39,13 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class)->withTimestamps();
     }
 
-    /**
-     * Determine if the user has the given role
-     * @param string $roleName
-     * @return bool
-     */
-    public function hasRole(string $roleName)
+    public function absences()
+    {
+        return $this->hasMany(Absence::class);
+    }
+
+
+    public function hasRole(string $roleName): bool
     {
         return $this->roles->contains(fn ($role) => $role->name == $roleName);
     }

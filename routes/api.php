@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AbsenceController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ItemController;
@@ -40,6 +41,14 @@ Route::controller(UserController::class)->prefix('/users')->group(function () {
         Route::post('{user}/reset-password', 'resetPassword');
         Route::get('', 'index')->name('users.index');
         Route::post('{user}/roles/{role}/toggle', 'toggleRole');
+    });
+});
+
+Route::controller(AbsenceController::class)->prefix('/absences')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('', 'store');
+        Route::delete('{absence}', 'destroy');
+        Route::get('', 'index');
     });
 });
 
