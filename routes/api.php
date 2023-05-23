@@ -13,6 +13,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\AItemController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SettingController;
@@ -48,6 +49,14 @@ Route::controller(AbsenceController::class)->prefix('/absences')->group(function
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::post('', 'store');
         Route::delete('{absence}', 'destroy');
+        Route::get('', 'index');
+    });
+});
+
+Route::controller(OvertimeController::class)->prefix('/overtimes')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('', 'store');
+        Route::delete('{overtime}', 'destroy');
         Route::get('', 'index');
     });
 });
