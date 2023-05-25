@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OrderStatus;
-use App\Enums\PaymentStatus;
 use App\Enums\ProductType;
 use App\Enums\PurchaseStatus;
 use App\Enums\ResponseStatus;
@@ -16,11 +15,12 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Picture;
 use App\Models\Service;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
+use Illuminate\Support\Carbon;
+
+
 
 class OrderController extends Controller
 {
@@ -99,77 +99,6 @@ class OrderController extends Controller
         return response()->json(['statuses' => OrderStatus::array()]);
     }
 
-    /**
-     * Pay the order
-     *
-     * @return \Inertia\Response
-     */
-    public function pay(Order $order)
-    {
-        if (in_array($order->status, [
-            OrderStatus::CANCELED->value,
-            OrderStatus::PAID->value,
-            OrderStatus::COMPLETED->value
-        ])) {
-            $message = 'Order cannot be paid anymore';
-            if (request()->wantsJson()) abort(ResponseStatus::BAD_REQUEST->value, $message);
-            return Redirect::back()->with('message', $message);
-        }
-
-        $totalPaid = $order->paidAmount() + $order->discount;
-        $remaining = floor($order->amount - $totalPaid);
-        $attributes = request()->validate([
-            'payment_id' => ['required', Rule::exists('payments', 'id')],
-            'amount' => [
-                'required', 'numeric', function ($attribute, $value, $fail) use ($remaining) {
-                    if (strval($value) <= 0) {
-                        $fail('The ' . $attribute . ' must be greater than zero.');
-                    }
-                    if (strval($value) > strval($remaining)) {
-                        $fail("The $attribute $value is greater than the remaining order amount $remaining.");
-                    }
-                }
-            ],
-            'note' => ['sometimes', 'required'],
-            'picture' => ['sometimes', 'required', 'image']
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $picture = array_key_exists('picture', $attributes) ? Picture::savePictureInDisk($attributes['picture'], 'order_payments') : null;
-            $payment = Payment::find($attributes['payment_id']);
-            $order->payments()->attach(
-                $attributes['payment_id'],
-                [
-                    'amount' => $attributes['amount'],
-                    'number' => $payment->number,
-                    'note' => $attributes['note'] ?? null,
-                    'account_name' => $payment->account_name,
-                    'payment_name' => DB::table('payment_types')->where('id', $payment->payment_type_id)->first()->name,
-                    'picture' => $picture
-                ]
-            );
-            if (
-                $attributes['amount'] + $totalPaid < $order->amount
-            ) $order->status = 2;
-            else if ($attributes['amount'] + $totalPaid == $order->amount)
-                $order->status = 3;
-            $order->updated_by = request()->user()->id;
-            $order->save();
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            if ($picture)
-                Picture::deletePictureFromDisk($picture, 'payments');
-            throw $th;
-        }
-        DB::commit();
-        if (request()->wantsJson()) {
-            $order->load(['products', 'payments', 'items', 'services']);
-            Payment::generatePaymentScreenshotUrl($order);
-            return response()->json(['order' => $order]);
-        }
-        return Redirect::back()->with('message', 'Success');
-    }
 
     public function cancel(Order $order)
     {
@@ -211,28 +140,6 @@ class OrderController extends Controller
         if (request()->wantsJson()) return response()->json(['order' => $order
             ->load(['products', 'payments', 'items', 'services'])]);
         return Redirect::back()->with('message', 'Success');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        $search = request()->get('search');
-        $serviceSearch = request()->get('serviceSearch');
-        $query = Item::with(['latestProduct'])->take(5);
-        $items = $search ? $query->filter(['search' => $search])->get() : $query->get();
-
-        $query = Service::take(5);
-        $services = $serviceSearch ? $query->where('name', 'like', '%' . $serviceSearch . '%')->get() : $query->get();
-        return Inertia::render('PreOrder', [
-            'items' => $items,
-            'services' => $services,
-            'search' => $search,
-            'serviceSearch' => $serviceSearch
-        ]);
     }
 
     public function preOrder()
@@ -579,15 +486,9 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         $order->load(['aItems', 'purchases']);
-        Payment::generatePaymentScreenshotUrl($order);
-        if (request()->wantsJson()) return response()->json([
+
+        return response()->json([
             'order' => $order
-        ]);
-        return Inertia::render('Order', [
-            'order' => $order,
-            'payments' => Payment::where('status', PaymentStatus::ENABLED->value)->get(),
-            'payment_types' => DB::table('payment_types')->get(),
-            'order_statuses' => OrderStatus::array()
         ]);
     }
 

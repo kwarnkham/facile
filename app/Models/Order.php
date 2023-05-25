@@ -68,14 +68,6 @@ class Order extends Model
         return (float)$this->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
     }
 
-    public function payments()
-    {
-        return $this->belongsToMany(Payment::class)
-            ->withPivot([
-                'amount', 'number', 'note', 'picture', 'payment_name', 'account_name', 'id'
-            ])->withTimestamps();
-    }
-
     public function cancel()
     {
         if (in_array($this->status, [

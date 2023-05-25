@@ -9,14 +9,11 @@ use App\Enums\ResponseStatus;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\AItem;
-use App\Models\Batch;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\OrderProduct;
 use App\Models\Purchase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
-use Inertia\Inertia;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\JsonResponse;
 

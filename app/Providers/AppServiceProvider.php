@@ -3,8 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -36,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
         Password::defaults(function () {
             $rule = Password::min(5);
 
-            return $this->app->isProduction()
+            return App::isProduction()
                 ? $rule->mixedCase()->uncompromised()
                 : $rule;
         });

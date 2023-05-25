@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -19,6 +18,16 @@ class DatabaseSeeder extends Seeder
         DB::table('roles')->insert([
             ['name' => 'admin', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'sale', 'created_at' => $now, 'updated_at' => $now],
+        ]);
+
+        DB::table('settings')->insert([
+            [
+                'print_logo' => '',
+                'delivery_logo' => '',
+                'active_order_status' => '1,2,3,4,5,6,7',
+                'created_at' => $now,
+                'updated_at' => $now
+            ],
         ]);
 
 

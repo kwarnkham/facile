@@ -8,7 +8,6 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -21,13 +20,8 @@ class UserController extends Controller
     {
         $filters = request()->validate(['search' => ['sometimes', 'required']]);
         $query = User::query()->with(['roles'])->filter($filters)->orderBy('id', 'desc');
-        if (request()->wantsJson())
-            return response()->json([
-                'data' => $query->paginate(request()->per_page ?? 20)
-            ]);
-        return Inertia::render('Users', [
-            'users' => $query->paginate(request()->per_page ?? 20),
-            'filters' => $filters,
+        return response()->json([
+            'data' => $query->paginate(request()->per_page ?? 20)
         ]);
     }
 
@@ -81,30 +75,7 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function show(User $user)
-    {
-        $validator = Validator::make(request()->only(['search', 'status', 'selected_tags']), [
-            'search' => [''],
-            'status' => ['exists:items,status'],
-            'selected_tags' => ['sometimes', 'required', function ($attribute, $value, $fail) {
-                $tag_ids = collect(explode(',', $value));
-                if (!$tag_ids->every(fn ($tag_id) => Tag::where('id', $tag_id)->exists())) {
-                    $fail('The selected ' . $attribute . ' is invalid.');
-                }
-            }],
-        ]);
-        $filters = $validator->safe()->only(['search', 'status', 'selected_tags']);
-        if (!array_key_exists('status', $filters)) $filters['status'] = 2;
-        $tags = Tag::all();
-        $user->items = User::find($user->id)->items()->filter($filters)->paginate(request()->per_page ?? 20);
-        return Inertia::render('User', ['user' => $user, 'filters' => $filters, 'tags' => $tags]);
-    }
+
 
     /**
      * Show the form for editing the specified resource.

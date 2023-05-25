@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Expense;
 use App\Models\Picture;
 use Illuminate\Support\Facades\Redirect;
-use Inertia\Inertia;
 
 class ExpenseController extends Controller
 {
@@ -31,7 +30,6 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Expenses', ['expenses' => Expense::all()]);
     }
 
     /**

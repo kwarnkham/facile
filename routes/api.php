@@ -1,14 +1,11 @@
 <?php
 
 use App\Http\Controllers\AbsenceController;
-use App\Http\Controllers\BatchController;
 use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\ItemController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\PictureController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\AItemController;
@@ -16,7 +13,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DutyController;
 use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
@@ -195,7 +191,7 @@ Route::controller(OrderController::class)->prefix('/orders')->group(function () 
     Route::middleware(['auth:sanctum', 'role:sale'])->group(function () {
         Route::post('', 'store')->name('orders.store');
         Route::get('', 'index')->name('orders.index');
-        Route::get('{order}', 'show')->name('orders.show');
+        Route::get('{order}', 'show');
         Route::post('{order}/pay', 'pay')->name('orders.pay');
         Route::put('{order}/customer', 'updateCustomer')->name('orders.update.customer');
         Route::put('{order}', 'update');

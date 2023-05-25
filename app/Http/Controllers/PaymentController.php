@@ -8,8 +8,6 @@ use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Payment;
 use App\Models\Picture;
-use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
 use Redirect;
 
 class PaymentController extends Controller
@@ -21,13 +19,9 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        if (request()->wantsJson()) return response()->json(
+        return response()->json(
             ['data' => Payment::with('paymentType')->orderBy('id', 'desc')->paginate(request()->per_page ?? 20)]
         );
-        return Inertia::render('Payments', [
-            'payment_types' => DB::table('payment_types')->get(),
-            'payments' => Payment::all()
-        ]);
     }
 
     /**
@@ -84,7 +78,6 @@ class PaymentController extends Controller
      */
     public function edit(Payment $payment)
     {
-        return Inertia::render('EditPayment', ['payment' => $payment]);
     }
 
     /**
