@@ -69,6 +69,7 @@ Route::controller(TaskController::class)->prefix('/tasks')->group(function () {
         Route::delete('{task}', 'destroy');
         Route::get('{task}', 'show');
         Route::get('', 'index');
+        Route::put('{task}', 'update');
     });
 });
 

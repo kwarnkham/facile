@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class TaskController extends Controller
 {
@@ -33,11 +34,21 @@ class TaskController extends Controller
         $filters = request()->validate([
             'search' => ['']
         ]);
-        $query = Task::query()->filter($filters);
+        $query = Task::query()->orderBy('sort')->filter($filters);
 
         return response()->json([
             'data' => $query->paginate(request()->per_page ?? 30)
         ]);
+    }
+
+    public function update(Task $task)
+    {
+        $data = request()->validate([
+            'name' => ['required', Rule::unique('tasks', 'name')->ignoreModel($task)],
+            'sort' => ['required', 'numeric', 'gt:0']
+        ]);
+        $task->update($data);
+        return response()->json(['task' => $task]);
     }
 
     public function destroy(Task $task)

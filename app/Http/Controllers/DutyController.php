@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Duty;
-use Illuminate\Validation\Rule;
 
 class DutyController extends Controller
 {
@@ -38,7 +37,7 @@ class DutyController extends Controller
     public function update(Duty $duty)
     {
         $data = request()->validate([
-            'name' => ['required', Rule::unique('duties', 'name')->ignoreModel($duty)],
+            'name' => ['required'],
             'note' => ['']
         ]);
 

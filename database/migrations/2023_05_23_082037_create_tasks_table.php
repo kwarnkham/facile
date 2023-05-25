@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->integer('sort')->default(1);
+            $table->integer('sort')->default(1)->index();
             $table->timestamps();
         });
     }

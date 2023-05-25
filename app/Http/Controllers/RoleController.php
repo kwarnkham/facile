@@ -15,7 +15,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        return response()->json(['roles' => Role::query()->with('tasks')->get()]);
+        return response()->json(['roles' => Role::query()->with('tasks.duties')->get()]);
     }
 
 
@@ -24,7 +24,7 @@ class RoleController extends Controller
         $role->tasks()->toggle($task);
 
         return response()->json([
-            'role' => $role->load(['tasks'])
+            'role' => $role->load(['tasks.duties'])
         ]);
     }
 
