@@ -15,12 +15,12 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $now = now();
-        DB::table('roles')->insert([
+        DB::connection('tenant')->table('roles')->insert([
             ['name' => 'admin', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'sale', 'created_at' => $now, 'updated_at' => $now],
         ]);
 
-        DB::table('settings')->insert([
+        DB::connection('tenant')->table('settings')->insert([
             [
                 'print_logo' => '',
                 'delivery_logo' => '',
@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        DB::table('users')->insert([
+        DB::connection('tenant')->table('users')->insert([
             [
                 'username' => 'admin',
                 'name' => 'admin',
@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => $now
             ],
         ]);
-        DB::table('expenses')->insert([
+        DB::connection('tenant')->table('expenses')->insert([
             [
                 'name' => 'Electric Bill',
                 'created_at' => $now,
@@ -58,7 +58,7 @@ class DatabaseSeeder extends Seeder
             ],
         ]);
 
-        DB::table('role_user')->insert([
+        DB::connection('tenant')->table('role_user')->insert([
             [
                 'role_id' => 1,
                 'user_id' => 1,
@@ -74,7 +74,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        DB::table('payment_types')->insert([
+        DB::connection('tenant')->table('payment_types')->insert([
             [
                 'name' => 'Cash',
                 'created_at' => $now,

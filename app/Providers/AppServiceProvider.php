@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\PersonalAccessToken;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,20 +30,17 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         Model::preventLazyLoading();
-        // Model::preventAccessingMissingAttributes();
+        Model::preventAccessingMissingAttributes();
 
         Password::defaults(function () {
             $rule = Password::min(5);
-
             return App::isProduction()
                 ? $rule->mixedCase()->uncompromised()
                 : $rule;
         });
 
-        /* Use https links instead http links */
-        if (Request::server('HTTP_X_FORWARDED_PROTO') == 'https') {
-            URL::forceScheme('https');
-        }
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
 
         // DB::listen(function ($query) {
         //     Log::info($query->sql);

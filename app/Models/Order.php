@@ -3,16 +3,16 @@
 namespace App\Models;
 
 use App\Enums\ProductType;
-use App\Enums\OrderStatus;
 use App\Enums\PurchaseStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, UsesTenantConnection;
 
     public function reverseStock()
     {
@@ -23,12 +23,6 @@ class Order extends Model
         $this->aItems()->detach();
     }
 
-    public function products()
-    {
-        return $this->belongsToMany(Product::class)
-            ->using(OrderProduct::class)
-            ->withPivot(['quantity', 'price', 'discount', 'name', 'id', 'purchase_price'])->withTimestamps();
-    }
 
     public function purchases()
     {
@@ -42,13 +36,6 @@ class Order extends Model
             ->withTimestamps();
     }
 
-    public function items()
-    {
-        return $this->belongsToMany(Item::class)
-            ->withPivot(['price', 'quantity', 'name'])
-            ->withTimestamps();
-    }
-
     public function aItems()
     {
         return $this->belongsToMany(AItem::class)
@@ -56,45 +43,10 @@ class Order extends Model
             ->withTimestamps();
     }
 
-    public function getProductDiscounts()
-    {
-        return floor((float)$this->products->reduce(function ($carry, $product) {
-            return $product->pivot->discount * $product->pivot->quantity + $carry;
-        }, 0));
-    }
 
     public function paidAmount()
     {
         return (float)$this->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
-    }
-
-    public function cancel()
-    {
-        if (in_array($this->status, [
-            OrderStatus::PENDING->value,
-            OrderStatus::PARTIALLY_PAID->value,
-            OrderStatus::PAID->value,
-            OrderStatus::COMPLETED->value
-        ])) {
-            // if ($order->status == OrderStatus::PAID->value && now()->diffInHours($order->updated_at) >= 24) return Redirect::back()->with('message', 'Cannot cancel a paid order after 24 hours');
-            return DB::transaction(function () {
-                $this->status = OrderStatus::CANCELED->value;
-                $this->updated_by = request()->user()->id;
-                $this->save();
-                $this->products->each(function ($product) {
-                    if ($product->type == ProductType::STOCKED->value) {
-                        $product->stock += $product->pivot->quantity;
-                        $product->save();
-                        $product->pivot->batches->each(function ($batch) {
-                            $batch->stock += $batch->pivot->quantity;
-                            $batch->save();
-                        });
-                    }
-                });
-                return true;
-            });
-        }
-        return false;
     }
 
     public function scopeFilter(Builder $query, $filters)

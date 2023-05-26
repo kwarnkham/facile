@@ -30,7 +30,6 @@ namespace App\Models{
  * @property-read int|null $pictures_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Purchase> $purchases
  * @property-read int|null $purchases_count
- * @method static \Database\Factories\AItemFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|AItem filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|AItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AItem newQuery()
@@ -74,35 +73,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * App\Models\Batch
- *
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Correction> $corrections
- * @property-read int|null $corrections_count
- * @property-read \App\Models\Product|null $product
- * @property-read \App\Models\Purchase|null $purchase
- * @method static \Database\Factories\BatchFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Batch newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Batch newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Batch query()
- */
-	class Batch extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
- * App\Models\Correction
- *
- * @property-read \App\Models\Batch|null $batch
- * @method static \Database\Factories\CorrectionFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Correction newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Correction newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Correction query()
- */
-	class Correction extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
  * App\Models\Duty
  *
  * @property int $id
@@ -135,7 +105,6 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Purchase> $purchases
  * @property-read int|null $purchases_count
- * @method static \Database\Factories\ExpenseFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Expense newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Expense newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Expense query()
@@ -145,30 +114,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Expense whereUpdatedAt($value)
  */
 	class Expense extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
- * App\Models\Item
- *
- * @property-read \App\Models\Product|null $latestProduct
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
- * @property-read int|null $orders_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Picture> $pictures
- * @property-read int|null $pictures_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $products
- * @property-read int|null $products_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
- * @property-read int|null $tags_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Wholesale> $wholesales
- * @property-read int|null $wholesales_count
- * @method static \Database\Factories\ItemFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Item filter($filters)
- * @method static \Illuminate\Database\Eloquent\Builder|Item newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Item newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Item query()
- */
-	class Item extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -190,17 +135,10 @@ namespace App\Models{
  * @property int $updated_by
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AItem> $aItems
  * @property-read int|null $a_items_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Item> $items
- * @property-read int|null $items_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read int|null $payments_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $products
- * @property-read int|null $products_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Purchase> $purchases
  * @property-read int|null $purchases_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Service> $services
  * @property-read int|null $services_count
- * @method static \Database\Factories\OrderFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Order filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Order newQuery()
@@ -220,19 +158,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Order whereUserId($value)
  */
 	class Order extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
- * App\Models\OrderProduct
- *
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Batch> $batches
- * @property-read int|null $batches_count
- * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrderProduct query()
- */
-	class OrderProduct extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -273,10 +198,7 @@ namespace App\Models{
  * @property int $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
- * @property-read int|null $orders_count
  * @property-read \App\Models\PaymentType $paymentType
- * @method static \Database\Factories\PaymentFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Payment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Payment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Payment query()
@@ -300,7 +222,6 @@ namespace App\Models{
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Database\Factories\PaymentTypeFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentType newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentType query()
@@ -310,6 +231,38 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentType whereUpdatedAt($value)
  */
 	class PaymentType extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\PersonalAccessToken
+ *
+ * @property int $id
+ * @property string $tokenable_type
+ * @property int $tokenable_id
+ * @property string $name
+ * @property string $token
+ * @property array|null $abilities
+ * @property \Illuminate\Support\Carbon|null $last_used_at
+ * @property \Illuminate\Support\Carbon|null $expires_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $tokenable
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken whereAbilities($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken whereExpiresAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken whereLastUsedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken whereTokenableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken whereTokenableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PersonalAccessToken whereUpdatedAt($value)
+ */
+	class PersonalAccessToken extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -324,7 +277,6 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $pictureable
- * @method static \Database\Factories\PictureFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Picture newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Picture newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Picture query()
@@ -337,30 +289,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Picture whereUpdatedAt($value)
  */
 	class Picture extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
- * App\Models\Product
- *
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Batch> $batches
- * @property-read int|null $batches_count
- * @property-read \App\Models\Item|null $item
- * @property-read \App\Models\Batch|null $latestBatch
- * @property-read \App\Models\Purchase|null $latestPurchase
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
- * @property-read int|null $orders_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Picture> $pictures
- * @property-read int|null $pictures_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Purchase> $purchases
- * @property-read int|null $purchases_count
- * @method static \Database\Factories\ProductFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Product filter($filters)
- * @method static \Illuminate\Database\Eloquent\Builder|Product newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Product newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Product query()
- */
-	class Product extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -380,7 +308,6 @@ namespace App\Models{
  * @property string|null $picture
  * @property int $group
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $purchasable
- * @method static \Database\Factories\PurchaseFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Purchase newQuery()
@@ -413,7 +340,6 @@ namespace App\Models{
  * @property-read int|null $tasks_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read int|null $users_count
- * @method static \Database\Factories\RoleFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Role newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Role newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Role query()
@@ -431,7 +357,6 @@ namespace App\Models{
  *
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
  * @property-read int|null $orders_count
- * @method static \Database\Factories\ServiceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Service filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Service newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Service newQuery()
@@ -465,20 +390,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * App\Models\Tag
- *
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Item> $items
- * @property-read int|null $items_count
- * @method static \Database\Factories\TagFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Tag newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Tag newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Tag query()
- */
-	class Tag extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
  * App\Models\Task
  *
  * @property int $id
@@ -505,6 +416,33 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * App\Models\Tenant
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $domain
+ * @property string $database
+ * @property string|null $expires_on
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Spatie\Multitenancy\TenantCollection<int, static> all($columns = ['*'])
+ * @method static \Spatie\Multitenancy\TenantCollection<int, static> get($columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereDatabase($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereDomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereExpiresOn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereUpdatedAt($value)
+ */
+	class Tenant extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\User
  *
  * @property int $id
@@ -520,9 +458,8 @@ namespace App\Models{
  * @property-read int|null $notifications_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
- * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|User filter($filters)
  * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
@@ -537,18 +474,5 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUsername($value)
  */
 	class User extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
- * App\Models\Wholesale
- *
- * @property-read \App\Models\Item|null $item
- * @method static \Database\Factories\WholesaleFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Wholesale newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Wholesale newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Wholesale query()
- */
-	class Wholesale extends \Eloquent {}
 }
 

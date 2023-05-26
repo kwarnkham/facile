@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function user()
+    {
+        return response()->json(['user' => request()->user()->load(['roles'])]);
+    }
+
     public function index()
     {
         $filters = request()->validate(['search' => ['sometimes', 'required']]);

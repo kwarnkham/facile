@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Picture extends Model
 {
-    use HasFactory;
+    use HasFactory, UsesTenantConnection;
 
     /**
      * The "booted" method of the model.

@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Overtime extends Model
 {
-    use HasFactory;
+    use HasFactory, UsesTenantConnection;
 
     protected $casts = [
         'from' => 'datetime',

@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use App\Enums\ResponseStatus;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Spatie\Multitenancy\Exceptions\NoCurrentTenant;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -43,8 +45,8 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->reportable(function (NoCurrentTenant $e) {
+            abort(ResponseStatus::BAD_REQUEST->value, 'No space found');
         });
     }
 }

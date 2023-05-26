@@ -4,7 +4,6 @@ namespace App\Traits;
 
 use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 trait Spaceable

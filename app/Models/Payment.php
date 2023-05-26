@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Multitenancy\Models\Concerns\UsesTenantConnection;
 
 class Payment extends Model
 {
-    use HasFactory;
+    use HasFactory, UsesTenantConnection;
 
     public function qr(): Attribute
     {
