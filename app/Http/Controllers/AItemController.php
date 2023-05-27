@@ -36,7 +36,7 @@ class AItemController extends Controller
     public function store()
     {
         $attributes = request()->validate([
-            'name' => ['required', Rule::unique('a_items', 'name')->where('type', request()->type)],
+            'name' => ['required', Rule::unique('tenant.a_items', 'name')->where('type', request()->type)],
             'stock' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],
             'note' => ['sometimes', 'required'],
@@ -45,7 +45,7 @@ class AItemController extends Controller
             'expired_on' => ['sometimes', 'required', 'date'],
             'picture' => ['sometimes', 'required', 'image']
         ]);
-        $aItem = DB::transaction(function () use ($attributes) {
+        $aItem = DB::connection('tenant')->transaction(function () use ($attributes) {
             $aItem = AItem::create(
                 collect($attributes)->except(
                     'purchase_price',
@@ -64,7 +64,7 @@ class AItemController extends Controller
     public function show(AItem $aItem)
     {
         $aItem->load(['purchases', 'latestPurchase']);
-        $aItem->ordered_quantity = DB::table('a_item_order')
+        $aItem->ordered_quantity = DB::connection('tenant')->table('a_item_order')
             ->where([
                 ['a_item_id', '=', $aItem->id,]
             ])
@@ -79,7 +79,7 @@ class AItemController extends Controller
     {
         $attributes = request()->validate([
             'name' => [
-                'required', Rule::unique('a_items', 'name')
+                'required', Rule::unique('tenant.a_items', 'name')
                     ->where(
                         fn (Builder $query) =>
                         $query->where('type', $aItem->type)
@@ -107,7 +107,7 @@ class AItemController extends Controller
             'price' => ['required', 'numeric'],
             'quantity' => ['required', 'numeric', 'gt:0'],
         ]);
-        $result = DB::transaction(function () use ($aItem, $attributes) {
+        $result = DB::connection('tenant')->transaction(function () use ($aItem, $attributes) {
             $attributes['name'] = $aItem->name;
             $aItem->purchases()->create($attributes);
             $aItem->update(['stock' => $aItem->stock + $attributes['quantity']]);

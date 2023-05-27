@@ -9,9 +9,9 @@ class DutyController extends Controller
     public function store()
     {
         $data = request()->validate([
-            'name' => ['required', 'unique:tasks,name'],
+            'name' => ['required', 'unique:tenant.tasks,name'],
             'note' => [''],
-            'task_id' => ['required', 'exists:tasks,id']
+            'task_id' => ['required', 'exists:tenant.tasks,id']
         ]);
 
         $duty = Duty::create($data);

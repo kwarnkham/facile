@@ -20,7 +20,7 @@ class RouteController extends Controller
             'max_stock' => ['sometimes', 'numeric']
         ]);
         return response()->json([
-            'data' => DB::select(
+            'data' => DB::connection('tenant')->select(
                 'SELECT a.product_id,products.name as product,items.name as item,products.stock,a.sales FROM(SELECT product_id,SUM(quantity)AS sales FROM order_product GROUP BY product_id)AS a CROSS JOIN products ON products.id=a.product_id INNER JOIN items ON products.item_id=items.id WHERE products.stock<=? ORDER BY a.sales DESC',
                 [$data['max_stock'] ?? 10]
             )

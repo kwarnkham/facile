@@ -40,7 +40,7 @@ class PurchaseController extends Controller
 
         return response()->json([
             'data' => $query->paginate(request()->per_page ?? 10),
-            'total' => $query->sum(DB::raw('price * quantity'))
+            'total' => $query->sum(DB::connection('tenant')->raw('price * quantity'))
         ]);
     }
 

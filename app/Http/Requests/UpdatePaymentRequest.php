@@ -29,7 +29,7 @@ class UpdatePaymentRequest extends FormRequest
             'account_name' => [Rule::requiredIf($this->payment_type_id != 1)],
             'number' => [
                 Rule::requiredIf($this->route('payment')->payment_type_id != 1),
-                Rule::unique('payments')->where('payment_type_id', $this->route('payment')->payment_type_id)->ignore($this->number, 'number')
+                Rule::unique('tenant.payments')->where('payment_type_id', $this->route('payment')->payment_type_id)->ignore($this->number, 'number')
             ],
         ];
     }

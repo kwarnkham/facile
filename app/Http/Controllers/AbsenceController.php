@@ -21,7 +21,7 @@ class AbsenceController extends Controller
     public function store()
     {
         $data = request()->validate([
-            'user_id' => ['required', 'exists:users,id'],
+            'user_id' => ['required', 'exists:tenant.users,id'],
             'date' => ['required', 'date'],
             'note' => ['']
         ]);

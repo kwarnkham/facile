@@ -45,7 +45,7 @@ class StorePurchaseRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     $table = strtolower($this->type) . 's';
                     if (!Schema::hasTable($table)) $fail('The ' . $attribute . ' table is invalid.');
-                    else if (!DB::table($table)->where('id', $value)->exists()) $fail('The ' . $attribute . ' is invalid.');
+                    else if (!DB::connection('tenant')->table($table)->where('id', $value)->exists()) $fail('The ' . $attribute . ' is invalid.');
                 }
             ]
         ];

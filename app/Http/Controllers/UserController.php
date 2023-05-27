@@ -45,7 +45,7 @@ class UserController extends Controller
     {
         $attributes = $request->validate([
             'name' => ['required'],
-            'username' => ['required', 'unique:users,username'],
+            'username' => ['required', 'unique:tenant.users,username'],
         ]);
 
         $attributes['password'] = bcrypt('password');

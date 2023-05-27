@@ -11,7 +11,7 @@ class TaskController extends Controller
     public function store()
     {
         $data = request()->validate([
-            'name' => ['required', 'unique:tasks,name'],
+            'name' => ['required', 'unique:tenant.tasks,name'],
             'stort' => ['numeric']
         ]);
 
@@ -44,7 +44,7 @@ class TaskController extends Controller
     public function update(Task $task)
     {
         $data = request()->validate([
-            'name' => ['required', Rule::unique('tasks', 'name')->ignoreModel($task)],
+            'name' => ['required', Rule::unique('tenant.tasks', 'name')->ignoreModel($task)],
             'sort' => ['required', 'numeric', 'gt:0']
         ]);
         $task->update($data);

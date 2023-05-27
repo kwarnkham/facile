@@ -25,7 +25,7 @@ class UpdateExpenseRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', Rule::unique('expenses', 'name')->ignore($this->expense->id, 'id')]
+            'name' => ['required', Rule::unique('tenant.expenses', 'name')->ignore($this->expense->id, 'id')]
         ];
     }
 }

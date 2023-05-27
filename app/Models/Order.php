@@ -18,7 +18,7 @@ class Order extends Model
     {
         $this->aItems->each(function ($aItem) {
             if ($aItem->type == ProductType::STOCKED->value)
-                DB::table('a_items')->where('id', $aItem->id)->increment('stock', $aItem->pivot->quantity);
+                DB::connection('tenant')->table('a_items')->where('id', $aItem->id)->increment('stock', $aItem->pivot->quantity);
         });
         $this->aItems()->detach();
     }
