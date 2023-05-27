@@ -18,7 +18,7 @@ nano .env
 php artisan down
 git pull
 composer install --optimize-autoloader --no-dev
-php artisan migrate --force
+php artisan migrate --path=database/migrations/landlord
 npm i
 npm run build
 php artisan optimize
