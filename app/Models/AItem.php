@@ -33,7 +33,7 @@ class AItem extends Model
 
     public static function checkStock(array $data)
     {
-        $aItems = static::whereIn('id', array_map(fn ($val) => $val['id'], $data))->get(['id', 'stock', 'name']);
+        $aItems = static::whereIn('id', array_map(fn ($val) => $val['id'], $data))->get(['id', 'stock', 'name', 'type']);
         $aItems->each(function ($item) use ($data) {
             foreach ($data as $val) {
                 if ($item->id == $val['id'])

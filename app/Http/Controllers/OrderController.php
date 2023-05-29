@@ -6,17 +6,9 @@ use App\Enums\OrderStatus;
 use App\Enums\ProductType;
 use App\Enums\PurchaseStatus;
 use App\Enums\ResponseStatus;
-use App\Http\Requests\StoreOrderRequest;
-use App\Http\Requests\UpdateOrderRequest;
 use App\Models\AItem;
-use App\Models\Product;
-use App\Models\Item;
 use App\Models\Order;
-use App\Models\Payment;
-use App\Models\Picture;
-use App\Models\Service;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Carbon;
 
