@@ -161,6 +161,7 @@ Route::middleware('tenant')->group(function () {
             Route::get('', 'index');
             Route::get('{order}', 'show');
             Route::post('record/{order?}', 'record');
+            Route::post('{order}/purchase', 'purchase');
         });
     });
 });
