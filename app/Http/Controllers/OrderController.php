@@ -42,7 +42,7 @@ class OrderController extends Controller
     public function purchase(Order $order)
     {
         abort_if(
-            in_array($order->value, [OrderStatus::COMPLETED->value, OrderStatus::CANCELED->value]),
+            in_array($order->status, [OrderStatus::COMPLETED->value, OrderStatus::CANCELED->value]),
             ResponseStatus::BAD_REQUEST->value,
             'Cannot purchase a canceled or completed order'
         );
