@@ -21,7 +21,7 @@ class Payment extends Model
 
         return Attribute::make(
             fn ($value) => $value ? Storage::url(
-                $tenant->domain . '/payments/' .  '/' . $value
+                $tenant->domain . '/payments' .  '/' . $value
             ) : $value
         );
     }
