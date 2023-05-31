@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ResponseStatus;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,9 +15,13 @@ class Payment extends Model
 
     public function qr(): Attribute
     {
+        $tenant = app('currentTenant');
+
+        abort_if(is_null($tenant), ResponseStatus::BAD_REQUEST->value, 'No tenant found');
+
         return Attribute::make(
             fn ($value) => $value ? Storage::url(
-                config('app')['name'] . '/payments/' . config('app')['env'] . '/' . $value
+                $tenant->domain . '/payments/' .  '/' . $value
             ) : $value
         );
     }

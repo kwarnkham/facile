@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ResponseStatus;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -59,7 +60,11 @@ class Picture extends Model
 
     public static function savePictureInDisk(File|UploadedFile $picture, string $dir)
     {
-        return basename(Storage::putFile(config('app')['name'] . '/' . $dir . '/' . config('app')['env'], $picture, 'public'));
+        $tenant = app('currentTenant');
+
+        abort_if(is_null($tenant), ResponseStatus::BAD_REQUEST->value, 'No tenant found');
+
+        return basename(Storage::putFile($tenant->domain . '/' . $dir . '/', $picture, 'public'));
     }
 
     public static function deletePictureFromDisk(string $name, string $dir)
