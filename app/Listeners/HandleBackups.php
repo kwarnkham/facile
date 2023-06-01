@@ -33,13 +33,19 @@ class HandleBackups
         Storage::disk('backups')->move($event->backupDestination->newestBackup()->path(), $name);
         $botToken = '6280498161:AAGgBAaxjr40bhSNzlGno7M8QbaJVKCzhyA';
         $file = fopen(Storage::disk('backups')->path($name), 'r');
+        $chatId = 1391365941;
         $response = Http::attach('document', $file, $name)
             ->post('https://api.telegram.org/bot' . $botToken . '/sendDocument', [
-                'chat_id' => 1391365941
+                'chat_id' => $chatId
             ]);
         fclose($file);
         if ($response->successful()) {
             Storage::disk('backups')->delete($name);
+        } else {
+            Http::post('https://api.telegram.org/bot' . $botToken . '/sendMessage', [
+                'chat_id' => $chatId,
+                'text' => 'Failed to upload the backup ' . $name
+            ]);
         }
     }
 }
