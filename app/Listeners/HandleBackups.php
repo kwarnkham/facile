@@ -31,9 +31,9 @@ class HandleBackups
         );
         $name = str_replace(config('app')['name'], 'db', $name);
         Storage::disk('backups')->move($event->backupDestination->newestBackup()->path(), $name);
-        $botToken = '6280498161:AAGgBAaxjr40bhSNzlGno7M8QbaJVKCzhyA';
         $file = fopen(Storage::disk('backups')->path($name), 'r');
-        $chatId = 1391365941;
+        $botToken = config('backup')['telegram_bot_token'];
+        $chatId = config('backup')['telegram_chat_id'];
         $response = Http::attach('document', $file, $name)
             ->post('https://api.telegram.org/bot' . $botToken . '/sendDocument', [
                 'chat_id' => $chatId

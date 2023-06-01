@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'telegram_bot_token' => env('TELEGRAM_BOT_TOEKN', null),
+
+    'telegram_chat_id' => env('TELEGRAM_CHAT_ID', null),
 
     'backup' => [
 
@@ -9,6 +12,8 @@ return [
          * the backups.
          */
         'name' => env('APP_NAME', 'laravel-backup'),
+
+
 
         'source' => [
 
