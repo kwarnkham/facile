@@ -160,6 +160,7 @@ Route::middleware('tenant')->group(function () {
         Route::middleware(['auth:sanctum', 'role:sale'])->group(function () {
             Route::get('', 'index');
             Route::get('{order}', 'show');
+            Route::put('{order}', 'update');
             Route::post('record/{order?}', 'record');
             Route::post('{order}/purchase', 'purchase');
         });

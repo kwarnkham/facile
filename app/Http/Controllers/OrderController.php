@@ -236,4 +236,18 @@ class OrderController extends Controller
             'order' => $order
         ]);
     }
+
+    public function update(Order $order)
+    {
+        $data = request()->validate([
+            'address' => [],
+            'customer' => [],
+            'phone' => [],
+            'note' => [],
+        ]);
+
+        $order->update($data);
+
+        return response()->json(['order' => $order->fresh(['aItems', 'purchases'])]);
+    }
 }
