@@ -43,12 +43,6 @@ class Order extends Model
             ->withTimestamps();
     }
 
-
-    public function paidAmount()
-    {
-        return (float)$this->payments->reduce(fn ($carry, $payment) => $payment->pivot->amount + $carry, 0);
-    }
-
     public function scopeFilter(Builder $query, $filters)
     {
         $query
