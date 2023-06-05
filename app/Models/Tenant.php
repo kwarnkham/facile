@@ -18,6 +18,7 @@ class Tenant extends BaseTenant
 
     public function deleteDatabase()
     {
+        Artisan::call('tenants:artisan "backup:run --only-db" --tenant=' . $this->id);
         DB::connection('mysql')->statement("DROP DATABASE `{$this->database}`");
     }
 
