@@ -26,7 +26,7 @@ php artisan up
 systemctl restart nginx
 ```
 
-Tenant::create(['name'=> 'phoneshop', 'domain'=> 'phoneshop', 'database'=> 'facile.phoneshop'])
+Tenant::create(['name'=> 'taetaetin', 'domain'=> 'taetaetin', 'database'=> 'facile.taetaetin', 'type'=> 2])
 
 # Move server
 

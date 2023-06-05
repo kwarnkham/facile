@@ -15,8 +15,8 @@ use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -163,6 +163,14 @@ Route::middleware('tenant')->group(function () {
             Route::put('{order}', 'update');
             Route::post('record/{order?}', 'record');
             Route::post('{order}/purchase', 'purchase');
+        });
+    });
+
+    Route::controller(TenantController::class)->prefix('/tenants')->group(function () {
+        // Route::get('status', 'status')->name('orders.status');
+        Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+            Route::post('', 'store');
+            Route::get('', 'index');
         });
     });
 });

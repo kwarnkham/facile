@@ -16,7 +16,8 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token->plainTextToken,
-            'user' => $user->load(['roles'])
+            'user' => $user->load(['roles']),
+            'tenant' => app('currentTenant')
         ]);
     }
 

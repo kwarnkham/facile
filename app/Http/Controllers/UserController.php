@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Enums\ResponseStatus;
 use App\Models\Role;
-use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
     public function user()
     {
-        return response()->json(['user' => request()->user()->load(['roles'])]);
+        return response()->json([
+            'user' => request()->user()->load(['roles']),
+            'tenant' => app('currentTenant')
+        ]);
     }
 
     public function index()
