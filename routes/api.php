@@ -171,6 +171,7 @@ Route::middleware('tenant')->group(function () {
         Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
             Route::post('', 'store');
             Route::get('', 'index');
+            Route::post('{tenant}/renew-subscription', 'renewSubscription');
         });
     });
 });

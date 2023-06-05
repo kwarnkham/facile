@@ -25,12 +25,21 @@ class TenantController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function renewSubscription(Tenant $tenant)
     {
-        //
+
+        $data = request()->validate([
+            'days' => ['required', 'numeric'],
+            'price' => ['required', 'numeric'],
+        ]);
+        DB::connection('mysql')->transaction(function () use ($tenant, $data) {
+            $tenant->subscriptions()->create($data);
+            $tenant->update(['expires_on' => $tenant->expires_on->addDays($data['days'])]);
+        });
+
+        return response()->json([
+            'tenant' => $tenant
+        ]);
     }
 
     /**
@@ -46,8 +55,6 @@ class TenantController extends Controller
             'price' => ['required', 'numeric', 'gt:0'],
         ]);
 
-        $currentTenant = app('currentTenant');
-
         $tenant = DB::transaction(function ()  use ($data) {
             $tenant = Tenant::create([
                 'name' => $data['name'],
@@ -62,8 +69,6 @@ class TenantController extends Controller
             ]);
             return $tenant;
         });
-
-        $currentTenant->makeCurrent();
 
         return response()->json(['tenant' => $tenant]);
     }
