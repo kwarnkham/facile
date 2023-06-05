@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Spatie\Multitenancy\Models\Tenant as BaseTenant;
@@ -18,7 +19,8 @@ class Tenant extends BaseTenant
 
     public function deleteDatabase()
     {
-        Artisan::call('tenants:artisan "backup:run --only-db" --tenant=' . $this->id);
+        if (App::isProduction())
+            Artisan::call('tenants:artisan "backup:run --only-db" --tenant=' . $this->id);
         DB::connection('mysql')->statement("DROP DATABASE `{$this->database}`");
     }
 

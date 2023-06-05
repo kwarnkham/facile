@@ -37,7 +37,9 @@ class TenantController extends Controller
         ]);
         DB::connection('mysql')->transaction(function () use ($tenant, $data) {
             $tenant->subscriptions()->create([...$data, 'customer' => $tenant->name]);
-            $tenant->update(['expires_on' => $tenant->expires_on->addDays($data['days'])]);
+            $tenant->update([
+                'expires_on' => $tenant->expires_on->addDays($data['days'])
+            ]);
         });
 
         return response()->json([
@@ -63,7 +65,11 @@ class TenantController extends Controller
                 'name' => $data['name'],
                 'domain' => $data['domain'],
                 'database' => $data['database'],
-                'expires_on' => now()->addDays($data['days'])
+                'expires_on' => now()
+                    ->addDays($data['days'])
+                    ->endOfDay()
+                    ->subHours(6)
+                    ->subMinutes(30)
             ]);
 
             $tenant->subscriptions()->create([
