@@ -41,10 +41,11 @@ class Tenant extends BaseTenant
 
     public function createDatabase()
     {
-        $this->makeCurrent();
+
         DB::connection('tenant')->statement("CREATE DATABASE `{$this->database}`");
         config(['database.connections.tenant.database' => $this->database]);
         DB::purge('tenant');
+        $this->makeCurrent();
         Artisan::call('migrate --database=tenant --path=database/migrations/tenant --force');
         Artisan::call('db:seed --database=tenant --force');
     }
