@@ -42,10 +42,10 @@
     },
     "scripts": {
         "ide-helper": [
-            "@php artisan clear-compiled",
-            "@php artisan ide-helper:generate",
-            "@php artisan ide-helper:models -N",
-            "@php artisan ide-helper:meta"
+            "@php artisan tenants:artisan 'clear-compiled' --tenant=1",
+            "@php artisan tenants:artisan 'ide-helper:generate' --tenant=1",
+            "@php artisan tenants:artisan 'ide-helper:models -N' --tenant=1",
+            "@php artisan tenants:artisan 'ide-helper:meta' --tenant=1"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

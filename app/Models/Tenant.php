@@ -12,6 +12,13 @@ class Tenant extends BaseTenant
     protected static function booted()
     {
         static::creating(fn (Tenant $tenant) => $tenant->createDatabase());
+
+        static::deleting(fn (Tenant $tenant) => $tenant->deleteDatabase());
+    }
+
+    public function deleteDatabase()
+    {
+        DB::connection('mysql')->statement("DROP DATABASE `{$this->database}`");
     }
 
     protected $casts = ['expires_on' => 'datetime'];

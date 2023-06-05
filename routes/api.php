@@ -172,6 +172,7 @@ Route::middleware('tenant')->group(function () {
             Route::post('', 'store');
             Route::get('', 'index');
             Route::post('{tenant}/renew-subscription', 'renewSubscription');
+            Route::delete('{tenant}', 'destroy');
         });
     });
 });

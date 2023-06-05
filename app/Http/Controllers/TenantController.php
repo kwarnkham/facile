@@ -19,7 +19,10 @@ class TenantController extends Controller
             'expired' => ['boolean'],
             'active' => ['boolean']
         ]);
-        $query = Tenant::query()->orderBy('expires_on')->filter($filters);
+        $query = Tenant::query()
+            ->where('type', 1)
+            ->orderBy('expires_on')
+            ->filter($filters);
         return response()->json([
             'data' => $query->paginate(request()->per_page ?? 30)
         ]);
@@ -33,7 +36,7 @@ class TenantController extends Controller
             'price' => ['required', 'numeric'],
         ]);
         DB::connection('mysql')->transaction(function () use ($tenant, $data) {
-            $tenant->subscriptions()->create($data);
+            $tenant->subscriptions()->create([...$data, 'customer' => $tenant->name]);
             $tenant->update(['expires_on' => $tenant->expires_on->addDays($data['days'])]);
         });
 
@@ -66,11 +69,12 @@ class TenantController extends Controller
             $tenant->subscriptions()->create([
                 'days' => $data['days'],
                 'price' => $data['price'],
+                'customer' => $tenant->name
             ]);
             return $tenant;
         });
 
-        return response()->json(['tenant' => $tenant]);
+        return response()->json(['tenant' => $tenant->fresh()]);
     }
 
     /**
@@ -102,6 +106,9 @@ class TenantController extends Controller
      */
     public function destroy(Tenant $tenant)
     {
-        //
+        $tenant->delete();
+
+
+        return response()->json(['message' => 'Deleted']);
     }
 }

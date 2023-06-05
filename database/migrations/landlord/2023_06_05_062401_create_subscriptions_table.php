@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained();
+            $table->foreignId('tenant_id')->nullable()->constrained()->nullOnDelete();
             $table->unsignedInteger('days');
             $table->double('price');
+            $table->string('customer');
             $table->timestamps();
         });
     }

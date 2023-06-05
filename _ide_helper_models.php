@@ -390,6 +390,29 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * App\Models\Subscription
+ *
+ * @property int $id
+ * @property int|null $tenant_id
+ * @property int $days
+ * @property float $price
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereDays($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereTenantId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Subscription whereUpdatedAt($value)
+ */
+	class Subscription extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * App\Models\Task
  *
  * @property int $id
@@ -422,10 +445,14 @@ namespace App\Models{
  * @property string $name
  * @property string $domain
  * @property string $database
- * @property string|null $expires_on
+ * @property \Illuminate\Support\Carbon|null $expires_on
+ * @property int $type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subscription> $subscriptions
+ * @property-read int|null $subscriptions_count
  * @method static \Spatie\Multitenancy\TenantCollection<int, static> all($columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant filter($filters)
  * @method static \Spatie\Multitenancy\TenantCollection<int, static> get($columns = ['*'])
  * @method static \Illuminate\Database\Eloquent\Builder|Tenant newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Tenant newQuery()
@@ -436,6 +463,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereExpiresOn($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Tenant whereUpdatedAt($value)
  */
 	class Tenant extends \Eloquent {}
