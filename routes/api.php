@@ -12,6 +12,7 @@ use App\Http\Controllers\AItemController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DutyController;
 use App\Http\Controllers\OvertimeController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TaskController;
@@ -173,6 +174,13 @@ Route::middleware('tenant')->group(function () {
             Route::get('', 'index');
             Route::post('{tenant}/renew-subscription', 'renewSubscription');
             Route::delete('{tenant}', 'destroy');
+        });
+    });
+
+    Route::controller(PlanController::class)->prefix('/plans')->group(function () {
+        // Route::get('status', 'status')->name('orders.status');
+        Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+            Route::get('', 'index');
         });
     });
 });

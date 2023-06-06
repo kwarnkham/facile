@@ -19,14 +19,13 @@ php artisan down
 git pull
 composer install --optimize-autoloader --no-dev
 php artisan migrate --path=database/migrations/landlord
+php artisan migrate:fresh --path=database/migrations/landlord
 npm i
 npm run build
 php artisan optimize
 php artisan up
 systemctl restart nginx
 ```
-
-Tenant::create(['name'=> 'taetaetin', 'domain'=> 'taetaetin', 'database'=> 'facile.taetaetin', 'type'=> 2])
 
 # Move server
 

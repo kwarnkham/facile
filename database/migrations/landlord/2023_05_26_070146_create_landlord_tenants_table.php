@@ -15,6 +15,7 @@ class CreateLandlordTenantsTable extends Migration
             $table->string('database')->unique();
             $table->timestamp('expires_on')->index()->nullable();
             $table->integer('type')->default(1);
+            $table->foreignId('plan_id')->constrained();
             $table->timestamps();
         });
     }

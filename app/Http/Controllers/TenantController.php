@@ -20,6 +20,7 @@ class TenantController extends Controller
             'active' => ['boolean']
         ]);
         $query = Tenant::query()
+            ->with(['plan'])
             ->where('type', 1)
             ->orderBy('expires_on')
             ->filter($filters);
@@ -30,20 +31,22 @@ class TenantController extends Controller
 
     public function renewSubscription(Tenant $tenant)
     {
-
         $data = request()->validate([
-            'days' => ['required', 'numeric'],
-            'price' => ['required', 'numeric'],
+            'days' => ['required', 'numeric', 'gte:0'],
+            'price' => ['required', 'numeric', 'gte:0'],
+            'plan_id' => ['required', Rule::exists('mysql.plans', 'id')]
         ]);
+
         DB::connection('mysql')->transaction(function () use ($tenant, $data) {
             $tenant->subscriptions()->create([...$data, 'customer' => $tenant->name]);
             $tenant->update([
-                'expires_on' => $tenant->expires_on->addDays($data['days'])
+                'expires_on' => $tenant->expires_on->addDays($data['days']),
+                'plan_id' => $data['plan_id']
             ]);
         });
 
         return response()->json([
-            'tenant' => $tenant
+            'tenant' => $tenant->load(['plan'])
         ]);
     }
 
@@ -56,8 +59,9 @@ class TenantController extends Controller
             'name' => ['required', Rule::unique('mysql.tenants', 'name')],
             'domain' => ['required', Rule::unique('mysql.tenants', 'domain')],
             'database' => ['required', Rule::unique('mysql.tenants', 'database')],
-            'days' => ['required', 'numeric', 'gt:0'],
-            'price' => ['required', 'numeric', 'gt:0'],
+            'days' => ['required', 'numeric', 'gte:0'],
+            'price' => ['required', 'numeric', 'gte:0'],
+            'plan_id' => ['required', Rule::exists('mysql.plans', 'id')]
         ]);
 
         $tenant = DB::transaction(function ()  use ($data) {
@@ -65,6 +69,7 @@ class TenantController extends Controller
                 'name' => $data['name'],
                 'domain' => $data['domain'],
                 'database' => $data['database'],
+                'plan_id' => $data['plan_id'],
                 'expires_on' => now()
                     ->addDays($data['days'])
                     ->endOfDay()
@@ -75,12 +80,13 @@ class TenantController extends Controller
             $tenant->subscriptions()->create([
                 'days' => $data['days'],
                 'price' => $data['price'],
-                'customer' => $tenant->name
+                'customer' => $tenant->name,
+                'plan_id' => $data['plan_id']
             ]);
             return $tenant;
         });
 
-        return response()->json(['tenant' => $tenant->fresh()]);
+        return response()->json(['tenant' => $tenant->fresh(['plan'])]);
     }
 
     /**

@@ -51,7 +51,6 @@ class Tenant extends BaseTenant
 
     public function createDatabase()
     {
-
         DB::connection('tenant')->statement("CREATE DATABASE `{$this->database}`");
         config(['database.connections.tenant.database' => $this->database]);
         DB::purge('tenant');
@@ -63,5 +62,10 @@ class Tenant extends BaseTenant
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
     }
 }
