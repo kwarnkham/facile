@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseStatus;
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Expense;
@@ -40,6 +41,13 @@ class ExpenseController extends Controller
      */
     public function store(StoreExpenseRequest $request)
     {
+        $tenant = app('currentTenant');
+        abort_if(
+            $tenant->plan_usage['expense'] >= 0 &&
+                $tenant->plan_usage['expense'] <= Expense::query()->count(),
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan_usage['expense'] . ' expenses.'
+        );
         $attributes = $request->validated();
         $expense = Expense::create($attributes);
         if (request()->wantsJson()) return response()->json(['expense' => $expense]);
@@ -47,6 +55,14 @@ class ExpenseController extends Controller
 
     public function record(Expense $expense)
     {
+        $tenant = app('currentTenant');
+        abort_if(
+            $tenant->plan_usage['purchase'] > -1 &&
+                $tenant->plan_usage['purchase'] == 0,
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan->details['purchase'] . ' purchases per day.'
+        );
+
         $attributes = request()->validate([
             'price' => ['required', 'numeric'],
             'note' => ['sometimes', 'required'],

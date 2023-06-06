@@ -35,6 +35,15 @@ class AItemController extends Controller
 
     public function store()
     {
+        $tenant = app('currentTenant');
+        abort_if(
+            $tenant->plan_usage['product'] >= 0 &&
+                $tenant->plan_usage['product'] <= AItem::query()->count(),
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan_usage['product'] . ' products.'
+        );
+
+
         $attributes = request()->validate([
             'name' => ['required', Rule::unique('tenant.a_items', 'name')->where('type', request()->type)],
             'stock' => ['required', 'numeric'],
@@ -45,6 +54,16 @@ class AItemController extends Controller
             'expired_on' => ['sometimes', 'required', 'date'],
             'picture' => ['sometimes', 'required', 'image']
         ]);
+
+
+        abort_if(
+            $attributes['type'] == ProductType::STOCKED->value &&
+                $tenant->plan_usage['purchase'] > -1 &&
+                $tenant->plan_usage['purchase'] == 0,
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan->details['purchase'] . ' purchases per day.'
+        );
+
         $aItem = DB::connection('tenant')->transaction(function () use ($attributes) {
             $aItem = AItem::create(
                 collect($attributes)->except(

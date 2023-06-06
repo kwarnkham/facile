@@ -42,6 +42,13 @@ class PaymentController extends Controller
      */
     public function store(StorePaymentRequest $request)
     {
+        $tenant = app('currentTenant');
+        abort_if(
+            $tenant->plan_usage['payment'] >= 0 &&
+                $tenant->plan_usage['payment'] <= Payment::query()->count(),
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan_usage['payment'] . ' payments.'
+        );
         $attributes = $request->validated();
         $qr = array_key_exists('qr', $attributes) ? Picture::savePictureInDisk($attributes['qr'], 'payments') : null;
         if ($qr) {

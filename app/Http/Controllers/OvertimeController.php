@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseStatus;
 use App\Models\Overtime;
 
 class OvertimeController extends Controller
@@ -20,6 +21,13 @@ class OvertimeController extends Controller
     }
     public function store()
     {
+        $tenant = app('currentTenant');
+        abort_if(
+            $tenant->plan_usage['overtime'] > -1 &&
+                $tenant->plan_usage['overtime'] == 0,
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan->details['overtime'] . ' overtimes per day.'
+        );
         $data = request()->validate([
             'user_id' => ['required', 'exists:tenant.users,id'],
             'from' => ['required', 'date'],

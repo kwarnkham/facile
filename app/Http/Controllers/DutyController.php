@@ -2,12 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseStatus;
 use App\Models\Duty;
 
 class DutyController extends Controller
 {
     public function store()
     {
+        $tenant = app('currentTenant');
+        abort_if(
+            $tenant->plan_usage['duty'] >= 0 &&
+                $tenant->plan_usage['duty'] <= Duty::query()->count(),
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan_usage['duty'] . ' duties.'
+        );
         $data = request()->validate([
             'name' => ['required', 'unique:tenant.tasks,name'],
             'note' => [''],

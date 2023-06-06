@@ -103,28 +103,58 @@ class DatabaseSeeder extends Seeder
                     'updated_at' => $now
                 ],
             ]);
+
+            DB::connection('tenant')->table('payments')->insert([
+                [
+                    'payment_type_id' => 1,
+                    'status' => 1,
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ]
+            ]);
         }
 
         if (DB::connection('mysql')->table('plans')->count() == 0) {
 
             DB::connection('mysql')->table('plans')->insert(
                 [
-                    'name' => 'entry',
-                    'details' => json_encode(['order' => 50, 'product' => 50, 'purchase' => 50, 'user' => 10, 'task' => 5, 'duty' => 10, 'payment' => 10, 'absence' => 50, 'overtime' => 50]),
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    [
+                        'name' => 'entry',
+                        'details' => json_encode([
+                            'order' => 50,
+                            'product' => 50,
+                            'purchase' => 50,
+                            'user' => 10,
+                            'task' => 50,
+                            'duty' => 10,
+                            'payment' => 10,
+                            'absence' => 50,
+                            'overtime' => 50,
+                            'expense' => 50
+                        ]),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'name' => 'unlimited',
+                        'details' => json_encode([
+                            'order' => -1,
+                            'product' => -1,
+                            'purchase' => -1,
+                            'user' => -1,
+                            'task' => -1,
+                            'duty' => -1,
+                            'payment' => -1,
+                            'absence' => -1,
+                            'overtime' => -1,
+                            'expense' => -1
+                        ]),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
                 ]
-            );
 
-            DB::connection('mysql')->table('plans')->insert(
-                [
-                    'name' => 'unilimited',
-                    'details' => json_encode(['order' => -1, 'product' => -1, 'purchase' => -1, 'user' => -1, 'task' => -1, 'duty' => -1, 'payment' => -1, 'absence' => -1, 'overtime' => -1]),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
             );
-
 
             Tenant::create(['name' => 'taetaetin', 'domain' => 'taetaetin', 'database' => 'facile.taetaetin', 'type' => 2, 'plan_id' => 2, 'plan_usage' => Plan::find(2)->details->toArray()]);
         }

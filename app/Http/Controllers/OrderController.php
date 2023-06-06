@@ -41,6 +41,13 @@ class OrderController extends Controller
 
     public function purchase(Order $order)
     {
+        $tenant = app('currentTenant');
+        abort_if(
+            $tenant->plan_usage['purchase'] > -1 &&
+                $tenant->plan_usage['purchase'] == 0,
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan->details['purchase'] . ' purchases per day.'
+        );
         abort_if(
             in_array($order->status, [OrderStatus::COMPLETED->value, OrderStatus::CANCELED->value]),
             ResponseStatus::BAD_REQUEST->value,
@@ -67,6 +74,15 @@ class OrderController extends Controller
 
     public function record(Order $order = null)
     {
+        $tenant = app('currentTenant');
+        abort_if(
+            is_null($order) &&
+                $tenant->plan_usage['order'] > -1 &&
+                $tenant->plan_usage['order'] == 0,
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan->details['order'] . ' orders per day.'
+        );
+
         $attributes = request()->validate([
             'customer' => [''],
             'phone' => [''],

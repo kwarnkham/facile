@@ -11,6 +11,16 @@ class Absence extends Model
 {
     use HasFactory, UsesTenantConnection;
 
+
+    protected static function booted()
+    {
+        static::created(function () {
+            $tenant = app('currentTenant');
+            if ($tenant->plan_usage['absence'] > 0)
+                $tenant->update(['plan_usage->absence' => $tenant->plan_usage['absence'] - 1]);
+        });
+    }
+
     public function scopeFilter(Builder $query, $filters)
     {
         $query->when(

@@ -14,6 +14,15 @@ class Order extends Model
 {
     use HasFactory, UsesTenantConnection;
 
+    protected static function booted()
+    {
+        static::created(function () {
+            $tenant = app('currentTenant');
+            if ($tenant->plan_usage['order'] > 0)
+                $tenant->update(['plan_usage->order' => $tenant->plan_usage['order'] - 1]);
+        });
+    }
+
     public function reverseStock()
     {
         $this->aItems->each(function ($aItem) {

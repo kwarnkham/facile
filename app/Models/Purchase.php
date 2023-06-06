@@ -18,6 +18,15 @@ class Purchase extends Model
         return $this->morphTo();
     }
 
+    protected static function booted()
+    {
+        static::created(function () {
+            $tenant = app('currentTenant');
+            if ($tenant->plan_usage['purchase'] > 0)
+                $tenant->update(['plan_usage->purchase' => $tenant->plan_usage['purchase'] - 1]);
+        });
+    }
+
     public function picture(): Attribute
     {
         return Attribute::make(

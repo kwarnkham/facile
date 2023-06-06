@@ -11,6 +11,15 @@ class Overtime extends Model
 {
     use HasFactory, UsesTenantConnection;
 
+    protected static function booted()
+    {
+        static::created(function () {
+            $tenant = app('currentTenant');
+            if ($tenant->plan_usage['overtime'] > 0)
+                $tenant->update(['plan_usage->overtime' => $tenant->plan_usage['overtime'] - 1]);
+        });
+    }
+
     protected $casts = [
         'from' => 'datetime',
         'to' => 'datetime'

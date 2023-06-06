@@ -44,6 +44,13 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $tenant = app('currentTenant');
+        abort_if(
+            $tenant->plan_usage['user'] >= 0 &&
+                $tenant->plan_usage['user'] <= User::query()->count(),
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan_usage['user'] . ' users.'
+        );
         $attributes = $request->validate([
             'name' => ['required'],
             'username' => ['required', 'unique:tenant.users,username'],

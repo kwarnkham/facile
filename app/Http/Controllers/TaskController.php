@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseStatus;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,13 @@ class TaskController extends Controller
 {
     public function store()
     {
+        $tenant = app('currentTenant');
+        abort_if(
+            $tenant->plan_usage['task'] >= 0 &&
+                $tenant->plan_usage['task'] <= Task::query()->count(),
+            ResponseStatus::BAD_REQUEST->value,
+            'Your plan only allow maximum of ' . $tenant->plan_usage['task'] . ' tasks.'
+        );
         $data = request()->validate([
             'name' => ['required', 'unique:tenant.tasks,name'],
             'stort' => ['numeric']
