@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Plan;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,12 +38,15 @@ class TenantController extends Controller
             'plan_id' => ['required', Rule::exists('mysql.plans', 'id')]
         ]);
 
+
         DB::connection('mysql')->transaction(function () use ($tenant, $data) {
             $tenant->subscriptions()->create([...$data, 'customer' => $tenant->name]);
-            $tenant->update([
+            $updateData = [
                 'expires_on' => $tenant->expires_on->addDays($data['days']),
                 'plan_id' => $data['plan_id']
-            ]);
+            ];
+            if ($data['plan_id'] != $tenant->plan_id) $updateData['plan_usage'] = Plan::find($data['plan_id'])->details;
+            $tenant->update($updateData);
         });
 
         return response()->json([
@@ -70,6 +74,7 @@ class TenantController extends Controller
                 'domain' => $data['domain'],
                 'database' => $data['database'],
                 'plan_id' => $data['plan_id'],
+                'plan_usage' => Plan::find($data['plan_id'])->details,
                 'expires_on' => now()
                     ->addDays($data['days'])
                     ->endOfDay()
@@ -119,8 +124,6 @@ class TenantController extends Controller
     public function destroy(Tenant $tenant)
     {
         $tenant->delete();
-
-
         return response()->json(['message' => 'Deleted']);
     }
 }

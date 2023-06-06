@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Plan;
 use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -125,7 +126,7 @@ class DatabaseSeeder extends Seeder
             );
 
 
-            Tenant::create(['name' => 'taetaetin', 'domain' => 'taetaetin', 'database' => 'facile.taetaetin', 'type' => 2, 'plan_id' => 2]);
+            Tenant::create(['name' => 'taetaetin', 'domain' => 'taetaetin', 'database' => 'facile.taetaetin', 'type' => 2, 'plan_id' => 2, 'plan_usage' => Plan::find(2)->details->toArray()]);
         }
     }
 }

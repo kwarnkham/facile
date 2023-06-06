@@ -19,6 +19,10 @@ class Kernel extends ConsoleKernel
             // ->everyMinute();
             ->timezone('Asia/Yangon')
             ->dailyAt('02:30');
+
+        $schedule->command('tenants:artisan "backup:run --only-db"')
+            ->timezone('Asia/Yangon')
+            ->dailyAt('00:00');
     }
 
     /**

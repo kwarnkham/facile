@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,10 @@ class Tenant extends BaseTenant
         DB::connection('mysql')->statement("DROP DATABASE `{$this->database}`");
     }
 
-    protected $casts = ['expires_on' => 'datetime'];
+    protected $casts = [
+        'expires_on' => 'datetime',
+        'plan_usage' => AsArrayObject::class
+    ];
 
     public function scopeFilter(Builder $query, $filters)
     {
