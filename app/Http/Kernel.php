@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\NeedsSubscription;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -51,6 +52,8 @@ class Kernel extends HttpKernel
         ],
         'tenant' => [
             \Spatie\Multitenancy\Http\Middleware\NeedsTenant::class,
+            NeedsSubscription::class
+
         ],
 
         'api' => [
