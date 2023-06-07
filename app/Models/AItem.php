@@ -75,6 +75,11 @@ class AItem extends Model
         return $this->morphMany(Purchase::class, 'purchasable');
     }
 
+    public function corrections()
+    {
+        return $this->hasMany(Correction::class);
+    }
+
 
     public function latestPurchase()
     {

@@ -10,6 +10,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\AItemController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CorrectionController;
 use App\Http\Controllers\DutyController;
 use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\PlanController;
@@ -180,6 +181,13 @@ Route::middleware('tenant')->group(function () {
     Route::controller(PlanController::class)->prefix('/plans')->group(function () {
         // Route::get('status', 'status')->name('orders.status');
         Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+            Route::get('', 'index');
+        });
+    });
+
+    Route::controller(CorrectionController::class)->prefix('/corrections')->group(function () {
+        Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+            Route::post('', 'store');
             Route::get('', 'index');
         });
     });

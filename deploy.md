@@ -19,6 +19,7 @@ php artisan down
 git pull
 composer install --optimize-autoloader --no-dev
 php artisan migrate --path=database/migrations/landlord
+php artisan tenants:artisan 'migrate --path=database/migrations/tenant --database=tenant'
 php artisan migrate:fresh --path=database/migrations/landlord
 npm i
 npm run build

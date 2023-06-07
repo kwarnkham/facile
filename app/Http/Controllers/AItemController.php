@@ -82,7 +82,7 @@ class AItemController extends Controller
 
     public function show(AItem $aItem)
     {
-        $aItem->load(['purchases', 'latestPurchase']);
+        $aItem->load(['purchases', 'latestPurchase', 'corrections']);
         $aItem->ordered_quantity = DB::connection('tenant')->table('a_item_order')
             ->where([
                 ['a_item_id', '=', $aItem->id,]
