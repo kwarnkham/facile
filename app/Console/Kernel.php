@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
             ->timezone('Asia/Yangon')
             ->dailyAt('02:30');
 
-        $schedule->command('tenants:artisan "backup:run --only-db"')
+        $schedule->command('tenants:artisan "reset:plan"')
             ->timezone('Asia/Yangon')
             ->dailyAt('00:00');
     }
