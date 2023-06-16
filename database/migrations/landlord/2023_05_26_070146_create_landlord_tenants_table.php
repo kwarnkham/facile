@@ -17,6 +17,7 @@ class CreateLandlordTenantsTable extends Migration
             $table->integer('type')->default(1);
             $table->foreignId('plan_id')->constrained();
             $table->jsonb('plan_usage');
+            $table->string('phone')->nullable();
             $table->timestamps();
         });
     }
