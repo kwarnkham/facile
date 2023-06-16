@@ -34,12 +34,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('tenant')->group(function () {
     Route::controller(UserController::class)->prefix('/users')->group(function () {
-        Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('user', 'user');
-            Route::post('', 'store');
-            Route::post('{user}/reset-password', 'resetPassword');
-            Route::get('', 'index');
-            Route::post('{user}/roles/{role}/toggle', 'toggleRole');
+            Route::middleware(['role:admin'])->group(function () {
+                Route::post('', 'store');
+                Route::post('{user}/reset-password', 'resetPassword');
+                Route::get('', 'index');
+                Route::post('{user}/roles/{role}/toggle', 'toggleRole');
+            });
         });
     });
 
