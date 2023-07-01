@@ -49,7 +49,7 @@ class AItem extends Model
         return collect($data)->map(function ($item) use ($aItems) {
             $aItems->each(function ($val) use (&$item) {
                 if ($val->id == $item['id']) {
-                    $item['price'] = $val->price;
+                    $item['price'] = $val->type == ProductType::STOCKED->value ?  $val->price : $item['price'];
                     $item['name'] = $val->name;
                     $item['purchase_price'] = $val->type == ProductType::STOCKED->value ? $val->latestPurchase->price ?? $val->purchases()->latest()->first()->price : $val->price;
                 }

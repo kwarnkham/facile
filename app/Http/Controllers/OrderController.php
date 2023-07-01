@@ -96,6 +96,7 @@ class OrderController extends Controller
             'a_items.*.id' => ['required', 'exists:tenant.a_items,id'],
             'a_items.*.quantity' => ['required', 'numeric', 'gt:0'],
             'a_items.*.discount' => ['sometimes', 'required', 'numeric'],
+            'a_items.*.price' => ['sometimes', 'required', 'numeric'],
             'status' => [Rule::in([
                 OrderStatus::PACKED->value,
                 OrderStatus::CANCELED->value,
