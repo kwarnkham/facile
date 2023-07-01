@@ -17,7 +17,8 @@ class AItemController extends Controller
         $filters = request()->validate([
             'search' => [''],
             'minStock' => ['numeric'],
-            'limit' => ['numeric']
+            'limit' => ['numeric'],
+            'type' => ['in:' . implode(',', ProductType::all())]
         ]);
 
         $query = AItem::query()

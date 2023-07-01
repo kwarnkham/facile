@@ -103,6 +103,14 @@ class AItem extends Model
         );
 
         $query->when(
+            $filters['type'] ?? null,
+            fn (Builder $query, $type) => $query->where(function (Builder $query) use ($type) {
+                $query->where('type', $type);
+            })
+        );
+
+
+        $query->when(
             $filters['minStock'] ?? null,
             fn (Builder $query, $minStock) => $query->where('stock', '>=', $minStock)
         );
