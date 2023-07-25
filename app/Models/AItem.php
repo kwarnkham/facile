@@ -119,5 +119,10 @@ class AItem extends Model
             $filters['limit'] ?? null,
             fn (Builder $query, $limit) => $query->take($limit)
         );
+
+        $query->when(
+            $filters['status'] ?? null,
+            fn (Builder $query, $status) => $query->where('status', '=', $status)
+        );
     }
 }

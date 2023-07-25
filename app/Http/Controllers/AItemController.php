@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OrderStatus;
+use App\Enums\ProductStatus;
 use App\Enums\ProductType;
 use App\Enums\ResponseStatus;
 use App\Models\AItem;
@@ -18,7 +19,8 @@ class AItemController extends Controller
             'search' => [''],
             'minStock' => ['numeric'],
             'limit' => ['numeric'],
-            'type' => ['in:' . implode(',', ProductType::all())]
+            'type' => ['in:' . implode(',', ProductType::all())],
+            'status' => ['']
         ]);
 
         $query = AItem::query()
@@ -32,6 +34,13 @@ class AItemController extends Controller
         return response()->json([
             'data' => $aItems
         ]);
+    }
+
+    function toggleStatus(AItem $aItem)
+    {
+        $aItem->update(['status' => $aItem->status == ProductStatus::NORMAL->value ? ProductStatus::DISABLED->value : ProductStatus::NORMAL->value]);
+
+        return response()->json(['a_item' => $aItem]);
     }
 
     public function store()

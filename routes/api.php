@@ -123,6 +123,7 @@ Route::middleware('tenant')->group(function () {
             Route::post('', 'store');
             Route::put('{aItem}', 'update');
             Route::post('{aItem}/restock', 'restock');
+            Route::post('{aItem}/toggle-status', 'toggleStatus');
         });
     });
 
